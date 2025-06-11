@@ -1,3 +1,5 @@
+import publicRoutes from './modules/publicRoutes'
+
 const errorRoutes = [
   {
     path: '/:pathMatch(.*)*',
@@ -9,4 +11,4 @@ const errorRoutes = [
   },
 ]
 
-export default [...errorRoutes]
+export default [...errorRoutes, ...publicRoutes]
