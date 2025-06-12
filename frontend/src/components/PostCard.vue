@@ -1,5 +1,5 @@
 <template>
-  <div class="post-item" @click="handlePostClick">
+  <div class="post-item">
     <!-- 用戶資訊區 -->
     <div class="post-header">
       <div class="user-info">
@@ -10,8 +10,8 @@
     </div>
 
     <!-- 貼文圖片 -->
-    <div class="post-image">
-      <img src="https://picsum.photos/500/300?blur=2" alt="貼文圖片" />
+    <div class="post-image" @click="handlePostClick">
+      <img src="https://picsum.photos/500/300?blur=2" vb alt="貼文圖片" />
     </div>
 
     <!-- 互動按鈕區 -->
@@ -90,7 +90,6 @@ const toggleSave = () => {
   overflow: hidden;
   border: 1px solid $border-color;
   transition: box-shadow $transition-speed ease;
-  cursor: pointer;
 
   &:hover {
     box-shadow: 0 4px 20px $shadow-light;
@@ -106,6 +105,7 @@ const toggleSave = () => {
 }
 
 .user-info {
+  cursor: pointer;
   display: flex;
   align-items: center;
   gap: 12px;
