@@ -1,5 +1,5 @@
 <template>
-  <div class="post-item">
+  <div class="post-item" @click="handlePostClick">
     <!-- 用戶資訊區 -->
     <div class="post-header">
       <div class="user-info">
@@ -17,15 +17,15 @@
     <!-- 互動按鈕區 -->
     <div class="post-actions">
       <div class="action-icons">
-        <div class="icon-item heart-action" :class="{ active: isLiked }" @click="toggleLike">
+        <div class="icon-item heart-action" :class="{ active: isLiked }" @click.stop="toggleLike">
           <i :class="isLiked ? 'bxs-heart' : 'bx-heart'" class="bx"></i>
           <span class="action-count">{{ likeCount }}</span>
         </div>
-        <div class="icon-item comment-action">
+        <div class="icon-item comment-action" @click.stop>
           <i class="bx bx-message-square"></i>
           <span class="action-count">{{ commentCount }}</span>
         </div>
-        <div class="icon-item star-action" :class="{ active: isSaved }" @click="toggleSave">
+        <div class="icon-item star-action" :class="{ active: isSaved }" @click.stop="toggleSave">
           <i :class="isSaved ? 'bxs-star' : 'bx-star'" class="bx"></i>
           <span class="action-count">{{ saveCount }}</span>
         </div>
@@ -50,8 +50,10 @@
 
 <script setup>
 import TheAvatar from '@/components/TheAvatar.vue'
-
 import { ref } from 'vue'
+
+// 定義 emit
+const emit = defineEmits(['click'])
 
 // 定義響應式狀態
 const isLiked = ref(false)
@@ -59,6 +61,11 @@ const isSaved = ref(false)
 const likeCount = ref(0)
 const commentCount = ref(0)
 const saveCount = ref(0)
+
+// 處理貼文點擊
+const handlePostClick = () => {
+  emit('click')
+}
 
 // 按讚功能
 const toggleLike = () => {
@@ -83,6 +90,7 @@ const toggleSave = () => {
   overflow: hidden;
   border: 1px solid $border-color;
   transition: box-shadow $transition-speed ease;
+  cursor: pointer;
 
   &:hover {
     box-shadow: 0 4px 20px $shadow-light;

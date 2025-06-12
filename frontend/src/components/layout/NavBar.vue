@@ -74,7 +74,8 @@ const toggleMobileSearch = async () => {
 .navbar {
   background: $surface;
   border-bottom: 1px solid $border-color;
-  position: sticky;
+  position: fixed;
+  width: 100%;
   top: 0;
   z-index: 100;
 
@@ -246,6 +247,7 @@ const toggleMobileSearch = async () => {
 
     .profile-dropdown {
       position: relative;
+      z-index: 1000;
       cursor: pointer;
 
       > i {
