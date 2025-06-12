@@ -17,6 +17,6 @@ export default [
   {
     path: '/profile/edit',
     name: 'profileEdit',
-    component: () => import('@/views/ProfileEditPage.vue'),
+    component: () => import('@/views/ProfileEdittingPage.vue'),
   },
 ]

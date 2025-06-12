@@ -1,4 +1,5 @@
 import publicRoutes from './modules/publicRoutes'
+import authRoutes from './modules/authRoutes'
 
 const errorRoutes = [
   {
@@ -11,4 +12,4 @@ const errorRoutes = [
   },
 ]
 
-export default [...errorRoutes, ...publicRoutes]
+export default [...errorRoutes, ...publicRoutes, ...authRoutes]
