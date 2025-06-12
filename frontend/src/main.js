@@ -3,7 +3,7 @@ import App from './App.vue'
 import router from './router/index.js'
 import pinia from './stores/index.js'
 
-import './assets/style/main.scss'
+import './assets/styles/main.scss'
 import 'boxicons/css/boxicons.min.css'
 
 const app = createApp(App)
