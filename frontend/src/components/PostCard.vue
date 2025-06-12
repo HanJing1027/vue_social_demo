@@ -54,9 +54,9 @@ import { ref } from 'vue'
 // 定義響應式狀態
 const isLiked = ref(false)
 const isSaved = ref(false)
-const likeCount = ref(128)
-const commentCount = ref(24)
-const saveCount = ref(56)
+const likeCount = ref(0)
+const commentCount = ref(0)
+const saveCount = ref(0)
 
 // 按讚功能
 const toggleLike = () => {
@@ -174,7 +174,6 @@ const toggleSave = () => {
   }
 }
 
-/* 愛心按鈕 */
 .heart-action {
   i {
     color: $text-secondary;
@@ -206,7 +205,6 @@ const toggleSave = () => {
   }
 }
 
-/* 留言按鈕 */
 .comment-action {
   i {
     color: $text-secondary;
@@ -226,7 +224,6 @@ const toggleSave = () => {
   }
 }
 
-/* 星星按鈕 */
 .star-action {
   i {
     color: $text-secondary;
@@ -248,7 +245,7 @@ const toggleSave = () => {
   &.active {
     i {
       color: #f39c12;
-      animation: starGlow 0.6s ease-in-out;
+      animation: heartBeat 0.6s ease-in-out;
     }
 
     .action-count {
@@ -258,7 +255,6 @@ const toggleSave = () => {
   }
 }
 
-/* 動畫效果 */
 @keyframes heartBeat {
   0% {
     transform: scale(1);
@@ -274,18 +270,6 @@ const toggleSave = () => {
   }
   70% {
     transform: scale(1);
-  }
-}
-
-@keyframes starGlow {
-  0% {
-    transform: scale(1) rotate(0deg);
-  }
-  50% {
-    transform: scale(1.2) rotate(180deg);
-  }
-  100% {
-    transform: scale(1) rotate(360deg);
   }
 }
 
