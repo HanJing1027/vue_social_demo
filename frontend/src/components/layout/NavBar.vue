@@ -26,7 +26,7 @@
         </button>
 
         <div class="profile-dropdown">
-          <i class="bx bxs-user"></i>
+          <TheAvatar :width="40" :height="40" :fontSize="20" />
           <ul class="profile-menu">
             <li><router-link to="/profile">個人主頁</router-link></li>
             <li><button class="logout-btn">退出登出</button></li>
@@ -48,6 +48,8 @@
 </template>
 
 <script setup>
+import TheAvatar from '@/components/TheAvatar.vue'
+
 import { ref, nextTick } from 'vue'
 
 const showMobileSearch = ref(false)
@@ -247,15 +249,6 @@ const toggleMobileSearch = async () => {
       cursor: pointer;
 
       > i {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background: $surface-alt;
-        font-size: 20px;
-        color: $text-color;
         transition: background-color 0.2s ease;
 
         &:hover {

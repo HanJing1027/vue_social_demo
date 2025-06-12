@@ -3,7 +3,7 @@
     <!-- 用戶資訊區 -->
     <div class="post-header">
       <div class="user-info">
-        <img src="https://picsum.photos/40?blur=2" alt="用戶頭貼" class="avatar" />
+        <TheAvatar :width="40" :height="40" :fontSize="20" />
         <span class="username">用戶名稱</span>
       </div>
       <span class="post-time">2小時前</span>
@@ -49,6 +49,8 @@
 </template>
 
 <script setup>
+import TheAvatar from '@/components/TheAvatar.vue'
+
 import { ref } from 'vue'
 
 // 定義響應式狀態
@@ -101,13 +103,6 @@ const toggleSave = () => {
   gap: 12px;
 }
 
-.avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
 .username {
   font-weight: 600;
   color: $text-color;
@@ -119,7 +114,6 @@ const toggleSave = () => {
   font-size: 12px;
 }
 
-/* 貼文圖片 */
 .post-image {
   width: 100%;
 }

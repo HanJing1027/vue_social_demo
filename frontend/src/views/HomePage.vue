@@ -15,7 +15,7 @@ import PostCard from '@/components/PostCard.vue'
 
 .content {
   max-width: 1200px;
-  margin: 0 auto;
+  margin: 30px auto;
   padding: 20px;
 }
 
