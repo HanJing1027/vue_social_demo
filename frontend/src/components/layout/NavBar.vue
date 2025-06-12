@@ -100,7 +100,7 @@ const toggleMobileSearch = async () => {
   .search-input {
     position: relative;
     flex: 1;
-    max-width: 400px;
+    max-width: 500px;
     margin: 0 40px;
 
     input {
@@ -317,10 +317,10 @@ const toggleMobileSearch = async () => {
   }
 }
 
-@media (min-width: $tablet-breakpoint) {
+@media (max-width: $tablet-breakpoint) {
   .navbar {
     .search-input {
-      max-width: 300px;
+      max-width: 350px;
       margin: 0 20px;
     }
   }
