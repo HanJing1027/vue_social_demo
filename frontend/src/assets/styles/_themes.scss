@@ -1,0 +1,40 @@
+:root {
+  // 白天主題 (預設)
+  --primary-color    : #007bff;
+  --primary-color-rgb: 0, 123, 255;
+  --danger-color     : #dc3545;
+  --text-color       : #000000;
+  --text-secondary   : #6c757d;
+  --text-muted       : #333333;
+  --background       : #ffffff;
+  --surface          : #ffffff;
+  --surface-hover    : #ecf7ff;
+  --surface-alt      : #f8f9fa;
+  --surface-danger   : #fff5f5;
+  --border-color     : #e1e5e9;
+  --border-light     : #e9ecef;
+  --shadow-light     : rgba(0, 0, 0, 0.1);
+  --shadow-focus     : rgba(0, 123, 255, 0.1);
+
+  // 主題切換時的過渡效果
+  transition: all 0.3s ease-in-out;
+}
+
+// 夜晚主題
+[data-theme="dark"] {
+  --primary-color    : #4dabf7;
+  --primary-color-rgb: 77, 171, 247;
+  --danger-color     : #ff6b6b;
+  --text-color       : #ffffff;
+  --text-secondary   : #adb5bd;
+  --text-muted       : #e9ecef;
+  --background       : #1a1a1a;
+  --surface          : #2d2d2d;
+  --surface-hover    : #3a3a3a;
+  --surface-alt      : #3e3e3e;
+  --surface-danger   : #4a2626;
+  --border-color     : #404040;
+  --border-light     : #4a4a4a;
+  --shadow-light     : rgba(0, 0, 0, 0.3);
+  --shadow-focus     : rgba(77, 171, 247, 0.2);
+}

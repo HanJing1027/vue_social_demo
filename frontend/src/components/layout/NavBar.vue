@@ -70,8 +70,8 @@ const toggleMobileSearch = async () => {
 @use '@/assets/styles/_variables.scss' as *;
 
 .navbar {
-  background: #ffffff;
-  border-bottom: 1px solid #e1e5e9;
+  background: $surface;
+  border-bottom: 1px solid $border-color;
   position: sticky;
   top: 0;
   z-index: 100;
@@ -106,21 +106,22 @@ const toggleMobileSearch = async () => {
     input {
       width: 100%;
       padding: 10px 40px 10px 16px;
-      border: 1px solid #e1e5e9;
+      border: 1px solid $border-color;
       border-radius: 20px;
-      background: #f8f9fa;
+      background: $surface-alt;
       font-size: 14px;
       outline: none;
       transition: all 0.2s ease;
+      color: $text-color;
 
       &:focus {
-        border-color: #007bff;
-        background: #ffffff;
-        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+        border-color: $primary-color;
+        background: $surface;
+        box-shadow: 0 0 0 3px $shadow-focus;
       }
 
       &::placeholder {
-        color: #6c757d;
+        color: $text-secondary;
       }
     }
 
@@ -129,7 +130,7 @@ const toggleMobileSearch = async () => {
       right: 12px;
       top: 50%;
       transform: translateY(-50%);
-      color: #6c757d;
+      color: $text-secondary;
       font-size: 18px;
     }
   }
@@ -139,8 +140,8 @@ const toggleMobileSearch = async () => {
     top: 100%;
     left: 0;
     width: 100%;
-    background: #ffffff;
-    border-bottom: 1px solid #e1e5e9;
+    background: $surface;
+    border-bottom: 1px solid $border-color;
     padding: 12px 16px;
     opacity: 0;
     visibility: hidden;
@@ -161,21 +162,22 @@ const toggleMobileSearch = async () => {
       input {
         flex: 1;
         padding: 12px 50px 12px 16px;
-        border: 1px solid #e1e5e9;
+        border: 1px solid $border-color;
         border-radius: 20px;
-        background: #f8f9fa;
+        background: $surface-alt;
         font-size: 16px;
         outline: none;
         transition: all 0.2s ease;
+        color: $text-color;
 
         &:focus {
-          border-color: #007bff;
-          background: #ffffff;
-          box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+          border-color: $primary-color;
+          background: $surface;
+          box-shadow: 0 0 0 3px $shadow-focus;
         }
 
         &::placeholder {
-          color: #6c757d;
+          color: $text-secondary;
         }
       }
 
@@ -196,12 +198,12 @@ const toggleMobileSearch = async () => {
         transition: background-color 0.2s ease;
 
         &:hover {
-          background: #f8f9fa;
+          background: $surface-alt;
         }
 
         i {
           font-size: 20px;
-          color: #6c757d;
+          color: $text-secondary;
         }
       }
     }
@@ -224,15 +226,15 @@ const toggleMobileSearch = async () => {
       cursor: pointer;
       transition: background-color 0.2s ease;
       text-decoration: none;
-      color: #000000;
+      color: $text-color;
 
       &:hover {
-        background: #ecf7ff;
+        background: $surface-hover;
       }
 
       i {
         font-size: 20px;
-        color: #000000;
+        color: $text-color;
       }
 
       &.mobile-search-btn {
@@ -251,13 +253,13 @@ const toggleMobileSearch = async () => {
         width: 40px;
         height: 40px;
         border-radius: 50%;
-        background: #f8f9fa;
+        background: $surface-alt;
         font-size: 20px;
-        color: #000000;
+        color: $text-color;
         transition: background-color 0.2s ease;
 
         &:hover {
-          background: #ecf7ff;
+          background: $surface-hover;
         }
       }
 
@@ -265,10 +267,10 @@ const toggleMobileSearch = async () => {
         position: absolute;
         top: 100%;
         right: 0;
-        background: #ffffff;
-        border: 1px solid #e1e5e9;
+        background: $surface;
+        border: 1px solid $border-color;
         border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 12px $shadow-light;
         min-width: 140px;
         opacity: 0;
         visibility: hidden;
@@ -285,7 +287,7 @@ const toggleMobileSearch = async () => {
             width: 100%;
             padding: 10px 16px;
             text-decoration: none;
-            color: #333333;
+            color: $text-muted;
             background: none;
             border: none;
             text-align: left;
@@ -294,15 +296,15 @@ const toggleMobileSearch = async () => {
             transition: background-color 0.2s ease;
 
             &:hover {
-              background: #f8f9fa;
+              background: $surface-hover;
             }
           }
 
           .logout-btn {
-            color: #dc3545;
+            color: $danger-color;
 
             &:hover {
-              background: #fff5f5;
+              background: $surface-danger;
             }
           }
         }
