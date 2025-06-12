@@ -1,5 +1,5 @@
 <template>
-  <div class="post-item" v-for="i in 5" :key="i">
+  <div class="post-item">
     <!-- 用戶資訊區 -->
     <div class="post-header">
       <div class="user-info">
@@ -17,14 +17,17 @@
     <!-- 互動按鈕區 -->
     <div class="post-actions">
       <div class="action-icons">
-        <div class="icon-item heart-action">
-          <i class="bx bx-heart"></i>
+        <div class="icon-item heart-action" :class="{ active: isLiked }" @click="toggleLike">
+          <i :class="isLiked ? 'bxs-heart' : 'bx-heart'" class="bx"></i>
+          <span class="action-count">{{ likeCount }}</span>
         </div>
         <div class="icon-item comment-action">
           <i class="bx bx-message-square"></i>
+          <span class="action-count">{{ commentCount }}</span>
         </div>
-        <div class="icon-item star-action">
-          <i class="bx bx-star"></i>
+        <div class="icon-item star-action" :class="{ active: isSaved }" @click="toggleSave">
+          <i :class="isSaved ? 'bxs-star' : 'bx-star'" class="bx"></i>
+          <span class="action-count">{{ saveCount }}</span>
         </div>
       </div>
     </div>
@@ -44,6 +47,29 @@
     </div>
   </div>
 </template>
+
+<script setup>
+import { ref } from 'vue'
+
+// 定義響應式狀態
+const isLiked = ref(false)
+const isSaved = ref(false)
+const likeCount = ref(128)
+const commentCount = ref(24)
+const saveCount = ref(56)
+
+// 按讚功能
+const toggleLike = () => {
+  isLiked.value = !isLiked.value
+  likeCount.value += isLiked.value ? 1 : -1
+}
+
+// 收藏功能
+const toggleSave = () => {
+  isSaved.value = !isSaved.value
+  saveCount.value += isSaved.value ? 1 : -1
+}
+</script>
 
 <style lang="scss" scoped>
 @use '@/assets/styles/variables' as *;
@@ -123,10 +149,15 @@
   align-items: center;
   gap: 6px;
   position: relative;
+  user-select: none;
 
   &:hover {
     background-color: $surface-hover;
     transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0px) scale(0.95);
   }
 
   i {
@@ -139,9 +170,11 @@
     font-weight: 500;
     color: $text-secondary;
     transition: color $transition-speed ease;
+    min-width: 20px;
   }
 }
 
+/* 愛心按鈕 */
 .heart-action {
   i {
     color: $text-secondary;
@@ -163,15 +196,17 @@
   &.active {
     i {
       color: $danger-color;
-      font-weight: 900;
+      animation: heartBeat 0.6s ease-in-out;
     }
 
     .action-count {
       color: $danger-color;
+      font-weight: 600;
     }
   }
 }
 
+/* 留言按鈕 */
 .comment-action {
   i {
     color: $text-secondary;
@@ -191,6 +226,7 @@
   }
 }
 
+/* 星星按鈕 */
 .star-action {
   i {
     color: $text-secondary;
@@ -212,12 +248,44 @@
   &.active {
     i {
       color: #f39c12;
-      font-weight: 900;
+      animation: starGlow 0.6s ease-in-out;
     }
 
     .action-count {
       color: #f39c12;
+      font-weight: 600;
     }
+  }
+}
+
+/* 動畫效果 */
+@keyframes heartBeat {
+  0% {
+    transform: scale(1);
+  }
+  14% {
+    transform: scale(1.3);
+  }
+  28% {
+    transform: scale(1);
+  }
+  42% {
+    transform: scale(1.3);
+  }
+  70% {
+    transform: scale(1);
+  }
+}
+
+@keyframes starGlow {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.2) rotate(180deg);
+  }
+  100% {
+    transform: scale(1) rotate(360deg);
   }
 }
 
