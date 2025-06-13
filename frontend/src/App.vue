@@ -3,9 +3,9 @@
     <NavBar @open-post-upload="openPostUpload" />
   </header>
 
-  <main>
+  <TheLayout>
     <router-view></router-view>
-  </main>
+  </TheLayout>
 
   <!-- 貼文上傳彈跳視窗 -->
   <PostUpload v-if="showPostUpload" @close="closePostUpload" />
@@ -13,6 +13,7 @@
 
 <script setup>
 import { ref, watch } from 'vue'
+import TheLayout from './components/layout/TheLayout.vue'
 import NavBar from '@/components/layout/NavBar.vue'
 import PostUpload from '@/components/post/PostUpload.vue'
 

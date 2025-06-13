@@ -1,9 +1,9 @@
 <template>
-  <div class="content">
+  <section>
     <div class="post-list">
       <PostCard v-for="i in 5" :key="i" @openDetails="openPostDetails" />
     </div>
-  </div>
+  </section>
 
   <PostDetails v-if="showPostDetails" @close="closePostDetails" />
 </template>
@@ -46,13 +46,6 @@ onUnmounted(() => {
 
 <style lang="scss" scoped>
 @use '@/assets/styles/variables' as *;
-
-.content {
-  max-width: 1200px;
-  margin: 80px auto 30px;
-  padding: 20px;
-}
-
 .post-list {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
