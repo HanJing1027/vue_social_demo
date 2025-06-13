@@ -453,7 +453,7 @@ const handleClose = () => {
   }
 }
 
-@media (max-width: 768px) and (min-width: $mobile-breakpoint + 1) {
+@media (max-width: 768px) and (min-width: $mobile-breakpoint) {
   .post-detail {
     .post-layout {
       flex-direction: column;

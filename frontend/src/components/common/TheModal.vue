@@ -108,7 +108,6 @@ onMounted(() => {
   }
 }
 
-// 手機版樣式
 @media (max-width: $mobile-breakpoint) {
   .modal-overlay {
     padding: 0;
@@ -142,7 +141,7 @@ onMounted(() => {
 }
 
 // 平板尺寸調整
-@media (max-width: 768px) and (min-width: $mobile-breakpoint + 1) {
+@media (max-width: 768px) and (min-width: $mobile-breakpoint) {
   .modal-content {
     max-width: 90%;
     height: 85vh;

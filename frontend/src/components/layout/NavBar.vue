@@ -21,7 +21,7 @@
           <i class="bx bxs-home"></i>
         </router-link>
 
-        <button class="nav-item" title="發布內容">
+        <button class="nav-item" title="發布內容" @click="handleCreatePost">
           <i class="bx bx-message-alt-add"></i>
         </button>
 
@@ -52,6 +52,8 @@ import TheAvatar from '@/components/common/TheAvatar.vue'
 
 import { ref, nextTick } from 'vue'
 
+const emit = defineEmits(['open-post-upload'])
+
 const showMobileSearch = ref(false)
 const mobileSearchInput = ref(null)
 
@@ -65,6 +67,10 @@ const toggleMobileSearch = async () => {
       mobileSearchInput.value?.focus()
     }, 50)
   }
+}
+
+const handleCreatePost = () => {
+  emit('open-post-upload')
 }
 </script>
 
