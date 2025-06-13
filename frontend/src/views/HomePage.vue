@@ -1,7 +1,7 @@
 <template>
   <div class="content">
     <div class="post-list">
-      <PostCard v-for="i in 5" :key="i" @click="openPostDetails" />
+      <PostCard v-for="i in 5" :key="i" @openDetails="openPostDetails" />
     </div>
   </div>
 

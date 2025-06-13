@@ -45,30 +45,7 @@
               </div>
 
               <!-- 互動按鈕 -->
-              <div class="post-actions">
-                <div class="action-icons">
-                  <div
-                    class="icon-item heart-action"
-                    :class="{ active: isLiked }"
-                    @click="toggleLike"
-                  >
-                    <i :class="isLiked ? 'bxs-heart' : 'bx-heart'" class="bx"></i>
-                    <span class="action-count">{{ likeCount }}</span>
-                  </div>
-                  <div class="icon-item comment-action">
-                    <i class="bx bx-message-square"></i>
-                    <span class="action-count">{{ commentCount }}</span>
-                  </div>
-                  <div
-                    class="icon-item star-action"
-                    :class="{ active: isSaved }"
-                    @click="toggleSave"
-                  >
-                    <i :class="isSaved ? 'bxs-star' : 'bx-star'" class="bx"></i>
-                    <span class="action-count">{{ saveCount }}</span>
-                  </div>
-                </div>
-              </div>
+              <PostActions />
 
               <!-- 留言區域 -->
               <div class="comments-section">
@@ -108,29 +85,10 @@
 
 <script setup>
 import TheAvatar from '@/components/TheAvatar.vue'
-import { ref, onMounted, onUnmounted } from 'vue'
+import PostActions from '@/components/PostActions.vue'
+import { onMounted, onUnmounted } from 'vue'
 
-// 定義 emit
 const emit = defineEmits(['close'])
-
-// 定義響應式狀態 - 完全比照 PostCard
-const isLiked = ref(false)
-const isSaved = ref(false)
-const likeCount = ref(0) // 初始值設定為顯示的數字
-const commentCount = ref(0)
-const saveCount = ref(0)
-
-// 按讚功能 - 完全比照 PostCard
-const toggleLike = () => {
-  isLiked.value = !isLiked.value
-  likeCount.value += isLiked.value ? 1 : -1
-}
-
-// 收藏功能 - 完全比照 PostCard
-const toggleSave = () => {
-  isSaved.value = !isSaved.value
-  saveCount.value += isSaved.value ? 1 : -1
-}
 
 // 關閉模態框
 const handleClose = () => {
