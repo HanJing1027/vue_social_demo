@@ -154,7 +154,7 @@ const handleClose = () => {
     font-size: 16px;
     line-height: 1.5;
     color: $text-color;
-    resize: none;
+    resize: vertical;
     outline: none;
     transition: all 0.2s ease;
     font-family: inherit;
