@@ -1,8 +1,8 @@
 <template>
   <section>
-    <div class="post-list">
+    <PostList>
       <PostCard v-for="i in 5" :key="i" @openDetails="openPostDetails" />
-    </div>
+    </PostList>
   </section>
 
   <PostDetails v-if="showPostDetails" @close="closePostDetails" />
@@ -11,7 +11,8 @@
 <script setup>
 import PostCard from '@/components/post/PostCard.vue'
 import PostDetails from '@/components/post/PostDetails.vue'
-import { ref, watch } from 'vue'
+import PostList from '@/components/post/PostList.vue'
+import { ref, watch, onUnmounted } from 'vue'
 
 // 控制 PostDetails 顯示狀態
 const showPostDetails = ref(false)
@@ -38,27 +39,9 @@ watch(showPostDetails, (newValue) => {
 })
 
 // 組件卸載時確保恢復滾動
-import { onUnmounted } from 'vue'
 onUnmounted(() => {
   document.body.style.overflow = ''
 })
 </script>
 
-<style lang="scss" scoped>
-@use '@/assets/styles/variables' as *;
-.post-list {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
-}
-
-@media (max-width: $mobile-breakpoint) {
-  .content {
-    padding: 10px;
-  }
-
-  .post-list {
-    grid-template-columns: 1fr;
-  }
-}
-</style>
+<style lang="scss" scoped></style>
