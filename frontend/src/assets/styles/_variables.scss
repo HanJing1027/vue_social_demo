@@ -8,17 +8,17 @@ $mobile-breakpoint     : 768px; // 手機 (最大 768px)
 $tablet-breakpoint     : 1024px; // 平板 (768px - 1024px)
 
 // ======= SCSS 變數 =======
-$primary-color  : var(--primary-color);
-$danger-color   : var(--danger-color);
-$text-color     : var(--text-color);
-$text-secondary : var(--text-secondary);
-$text-muted     : var(--text-muted);
-$background     : var(--background);
-$surface        : var(--surface);
-$surface-hover  : var(--surface-hover);
-$surface-alt    : var(--surface-alt);
-$surface-danger : var(--surface-danger);
-$border-color   : var(--border-color);
-$border-light   : var(--border-light);
-$shadow-light   : var(--shadow-light);
-$shadow-focus   : var(--shadow-focus);
+$primary-color     : var(--primary-color);
+$danger-color      : var(--danger-color);
+$text-color        : var(--text-color);
+$text-secondary    : var(--text-secondary);
+// $text-muted     : var(--text-muted);
+$background        : var(--background);
+$surface           : var(--surface);
+$surface-hover     : var(--surface-hover);
+$surface-alt       : var(--surface-alt);
+$surface-danger    : var(--surface-danger);
+$border-color      : var(--border-color);
+$border-light      : var(--border-light);
+$shadow-light      : var(--shadow-light);
+$shadow-focus      : var(--shadow-focus);

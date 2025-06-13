@@ -288,7 +288,7 @@ const handleCreatePost = () => {
             width: 100%;
             padding: 10px 16px;
             text-decoration: none;
-            color: $text-muted;
+            color: $text-color;
             background: none;
             border: none;
             text-align: left;
