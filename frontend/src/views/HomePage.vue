@@ -9,8 +9,8 @@
 </template>
 
 <script setup>
-import PostCard from '@/components/PostCard.vue'
-import PostDetails from '@/components/PostDetails.vue'
+import PostCard from '@/components/post/PostCard.vue'
+import PostDetails from '@/components/post/PostDetails.vue'
 import { ref, watch } from 'vue'
 
 // 控制 PostDetails 顯示狀態

@@ -84,8 +84,8 @@
 </template>
 
 <script setup>
-import TheAvatar from '@/components/TheAvatar.vue'
-import PostActions from '@/components/PostActions.vue'
+import TheAvatar from '@/components/common/TheAvatar.vue'
+import PostActions from '@/components/post/PostActions.vue'
 import { onMounted, onUnmounted } from 'vue'
 
 const emit = defineEmits(['close'])

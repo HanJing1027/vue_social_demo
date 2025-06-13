@@ -48,7 +48,7 @@
 </template>
 
 <script setup>
-import TheAvatar from '@/components/TheAvatar.vue'
+import TheAvatar from '@/components/common/TheAvatar.vue'
 
 import { ref, nextTick } from 'vue'
 
