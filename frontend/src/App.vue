@@ -9,6 +9,7 @@
 
   <!-- 貼文上傳彈跳視窗 -->
   <PostUpload v-if="showPostUpload" @close="closePostUpload" />
+  <TheToast />
 </template>
 
 <script setup>
@@ -16,6 +17,7 @@ import { ref, watch } from 'vue'
 import TheLayout from './components/layout/TheLayout.vue'
 import NavBar from '@/components/layout/NavBar.vue'
 import PostUpload from '@/components/post/PostUpload.vue'
+import TheToast from '@/components/common/TheToast.vue'
 
 // 控制彈跳視窗顯示狀態
 const showPostUpload = ref(false)

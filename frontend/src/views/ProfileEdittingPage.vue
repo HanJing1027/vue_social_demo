@@ -111,7 +111,7 @@
         <!-- 操作按鈕 -->
         <div class="form-actions">
           <TheButton :bxIcon="`bx-reset`" :reverse="true">重置</TheButton>
-          <TheButton :bxIcon="`bxs-save`">儲存變更</TheButton>
+          <TheButton :bxIcon="`bxs-save`" @click="handleSaveData">儲存變更</TheButton>
         </div>
       </form>
     </div>
@@ -119,16 +119,23 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
 import TheAvatar from '@/components/common/TheAvatar.vue'
 import TheButton from '@/components/common/TheButton.vue'
 
+import { ref } from 'vue'
+import { useToastStore } from '@/stores/modules/toastStore'
+
+const toastStore = useToastStore()
 const selectedGender = ref('')
 const avatarInput = ref(null)
 
 // 選擇頭像
 const selectAvatar = () => {
   avatarInput.value?.click()
+}
+
+const handleSaveData = () => {
+  toastStore.showSuccess('個人資料已儲存！')
 }
 </script>
 
