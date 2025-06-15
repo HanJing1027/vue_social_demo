@@ -1,5 +1,5 @@
 <template>
-  <button class="base-button" :class="{ primary: color === 'primary', reverse }">
+  <button type="button" class="base-button" :class="{ primary: color === 'primary', reverse }">
     <i class="bx" :class="bxIcon"></i>
     <slot></slot>
   </button>
@@ -37,7 +37,7 @@ const props = defineProps({
   border: none;
 
   i {
-    font-size: 14px;
+    font-size: 15px;
   }
 
   &:hover {

@@ -13,7 +13,7 @@
               <h1 class="username">使用者名稱</h1>
               <h4 class="userid">@yufeng_zhang</h4>
             </div>
-            <a href="#" class="edit-profile-btn">編輯個人資料</a>
+            <router-link to="/profile/edit" class="edit-profile-btn"> 編輯個人資料 </router-link>
           </div>
         </div>
 
