@@ -55,14 +55,8 @@
 
       <!-- 底部按鈕 -->
       <div class="upload-footer">
-        <button class="cancel-btn" @click="handleClose">
-          <i class="bx bx-x"></i>
-          取消
-        </button>
-        <button class="submit-btn">
-          <i class="bx bx-send"></i>
-          發布貼文
-        </button>
+        <TheButton :bxIcon="`bx-x`" :reverse="true" @click="handleClose">取消</TheButton>
+        <TheButton :bxIcon="`bx-send`">發布貼文</TheButton>
       </div>
     </div>
   </TheModal>
@@ -71,6 +65,7 @@
 <script setup>
 import TheModal from '@/components/common/TheModal.vue'
 import TheAvatar from '@/components/common/TheAvatar.vue'
+import TheButton from '@/components/common/TheButton.vue'
 
 // 定義 emit
 const emit = defineEmits(['close'])
@@ -335,48 +330,6 @@ const handleClose = () => {
   padding: 20px 24px;
   border-top: 1px solid $border-light;
   flex-shrink: 0;
-
-  button {
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    border: none;
-
-    i {
-      font-size: 16px;
-    }
-  }
-
-  .cancel-btn {
-    background: $surface-alt;
-    color: $text-secondary;
-    border: 1px solid $border-color;
-
-    &:hover {
-      background: $surface-hover;
-      color: $text-color;
-    }
-  }
-
-  .submit-btn {
-    background: $primary-color;
-    color: white;
-
-    &:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(var(--primary-color-rgb), 0.3);
-    }
-
-    &:active {
-      transform: translateY(0);
-    }
-  }
 }
 
 @media (max-width: $mobile-breakpoint) {
