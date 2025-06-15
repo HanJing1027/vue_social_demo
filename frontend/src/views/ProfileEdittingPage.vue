@@ -2,7 +2,7 @@
   <div class="profile-editing-page">
     <!-- 頂部導航 -->
     <div class="page-header">
-      <button class="back-btn">
+      <button class="back-btn" @click="$router.back()">
         <i class="bx bx-arrow-back"></i>
       </button>
       <h1 class="page-title">編輯個人資料</h1>
