@@ -9,8 +9,8 @@
           @click="toastStore.removeToast(toast.id)"
         >
           <div class="toast-icon">
-            <span v-if="toast.type === 'success'">✓</span>
-            <span v-else>✕</span>
+            <i v-if="toast.type === 'success'" class="bx bx-check"></i>
+            <i v-else class="bx bx-x"></i>
           </div>
           <div class="toast-message">{{ toast.message }}</div>
         </div>
@@ -86,7 +86,7 @@ const toastStore = useToastStore()
 .toast-icon {
   margin-right: 8px;
   font-weight: bold;
-  font-size: 16px;
+  font-size: 18px;
 }
 
 .toast-message {
