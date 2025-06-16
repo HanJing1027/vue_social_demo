@@ -77,7 +77,8 @@ const handleClose = () => {
 </script>
 
 <style lang="scss" scoped>
-@use '@/assets/styles/variables' as *;
+@use '@/assets/styles/_variables.scss' as *;
+@use '@/assets/styles/_mixins.scss' as *;
 
 .post-upload {
   height: 100%;
@@ -140,29 +141,10 @@ const handleClose = () => {
 
 .post-input-section {
   .post-textarea {
-    width: 100%;
+    @include base-input($borderRadius: 12px);
     min-height: 200px;
-    padding: 16px;
-    border: 1px solid $border-color;
-    border-radius: 12px;
-    background: $surface-alt;
     font-size: 16px;
     line-height: 1.5;
-    color: $text-color;
-    resize: vertical;
-    outline: none;
-    transition: all 0.2s ease;
-    font-family: inherit;
-
-    &:focus {
-      border-color: $primary-color;
-      background: $surface;
-      box-shadow: 0 0 0 3px $shadow-focus;
-    }
-
-    &::placeholder {
-      color: $text-secondary;
-    }
   }
 }
 

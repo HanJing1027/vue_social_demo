@@ -88,7 +88,8 @@ const handleClose = () => {
 </script>
 
 <style lang="scss" scoped>
-@use '@/assets/styles/variables' as *;
+@use '@/assets/styles/_variables.scss' as *;
+@use '@/assets/styles/_mixins.scss' as *;
 
 .post-detail {
   height: 100%;
@@ -207,25 +208,7 @@ const handleClose = () => {
     flex-shrink: 0;
 
     input {
-      width: 100%;
-      padding: 10px 40px 10px 16px;
-      border: 1px solid $border-color;
-      border-radius: 20px;
-      background: $surface-alt;
-      font-size: 14px;
-      outline: none;
-      transition: all 0.2s ease;
-      color: $text-color;
-
-      &:focus {
-        border-color: $primary-color;
-        background: $surface;
-        box-shadow: 0 0 0 3px $shadow-focus;
-      }
-
-      &::placeholder {
-        color: $text-secondary;
-      }
+      @include base-input($borderRadius: 20px);
     }
 
     .send-btn {

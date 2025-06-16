@@ -1,0 +1,24 @@
+@use '@/assets/styles/_variables.scss'as *;
+
+@mixin base-input($borderRadius) {
+  width        : 100%;
+  padding      : 10px 40px 10px 16px;
+  border       : 1px solid $border-color;
+  border-radius: $borderRadius;
+  background   : $surface-alt;
+  font-size    : 14px;
+  outline      : none;
+  transition   : all 0.2s ease;
+  resize       : vertical;
+  color        : $text-color;
+
+  &:focus {
+    border-color: $primary-color;
+    background  : $surface;
+    box-shadow  : 0 0 0 3px $shadow-focus;
+  }
+
+  &::placeholder {
+    color: $text-secondary;
+  }
+}

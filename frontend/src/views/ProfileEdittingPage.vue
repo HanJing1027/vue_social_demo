@@ -100,7 +100,8 @@
 
           <div class="form-field">
             <label class="field-label">性別</label>
-            <select class="form-input" v-model="selectedGender">
+            <i class="bx bx-chevron-down"></i>
+            <select class="form-input">
               <option value="">請選擇性別</option>
               <option value="male">男性</option>
               <option value="female">女性</option>
@@ -111,7 +112,7 @@
         <!-- 操作按鈕 -->
         <div class="form-actions">
           <TheButton :bxIcon="`bx-reset`" :reverse="true">重置</TheButton>
-          <TheButton :bxIcon="`bxs-save`" @click="handleSaveData">儲存變更</TheButton>
+          <TheButton :bxIcon="`bxs-save`" @click="handleSave">儲存變更</TheButton>
         </div>
       </form>
     </div>
@@ -124,9 +125,10 @@ import TheButton from '@/components/common/TheButton.vue'
 
 import { ref } from 'vue'
 import { useToastStore } from '@/stores/modules/toastStore'
+import { useDebounce } from '@/composables/useDebounce'
 
 const toastStore = useToastStore()
-const selectedGender = ref('')
+const { debounce } = useDebounce()
 const avatarInput = ref(null)
 
 // 選擇頭像
@@ -134,13 +136,17 @@ const selectAvatar = () => {
   avatarInput.value?.click()
 }
 
-const handleSaveData = () => {
+// 保存個人資料變更
+const orignalHandleSave = () => {
   toastStore.showSuccess('個人資料已儲存！')
 }
+
+const handleSave = debounce(orignalHandleSave, 250)
 </script>
 
 <style lang="scss" scoped>
-@use '@/assets/styles/variables' as *;
+@use '@/assets/styles/_variables.scss' as *;
+@use '@/assets/styles/_mixins.scss' as *;
 
 .profile-editing-page {
   max-width: 600px;
@@ -313,6 +319,7 @@ const handleSaveData = () => {
   padding: 24px;
   box-shadow: $shadow-light;
   border: 1px solid $border-light;
+  margin-bottom: 32px;
 }
 
 .section-title {
@@ -336,7 +343,18 @@ const handleSaveData = () => {
 }
 
 .form-field {
+  position: relative;
   margin-bottom: 20px;
+
+  i {
+    position: absolute;
+    top: 50%;
+    right: 5px;
+    transform: translateX(-50%);
+    color: $text-secondary;
+    pointer-events: none;
+    font-size: 1.25rem;
+  }
 
   &:last-child {
     margin-bottom: 0;
@@ -356,27 +374,12 @@ const handleSaveData = () => {
   }
 }
 
-.form-input,
+.form-input {
+  @include base-input($borderRadius: 8px);
+}
+
 .form-textarea {
-  width: 100%;
-  padding: 12px 16px;
-  border: 1px solid $border-light;
-  border-radius: 8px;
-  font-size: 14px;
-  color: $text-color;
-  background: $surface;
-  transition: all $transition-speed ease;
-  box-sizing: border-box;
-
-  &:focus {
-    outline: none;
-    border-color: $primary-color;
-    box-shadow: 0 0 0 3px $shadow-focus;
-  }
-
-  &::placeholder {
-    color: $text-secondary;
-  }
+  @include base-input($borderRadius: 8px);
 }
 
 // 下拉選單特殊樣式

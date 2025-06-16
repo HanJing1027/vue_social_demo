@@ -76,6 +76,7 @@ const handleCreatePost = () => {
 
 <style lang="scss" scoped>
 @use '@/assets/styles/_variables.scss' as *;
+@use '@/assets/styles/_mixins.scss' as *;
 
 .navbar {
   background: $surface;
@@ -113,25 +114,7 @@ const handleCreatePost = () => {
     margin: 0 40px;
 
     input {
-      width: 100%;
-      padding: 10px 40px 10px 16px;
-      border: 1px solid $border-color;
-      border-radius: 20px;
-      background: $surface-alt;
-      font-size: 14px;
-      outline: none;
-      transition: all 0.2s ease;
-      color: $text-color;
-
-      &:focus {
-        border-color: $primary-color;
-        background: $surface;
-        box-shadow: 0 0 0 3px $shadow-focus;
-      }
-
-      &::placeholder {
-        color: $text-secondary;
-      }
+      @include base-input($borderRadius: 20px);
     }
 
     i {
@@ -169,25 +152,7 @@ const handleCreatePost = () => {
       align-items: center;
 
       input {
-        flex: 1;
-        padding: 12px 50px 12px 16px;
-        border: 1px solid $border-color;
-        border-radius: 20px;
-        background: $surface-alt;
-        font-size: 16px;
-        outline: none;
-        transition: all 0.2s ease;
-        color: $text-color;
-
-        &:focus {
-          border-color: $primary-color;
-          background: $surface;
-          box-shadow: 0 0 0 3px $shadow-focus;
-        }
-
-        &::placeholder {
-          color: $text-secondary;
-        }
+        @include base-input($borderRadius: 20px);
       }
 
       .close-search-btn {
