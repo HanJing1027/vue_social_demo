@@ -125,10 +125,9 @@ import TheButton from '@/components/common/TheButton.vue'
 
 import { ref } from 'vue'
 import { useToastStore } from '@/stores/modules/toastStore'
-import { useDebounce } from '@/composables/useDebounce'
+import { debounce } from '@/utils/debounce'
 
 const toastStore = useToastStore()
-const { debounce } = useDebounce()
 const avatarInput = ref(null)
 
 // 選擇頭像
@@ -137,11 +136,11 @@ const selectAvatar = () => {
 }
 
 // 保存個人資料變更
-const orignalHandleSave = () => {
+const originalHandleSave = () => {
   toastStore.showSuccess('個人資料已儲存！')
 }
 
-const handleSave = debounce(orignalHandleSave, 250)
+const handleSave = debounce(originalHandleSave, 300)
 </script>
 
 <style lang="scss" scoped>
