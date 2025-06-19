@@ -5,12 +5,10 @@ import { setJwtToken, removeJwtToken } from '@/utils/jwtUtils'
 
 export const useUserStore = defineStore('user', () => {
   const user = ref(null)
-  const loading = ref(false)
   const error = ref(null)
 
   // 註冊
   const registerUser = async (userData) => {
-    loading.value = true
     error.value = null
 
     try {
@@ -22,17 +20,19 @@ export const useUserStore = defineStore('user', () => {
         user.value = response.user
         localStorage.setItem('user', JSON.stringify(user.value))
       }
+
       return response.user
     } catch (error) {
       throw error
-    } finally {
-      loading.value = false
     }
+  }
+
+  const loginUser = async (userData) => {
+    //
   }
 
   return {
     user,
-    loading,
     error,
 
     registerUser,

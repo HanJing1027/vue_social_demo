@@ -87,6 +87,7 @@ const userStore = useUserStore()
 const toastStore = useToastStore()
 
 const isLogin = ref(true) // 初始狀態為登入模式
+const isLoading = ref(false) // 是否正在處理請求
 const agreement = ref(false)
 
 const formData = reactive({
@@ -128,10 +129,11 @@ const validateForm = () => {
     verificationResult = validateRegisterForm(formData, agreement.value)
   } else {
     // 登入模式驗證
+    verificationResult = validateLoginForm(formData)
   }
 
   if (!verificationResult.isValid) {
-    // 顯示錯誤提示
+    // 如果驗證失敗 顯示錯誤訊息
     toastStore.showError(verificationResult.errors[0])
     return false
   }
@@ -153,20 +155,24 @@ const originalHandleSubmit = async () => {
       setTimeout(() => {
         resetForm()
         isLogin.value = true // 切換到登入模式
-      }, 1000)
+      }, 800)
     } else {
       // 登入提交 邏輯
-
-      toastStore.showSuccess('登入成功！')
       console.log('登入成功:', formData)
+
+      setTimeout(() => {
+        resetForm()
+        router.push({ name: 'home' }) // 登入成功後跳轉到首頁
+      }, 300)
     }
   } catch (error) {
     if (!isLogin.value) {
       // 註冊失敗處理
+      if (!error.response) {
+        toastStore.showError('註冊失敗，請稍後再試。')
+      }
       if (error.response.status === 400) {
         toastStore.showError('信箱已被註冊，請使用其他信箱。')
-      } else {
-        toastStore.showError('註冊失敗，請稍後再試。')
       }
     } else {
       // 登入失敗處理
