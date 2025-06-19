@@ -158,7 +158,7 @@ const originalHandleSubmit = async () => {
       }, 800)
     } else {
       // 登入提交 邏輯
-      console.log('登入成功:', formData)
+      await userStore.loginUser(formData)
 
       setTimeout(() => {
         resetForm()
@@ -176,6 +176,13 @@ const originalHandleSubmit = async () => {
       }
     } else {
       // 登入失敗處理
+      if (!error.response) {
+        toastStore.showError('登入失敗，請稍後再試。')
+      }
+      if (error.response.status === 400) {
+        toastStore.showError('信箱或密碼錯誤，請重新輸入。')
+      }
+      console.error('登入失敗:', error)
     }
   } finally {
     agreement.value = false // 重置協議勾選狀態
