@@ -3,20 +3,52 @@
     <img src="../assets/phone.png" alt="手機上顯示的社群網站主頁展示圖" />
     <div class="login-from">
       <img src="../assets/logo.svg" alt="Logo" />
-      <form>
+      <form @submit.prevent="handleSubmit">
         <div class="form-group">
           <label for="email">電子郵件：</label>
-          <input id="email" type="email" name="email" placeholder="請輸入電子郵件" required />
+          <input
+            v-model="formData.email"
+            id="email"
+            type="email"
+            name="email"
+            placeholder="請輸入電子郵件"
+          />
         </div>
 
         <div class="form-group" v-if="!isLogin">
           <label for="username">用戶名稱：</label>
-          <input id="username" type="text" name="username" placeholder="請輸入用戶名稱" required />
+          <input
+            v-model="formData.username"
+            id="username"
+            type="text"
+            name="username"
+            placeholder="請輸入用戶名稱"
+          />
         </div>
 
         <div class="form-group">
-          <label for="email">密碼：</label>
-          <input id="password" type="password" name="password" placeholder="請輸入密碼" required />
+          <label for="password">密碼：</label>
+          <input
+            v-model="formData.password"
+            id="password"
+            type="password"
+            name="password"
+            placeholder="請輸入密碼"
+          />
+        </div>
+        <div class="form-group" v-if="!isLogin">
+          <label for="confirmPassword">確認密碼：</label>
+          <input
+            v-model="formData.confirmPassword"
+            id="confirmPassword"
+            type="password"
+            name="confirmPassword"
+            placeholder="請輸入確認密碼"
+            :class="{ error: showPasswordMismatch }"
+          />
+          <span class="password-hint" :class="{ show: showPasswordMismatch }">
+            密碼與確認密碼不一致
+          </span>
         </div>
 
         <button type="submit" class="login-btn">
@@ -25,11 +57,11 @@
 
         <p class="info">
           {{ isLogin ? '還沒有帳號？' : '已經有帳號了？' }}
-          <span @click="toggleAuthMode">{{ isLogin ? '點擊註冊' : '前往登入' }}</span>
+          <span @click.stop="toggleAuthMode">{{ isLogin ? '點擊註冊' : '前往登入' }}</span>
         </p>
 
         <div v-if="!isLogin" class="agreement">
-          <input id="agreement" type="checkbox" />
+          <input v-model="agreement" id="agreement" type="checkbox" />
           <label for="agreement">
             勾選表示同意
             <a href="#" target="_blank">隱私政策</a>
@@ -43,13 +75,108 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, reactive, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/modules/userStore'
+import { useToastStore } from '@/stores/modules/toastStore'
+import { debounce } from '@/utils/debounce'
+import { validateLoginForm, validateRegisterForm } from '@/utils/validation'
 
-const isLogin = ref(true)
+const router = useRouter()
+const userStore = useUserStore()
+const toastStore = useToastStore()
 
+const isLogin = ref(true) // 初始狀態為登入模式
+const agreement = ref(false)
+
+const formData = reactive({
+  email: '',
+  username: '',
+  password: '',
+  confirmPassword: '',
+})
+
+// 切換登入/註冊模式
 const toggleAuthMode = () => {
   isLogin.value = !isLogin.value
+  resetForm()
 }
+
+// 重置表單
+const resetForm = () => {
+  formData.email = ''
+  formData.username = ''
+  formData.password = ''
+  formData.confirmPassword = ''
+}
+
+// 密碼不一致提示
+const showPasswordMismatch = computed(() => {
+  return (
+    !isLogin.value &&
+    formData.confirmPassword.length > 0 &&
+    formData.password !== formData.confirmPassword
+  )
+})
+
+// 表單驗證
+const validateForm = () => {
+  let verificationResult
+
+  if (!isLogin.value) {
+    // 註冊模式驗證
+    verificationResult = validateRegisterForm(formData, agreement.value)
+  } else {
+    // 登入模式驗證
+  }
+
+  if (!verificationResult.isValid) {
+    // 顯示錯誤提示
+    toastStore.showError(verificationResult.errors[0])
+    return false
+  }
+
+  return true
+}
+
+// 登入/註冊 表單提交
+const originalHandleSubmit = async () => {
+  if (!validateForm()) return
+
+  try {
+    if (!isLogin.value) {
+      // 註冊提交 邏輯
+      await userStore.registerUser(formData)
+
+      toastStore.showSuccess('註冊成功！')
+
+      setTimeout(() => {
+        resetForm()
+        isLogin.value = true // 切換到登入模式
+      }, 1000)
+    } else {
+      // 登入提交 邏輯
+
+      toastStore.showSuccess('登入成功！')
+      console.log('登入成功:', formData)
+    }
+  } catch (error) {
+    if (!isLogin.value) {
+      // 註冊失敗處理
+      if (error.response.status === 400) {
+        toastStore.showError('信箱已被註冊，請使用其他信箱。')
+      } else {
+        toastStore.showError('註冊失敗，請稍後再試。')
+      }
+    } else {
+      // 登入失敗處理
+    }
+  } finally {
+    agreement.value = false // 重置協議勾選狀態
+  }
+}
+
+const handleSubmit = debounce(originalHandleSubmit, 300)
 </script>
 
 <style lang="scss" scoped>
@@ -62,9 +189,16 @@ const toggleAuthMode = () => {
   align-items: center;
   justify-items: center;
   height: 100vh;
-  max-width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
   background: $background;
-  padding: 0 20vw;
+  padding: 0 2rem;
+  gap: 4rem;
+
+  @media (max-width: 1200px) {
+    gap: 2rem;
+    padding: 0 1rem;
+  }
 
   @media (max-width: $tablet-breakpoint) {
     grid-template-columns: 1fr;
@@ -74,20 +208,38 @@ const toggleAuthMode = () => {
 
   @media (max-width: $mobile-breakpoint) {
     padding: 1rem;
+    gap: 1rem;
+  }
+
+  // 左邊圖片容器
+  .image-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+
+    @media (max-width: $tablet-breakpoint) {
+      order: 2;
+    }
+
+    @media (max-width: $mobile-breakpoint) {
+      display: none;
+    }
   }
 
   > img {
     max-width: 450px;
     width: 100%;
     height: auto;
-    position: relative;
-    top: 36px;
-    justify-self: center;
+    object-fit: contain;
+
+    @media (max-width: 1200px) {
+      max-width: 400px;
+    }
 
     @media (max-width: $tablet-breakpoint) {
-      justify-self: center;
+      display: none;
       max-width: 350px;
-      top: 0;
       order: 2;
     }
 
@@ -97,7 +249,8 @@ const toggleAuthMode = () => {
   }
 
   .login-from {
-    justify-self: center;
+    width: 425px;
+    max-width: 100%;
     box-shadow: 0px 4px 48px $shadow-light;
     border-radius: 32px;
     background: $surface;
@@ -105,19 +258,22 @@ const toggleAuthMode = () => {
     display: grid;
     place-items: center;
     gap: 52px;
-    width: 425px;
     border: 1px solid $border-light;
 
+    @media (max-width: 1200px) {
+      width: 380px;
+      padding: 60px 40px;
+    }
+
     @media (max-width: $tablet-breakpoint) {
-      justify-self: center;
+      order: 1;
       width: 100%;
       max-width: 400px;
-      order: 1;
     }
 
     @media (max-width: $mobile-breakpoint) {
       padding: 40px 30px;
-      row-gap: 30px;
+      gap: 30px;
       border-radius: 16px;
       box-shadow: 0px 2px 24px $shadow-light;
     }
@@ -174,8 +330,39 @@ const toggleAuthMode = () => {
             box-shadow: 0 0 0 3px $shadow-focus;
           }
 
+          &.error {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.05);
+
+            &:focus {
+              border-color: #ef4444;
+              box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+            }
+          }
+
           @media (max-width: $mobile-breakpoint) {
             padding: 14px 16px;
+          }
+        }
+
+        .password-hint {
+          font-size: 12px;
+          color: #ef4444;
+          opacity: 0;
+          transform: translateY(-8px);
+          transition: all 0.3s ease;
+          margin-top: 4px;
+          font-weight: 500;
+          min-height: 16px;
+
+          &.show {
+            opacity: 1;
+            transform: translateY(0);
+          }
+
+          @media (max-width: $mobile-breakpoint) {
+            font-size: 11px;
+            min-height: 14px;
           }
         }
       }

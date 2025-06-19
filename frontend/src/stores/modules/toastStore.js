@@ -37,7 +37,10 @@ export const useToastStore = defineStore('toast', () => {
   }
 
   return {
+    // 狀態
     toasts,
+
+    // 動作
     addToast,
     removeToast,
     showSuccess,

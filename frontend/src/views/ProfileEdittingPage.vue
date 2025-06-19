@@ -50,7 +50,10 @@
           </div>
 
           <div class="form-field">
-            <label class="field-label">顯示名稱</label>
+            <label class="field-label">
+              顯示名稱
+              <span class="required">*</span>
+            </label>
             <input
               type="text"
               class="form-input"
@@ -68,7 +71,7 @@
               type="email"
               class="form-input"
               placeholder="請輸入手機號碼"
-              value="user@example.com"
+              value="0123-456-7890"
               required
             />
           </div>
