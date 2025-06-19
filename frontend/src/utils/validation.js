@@ -87,4 +87,31 @@ export const validateRegisterForm = (formData, agreement) => {
 }
 
 // 驗證登入表單
-export const validateLoginForm = (formData) => {}
+export const validateLoginForm = (formData) => {
+  const errors = []
+
+  // 驗證必填驗證
+  const requiredFieldList = [
+    { value: formData.email, name: '電子郵件' },
+    { value: formData.password, name: '密碼' },
+  ]
+
+  // 驗證必填欄位
+  requiredFieldList.forEach((field) => {
+    const error = validationRules.required(field.value, field.name)
+    if (error) errors.push(error)
+  })
+
+  // 電子郵件格式驗證
+  if (formData.email) {
+    const emailError = validationRules.email(formData.email)
+    if (emailError) errors.push(emailError)
+  }
+
+  const hasNoErrors = errors.length === 0
+
+  return {
+    isValid: hasNoErrors,
+    errors,
+  }
+}
