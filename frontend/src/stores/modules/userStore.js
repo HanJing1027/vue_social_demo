@@ -1,10 +1,17 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { authApi } from '@/apis/authApi'
 import { setJwtToken, getJwtToken, removeJwtToken } from '@/utils/jwtUtils'
 
 export const useUserStore = defineStore('user', () => {
   const user = ref(null)
+
+  // 判斷是否已經登入
+  const isAuthenticated = computed(() => {
+    const token = getJwtToken()
+    const hasUser = !!user.value
+    return !!(token && hasUser)
+  })
 
   // 保存用戶資料
   const saveUserDataToStorage = (userData) => {
@@ -81,6 +88,7 @@ export const useUserStore = defineStore('user', () => {
   return {
     user,
 
+    isAuthenticated,
     saveUserDataToStorage,
     restoreUserFromStorage,
     registerUser,
