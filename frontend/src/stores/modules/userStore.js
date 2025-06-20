@@ -1,15 +1,52 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { authApi } from '@/apis/authApi'
-import { setJwtToken, removeJwtToken } from '@/utils/jwtUtils'
+import { setJwtToken, getJwtToken, removeJwtToken } from '@/utils/jwtUtils'
 
 export const useUserStore = defineStore('user', () => {
   const user = ref(null)
 
-  // 註冊
-  const registerUser = async (userData) => {
+  // 保存用戶資料
+  const saveUserDataToStorage = (userData) => {
     try {
-      const response = await authApi.register(userData)
+      localStorage.setItem('user', JSON.stringify(userData))
+      return true
+    } catch (error) {
+      return false
+    }
+  }
+
+  // 從本地存儲恢復用戶資料
+  const restoreUserFromStorage = () => {
+    try {
+      const savedUser = localStorage.getItem('user')
+      const token = getJwtToken()
+
+      if (savedUser && token) {
+        const userData = JSON.parse(savedUser)
+        user.value = userData
+        return true
+      } else {
+        removeUserData()
+        return false
+      }
+    } catch (error) {
+      removeUserData()
+      return false
+    }
+  }
+
+  // 清除用戶資料
+  const removeUserData = () => {
+    user.value = null
+    localStorage.removeItem('user')
+    removeJwtToken()
+  }
+
+  // 註冊
+  const registerUser = async (formData) => {
+    try {
+      const response = await authApi.register(formData)
 
       return response
     } catch (error) {
@@ -18,26 +55,36 @@ export const useUserStore = defineStore('user', () => {
   }
 
   // 登入
-  const loginUser = async (userData) => {
+  const loginUser = async (formData) => {
     try {
-      const response = await authApi.login(userData)
+      const response = await authApi.login(formData)
 
-      if (response.jwt) {
+      if (response.jwt && response.user) {
+        // 保存 JWT Token 到 cookie
         setJwtToken(response.jwt)
+        // 保存用戶資料到本地存儲
         user.value = response.user
-        localStorage.setItem('user', JSON.stringify(user.value))
-      }
+        saveUserDataToStorage(response.user)
 
-      return response.user
+        return response.user
+      }
     } catch (error) {
       throw error
     }
   }
 
+  // 登出
+  const logoutUser = () => {
+    removeUserData()
+  }
+
   return {
     user,
 
+    saveUserDataToStorage,
+    restoreUserFromStorage,
     registerUser,
     loginUser,
+    logoutUser,
   }
 })
