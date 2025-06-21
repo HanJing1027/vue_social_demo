@@ -1,8 +1,8 @@
 <template>
   <div class="login-page">
-    <img src="../assets/phone.png" alt="手機上顯示的社群網站主頁展示圖" />
+    <img src="@/assets/phone.png" alt="手機上顯示的社群網站主頁展示圖" />
     <div class="login-from">
-      <img src="../assets/logo.svg" alt="Logo" />
+      <img src="@/assets/logo.svg" alt="Logo" />
       <form @submit.prevent="handleSubmit">
         <div class="form-group">
           <label for="email">電子郵件：</label>

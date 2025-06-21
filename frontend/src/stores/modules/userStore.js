@@ -8,6 +8,7 @@ export const useUserStore = defineStore('user', () => {
 
   // 判斷是否已經登入
   const isAuthenticated = computed(() => {
+    restoreUserFromStorage()
     const token = getJwtToken()
     const hasUser = !!user.value
     return !!(token && hasUser)
