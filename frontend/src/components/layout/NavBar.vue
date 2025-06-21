@@ -29,7 +29,7 @@
           <TheAvatar :width="40" :height="40" :fontSize="20" />
           <ul class="profile-menu">
             <li><router-link to="/profile">個人主頁</router-link></li>
-            <li><button class="logout-btn">退出登出</button></li>
+            <li><button class="logout-btn" @click="handleLogout">退出登出</button></li>
           </ul>
         </div>
       </div>
@@ -50,12 +50,20 @@
 <script setup>
 import TheAvatar from '@/components/common/TheAvatar.vue'
 
+import { useUserStore } from '@/stores/modules/userStore'
+import { useRouter } from 'vue-router'
 import { ref, nextTick } from 'vue'
 
 const emit = defineEmits(['open-post-upload'])
 
+const router = useRouter()
+const userStore = useUserStore()
 const showMobileSearch = ref(false)
 const mobileSearchInput = ref(null)
+
+const handleCreatePost = () => {
+  emit('open-post-upload')
+}
 
 const toggleMobileSearch = async () => {
   showMobileSearch.value = !showMobileSearch.value
@@ -69,8 +77,9 @@ const toggleMobileSearch = async () => {
   }
 }
 
-const handleCreatePost = () => {
-  emit('open-post-upload')
+const handleLogout = () => {
+  userStore.logoutUser()
+  router.push('/login')
 }
 </script>
 
