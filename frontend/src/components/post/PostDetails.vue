@@ -1,5 +1,5 @@
 <template>
-  <TheModal @close="handleClose">
+  <TheModal>
     <!-- 貼文內容 -->
     <div class="post-detail">
       <div class="post-layout">
@@ -78,13 +78,6 @@
 import TheModal from '@/components/common/TheModal.vue'
 import TheAvatar from '@/components/common/TheAvatar.vue'
 import PostActions from '@/components/post/PostActions.vue'
-
-const emit = defineEmits(['close'])
-
-// 關閉模態框
-const handleClose = () => {
-  emit('close')
-}
 </script>
 
 <style lang="scss" scoped>

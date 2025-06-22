@@ -19,9 +19,9 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useModalStore } from '@/stores/modules/modalStore'
 
-// 定義 emit
-const emit = defineEmits(['openDetails'])
+const modalStore = useModalStore()
 
 // 定義響應式狀態
 const isLiked = ref(false)
@@ -44,7 +44,7 @@ const toggleSave = () => {
 
 // 點擊評論圖示打開詳情彈跳視窗
 const handlePostClick = () => {
-  emit('openDetails')
+  modalStore.openModal('postDetails')
 }
 </script>
 

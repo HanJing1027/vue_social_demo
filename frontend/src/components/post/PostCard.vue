@@ -15,7 +15,7 @@
     </div>
 
     <!-- 互動按鈕區 -->
-    <PostActions @openDetails="handlePostClick" />
+    <PostActions />
 
     <!-- 貼文內容 -->
     <div class="post-content">
@@ -36,13 +36,6 @@
 <script setup>
 import TheAvatar from '@/components/common/TheAvatar.vue'
 import PostActions from '@/components/post/PostActions.vue'
-
-// 定義 emit
-const emit = defineEmits(['openDetails'])
-
-const handlePostClick = () => {
-  emit('openDetails')
-}
 </script>
 
 <style lang="scss" scoped>

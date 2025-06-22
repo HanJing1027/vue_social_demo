@@ -5,6 +5,7 @@ export const useModalStore = defineStore('modal', () => {
   // 集中管理彈跳視窗狀態管理
   const modals = ref({
     postUpload: false,
+    postDetails: false,
     // 其他可以在這繼續添加
   })
 
