@@ -5,10 +5,31 @@ import { setJwtToken, getJwtToken, removeJwtToken } from '@/utils/jwtUtils'
 
 export const useUserStore = defineStore('user', () => {
   const user = ref(null)
+  const isInit = ref(false)
+
+  // 初始化用戶資料，只在創建 store 時執行一次
+  const initUser = () => {
+    if (isInit.value) return
+
+    try {
+      const savedUser = localStorage.getItem('user')
+      const token = getJwtToken()
+
+      if (savedUser && token) {
+        const userData = JSON.parse(savedUser)
+        user.value = userData
+      }
+    } catch (error) {
+      console.error('Failed to initialize user:', error)
+    } finally {
+      isInit.value = true
+    }
+  }
+
+  initUser()
 
   // 判斷是否已經登入
   const isAuthenticated = computed(() => {
-    restoreUserFromStorage()
     const token = getJwtToken()
     const hasUser = !!user.value
     return !!(token && hasUser)

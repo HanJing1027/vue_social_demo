@@ -1,7 +1,7 @@
 <template>
   <section>
     <PostList>
-      <PostCard v-for="i in 5" :key="i" @openDetails="openPostDetails" />
+      <PostCard v-for="i in 5" :key="i" />
     </PostList>
   </section>
 </template>

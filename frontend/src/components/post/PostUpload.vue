@@ -13,42 +13,67 @@
           <div class="avatar">
             <TheAvatar :width="40" :height="40" :fontSize="20" />
           </div>
-          <div class="user-name">使用者名稱</div>
+          <div class="user-name">{{ userData.username }}</div>
         </div>
 
         <!-- 貼文內容輸入 -->
         <div class="post-input-section">
-          <textarea class="post-textarea" placeholder="分享你的想法..." rows="4"></textarea>
+          <textarea
+            v-model="postContent"
+            class="post-textarea"
+            placeholder="分享你的想法..."
+            rows="4"
+          ></textarea>
         </div>
 
         <!-- 圖片上傳區域 -->
         <div class="image-upload-section">
-          <div class="upload-area">
-            <i class="bx bx-image-add"></i>
-            <span class="upload-text">點擊或拖曳來上傳圖片</span>
-            <input type="file" class="file-input" accept="image/*" multiple />
+          <div
+            class="upload-area"
+            :class="{ 'has-image': uploadedImage }"
+            @click.stop="triggerFileInput"
+          >
+            <!-- 未上傳圖片時顯示上傳提示 -->
+            <template v-if="!uploadedImage">
+              <i class="bx bx-image-add"></i>
+              <span class="upload-text">點擊上傳圖片</span>
+            </template>
+            <!-- 上傳圖片後顯示預覽 -->
+            <template v-else>
+              <img :src="uploadedImage.url" alt="預覽圖片" class="preview-image" />
+              <button class="remove-image-btn" @click.stop="removeImage">
+                <i class="bx bx-x"></i>
+              </button>
+            </template>
+            <input
+              ref="fileInputRef"
+              type="file"
+              class="file-input"
+              accept="image/*"
+              @change="handleFileUpload"
+            />
           </div>
         </div>
 
-        <!-- 預覽圖片區域 -->
-        <div class="image-preview-section">
-          <div class="preview-item">
-            <img src="https://picsum.photos/200/150" alt="預覽圖片" />
-            <button class="remove-image-btn">
-              <i class="bx bx-x"></i>
-            </button>
-          </div>
-        </div>
-
-        <!-- 標籤輸入 -->
+        <!-- 標籤輸入區域 -->
         <div class="tags-section">
           <div class="tag-input-wrapper">
             <i class="bx bx-hash"></i>
-            <input type="text" class="tag-input" placeholder="新增標籤 (按 Enter 確認)" />
+            <input
+              v-model="newTag"
+              type="text"
+              class="tag-input"
+              placeholder="新增標籤 (按 Enter 確認)"
+              @keyup.enter="addTag"
+            />
+            <button class="add-tag-btn" @click="addTag" :disabled="!newTag.trim()">
+              <i class="bx bx-plus"></i>
+            </button>
           </div>
-          <div class="tags-display">
-            <span class="tag">#範例標籤 <i class="bx bx-x"></i></span>
-            <span class="tag">#生活 <i class="bx bx-x"></i></span>
+          <div class="tags-display" v-if="postTags.length > 0">
+            <span v-for="(tag, index) in postTags" :key="index" class="tag"
+              >#{{ tag }} <i @click="removeTag(index)" class="bx bx-x"></i
+            ></span>
           </div>
         </div>
       </div>
@@ -67,9 +92,87 @@ import TheModal from '@/components/common/TheModal.vue'
 import TheAvatar from '@/components/common/TheAvatar.vue'
 import TheButton from '@/components/common/TheButton.vue'
 
+import { ref, computed, onMounted } from 'vue'
+import { useUserStore } from '@/stores/modules/userStore'
 import { useModalStore } from '@/stores/modules/modalStore'
+import { useToastStore } from '@/stores/modules/toastStore'
 
+const userStore = useUserStore()
 const modalStore = useModalStore()
+const toastStore = useToastStore()
+
+// 用於存儲貼文內容
+const postContent = ref('')
+const newTag = ref('')
+const postTags = ref([])
+
+// 用於儲存上傳的圖片
+const uploadedImage = ref(null)
+const fileInputRef = ref(null)
+
+// 獲取用戶資料
+const userData = computed(() => {
+  return userStore.user
+})
+
+// 觸發文件選擇
+const triggerFileInput = () => {
+  fileInputRef.value?.click()
+}
+
+// 處理文件上傳
+const handleFileUpload = (event) => {
+  const file = event.target.files[0]
+
+  if (!file) return
+
+  // 檢查圖片大小
+  const maxSize = 5 * 1024 * 1024
+  if (file.size > maxSize) {
+    toastStore.showError('圖片大小不能超過 5MB')
+    return
+  }
+
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    uploadedImage.value = {
+      file: file,
+      url: e.target.result,
+      name: file.name,
+      size: file.size,
+    }
+  }
+  reader.onerror = () => {
+    toastStore.showError('圖片讀取失敗')
+  }
+  reader.readAsDataURL(file)
+}
+
+// 移除圖片
+const removeImage = () => {
+  uploadedImage.value = null
+  if (fileInputRef.value) {
+    fileInputRef.value.value = ''
+  }
+}
+
+// 添加標籤
+const addTag = () => {
+  const tag = newTag.value.trim()
+  if (tag && !postTags.value.includes(tag)) {
+    postTags.value.push(tag)
+    newTag.value = ''
+  } else if (postTags.value.includes(tag)) {
+    toastStore.showError('標籤已存在')
+  } else {
+    toastStore.showError('請輸入有效的標籤')
+  }
+}
+
+// 移除標籤
+const removeTag = (index) => {
+  postTags.value.splice(index, 1)
+}
 
 // 關閉模態框
 const handleClose = () => {
@@ -153,28 +256,86 @@ const handleClose = () => {
   .upload-area {
     border: 2px dashed $border-color;
     border-radius: 12px;
-    padding: 40px 20px;
     text-align: center;
     background: $surface-alt;
     cursor: pointer;
     transition: all 0.2s ease;
     position: relative;
+    overflow: hidden;
 
-    &:hover {
+    // 未上傳狀態
+    &:not(.has-image) {
+      padding: 40px 20px;
+      min-height: 120px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+
+      &:hover {
+        border-color: $primary-color;
+        background: $surface-hover;
+      }
+
+      i {
+        font-size: 36px;
+        color: $text-secondary;
+        margin-bottom: 8px;
+      }
+
+      .upload-text {
+        color: $text-secondary;
+        font-size: 14px;
+      }
+    }
+
+    // 有圖片狀態
+    &.has-image {
+      padding: 0;
+      height: auto;
+      border-style: solid;
       border-color: $primary-color;
-      background: $surface-hover;
+
+      &:hover {
+        .preview-image {
+          transform: scale(1.02);
+        }
+      }
     }
 
-    i {
-      font-size: 48px;
-      color: $text-secondary;
-      margin-bottom: 12px;
-      display: block;
+    .preview-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.2s ease;
     }
 
-    .upload-text {
-      color: $text-secondary;
-      font-size: 14px;
+    .remove-image-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: rgba(0, 0, 0, 0.6);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      z-index: 2;
+
+      &:hover {
+        background: rgba(0, 0, 0, 0.8);
+        transform: scale(1.1);
+      }
+
+      i {
+        font-size: 14px;
+        color: white;
+        margin: 0;
+      }
     }
 
     .file-input {
@@ -184,53 +345,7 @@ const handleClose = () => {
       width: 100%;
       height: 100%;
       opacity: 0;
-      cursor: pointer;
-    }
-  }
-}
-
-.image-preview-section {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-
-  .preview-item {
-    position: relative;
-    width: 120px;
-    height: 120px;
-    border-radius: 8px;
-    overflow: hidden;
-
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .remove-image-btn {
-      position: absolute;
-      top: 6px;
-      right: 6px;
-      width: 24px;
-      height: 24px;
-      border: none;
-      background: rgba(0, 0, 0, 0.7);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.2s ease;
-
-      &:hover {
-        background: rgba(0, 0, 0, 0.9);
-        transform: scale(1.1);
-      }
-
-      i {
-        font-size: 14px;
-        color: white;
-      }
+      pointer-events: none; // 禁用指針事件，避免重複觸發
     }
   }
 }
@@ -268,6 +383,36 @@ const handleClose = () => {
 
       &::placeholder {
         color: $text-secondary;
+      }
+    }
+
+    .add-tag-btn {
+      background: $primary-color;
+      border: none;
+      border-radius: 8px;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+
+      &:hover:not(:disabled) {
+        opacity: 0.9;
+        transform: scale(1.05);
+      }
+
+      &:disabled {
+        background: $border-color;
+        cursor: not-allowed;
+        opacity: 0.5;
+      }
+
+      i {
+        font-size: 16px;
+        color: white;
       }
     }
   }
