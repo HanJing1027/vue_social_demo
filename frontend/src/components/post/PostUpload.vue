@@ -1,5 +1,5 @@
 <template>
-  <TheModal @close="handleClose">
+  <TheModal>
     <div class="post-upload">
       <!-- 標題區域 -->
       <div class="upload-header">
@@ -67,12 +67,13 @@ import TheModal from '@/components/common/TheModal.vue'
 import TheAvatar from '@/components/common/TheAvatar.vue'
 import TheButton from '@/components/common/TheButton.vue'
 
-// 定義 emit
-const emit = defineEmits(['close'])
+import { useModalStore } from '@/stores/modules/modalStore'
+
+const modalStore = useModalStore()
 
 // 關閉模態框
 const handleClose = () => {
-  emit('close')
+  modalStore.closeModal('postUpload')
 }
 </script>
 

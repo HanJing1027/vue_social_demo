@@ -35,5 +35,5 @@ export const removeJwtToken = () => {
 // 登出功能
 export const logout = () => {
   removeJwtToken()
-  router.push('/login') // 登出後重定向到登入頁面
+  window.location.href = '/login' // 登出後重定向到登入頁面
 }

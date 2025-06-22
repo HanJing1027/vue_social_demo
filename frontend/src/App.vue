@@ -1,7 +1,7 @@
 <template>
   <template v-if="$route.path !== '/login'">
     <header>
-      <NavBar @open-post-upload="openPostUpload" />
+      <NavBar />
     </header>
 
     <TheLayout>
@@ -18,7 +18,7 @@
   </footer>
 
   <!-- 貼文上傳彈跳視窗 -->
-  <PostUpload v-if="showPostUpload" @close="closePostUpload" />
+  <PostUpload v-if="modalStore.modals.postUpload" />
   <TheToast />
 </template>
 
@@ -29,30 +29,9 @@ import Footer from './components/layout/Footer.vue'
 import PostUpload from '@/components/post/PostUpload.vue'
 import TheToast from '@/components/common/TheToast.vue'
 
-import { ref, watch } from 'vue'
+import { useModalStore } from '@/stores/modules/modalStore'
 
-// 控制彈跳視窗顯示狀態
-const showPostUpload = ref(false)
-
-watch(showPostUpload, (newValue) => {
-  if (newValue) {
-    // 打開彈跳視窗時禁止滾動
-    document.body.style.overflow = 'hidden'
-  } else {
-    // 關閉彈跳視窗時恢復滾動
-    document.body.style.overflow = ''
-  }
-})
-
-// 打開貼文上傳彈跳視窗
-const openPostUpload = () => {
-  showPostUpload.value = true
-}
-
-// 關閉貼文上傳彈跳視窗
-const closePostUpload = () => {
-  showPostUpload.value = false
-}
+const modalStore = useModalStore()
 </script>
 
 <style lang="scss" scoped></style>

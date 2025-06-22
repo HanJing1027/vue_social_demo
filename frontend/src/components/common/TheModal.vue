@@ -1,6 +1,6 @@
 <template>
   <Teleport to="body">
-    <div class="modal-overlay" @click="handleOverlayClick">
+    <div class="modal-overlay">
       <div class="modal-content" @click.stop>
         <!-- 關閉按鈕 -->
         <button class="close-btn" @click="handleClose">
@@ -14,43 +14,15 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted } from 'vue'
+// import { onMounted, onUnmounted } from 'vue'
+import { useModalStore } from '@/stores/modules/modalStore'
 
-// 定義 props
-const props = defineProps({
-  closeOnOverlay: {
-    type: Boolean,
-    default: true,
-  },
-})
-
-const emit = defineEmits(['close'])
-
-// 關閉模態框
-const handleClose = () => {
-  emit('close')
-}
+const modalStore = useModalStore()
 
 // 點擊遮罩關閉
-const handleOverlayClick = () => {
-  if (props.closeOnOverlay) {
-    emit('close')
-  }
+const handleClose = () => {
+  modalStore.closeAllModals()
 }
-
-// 監聽 ESC 鍵關閉
-onMounted(() => {
-  const handleEscape = (event) => {
-    if (event.key === 'Escape') {
-      emit('close')
-    }
-  }
-  document.addEventListener('keydown', handleEscape)
-
-  onUnmounted(() => {
-    document.removeEventListener('keydown', handleEscape)
-  })
-})
 </script>
 
 <style lang="scss" scoped>

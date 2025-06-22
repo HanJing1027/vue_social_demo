@@ -51,18 +51,19 @@
 import TheAvatar from '@/components/common/TheAvatar.vue'
 
 import { useUserStore } from '@/stores/modules/userStore'
+import { useModalStore } from '@/stores/modules/modalStore'
 import { useRouter } from 'vue-router'
 import { ref, nextTick } from 'vue'
 
-const emit = defineEmits(['open-post-upload'])
-
 const router = useRouter()
 const userStore = useUserStore()
+const modalStore = useModalStore()
 const showMobileSearch = ref(false)
 const mobileSearchInput = ref(null)
 
+// 打開貼文上傳彈跳視窗
 const handleCreatePost = () => {
-  emit('open-post-upload')
+  modalStore.openModal('postUpload')
 }
 
 const toggleMobileSearch = async () => {
