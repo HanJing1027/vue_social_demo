@@ -5,7 +5,7 @@
       <div class="profile-info">
         <div class="profile-main">
           <div class="avatar-section">
-            <TheAvatar :width="100" :height="100" fontSize="60" />
+            <TheAvatar :width="100" :height="100" :fontSize="60" />
           </div>
 
           <div class="user-content">
