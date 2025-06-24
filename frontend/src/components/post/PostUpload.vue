@@ -93,11 +93,10 @@ import TheAvatar from '@/components/common/TheAvatar.vue'
 import TheButton from '@/components/common/TheButton.vue'
 
 import { ref, computed } from 'vue'
-import { createPost } from '@/apis/postApi'
+import { postApi } from '@/apis/postApi'
 import { useUserStore } from '@/stores/modules/userStore'
 import { useModalStore } from '@/stores/modules/modalStore'
 import { useToastStore } from '@/stores/modules/toastStore'
-import { getJwtToken } from '@/utils/jwtUtils'
 
 const userStore = useUserStore()
 const modalStore = useModalStore()
@@ -144,7 +143,7 @@ const publishPost = async () => {
     const description = formatDescription()
     const imageFile = uploadedImage.value.file
 
-    await createPost(imageFile, description)
+    await postApi.createPost(imageFile, description)
 
     // 清空表單
     postContent.value = ''
