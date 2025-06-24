@@ -45,14 +45,14 @@
                 <i class="bx bx-x"></i>
               </button>
             </template>
-            <input
-              ref="fileInputRef"
-              type="file"
-              class="file-input"
-              accept="image/*"
-              @change="handleFileUpload"
-            />
           </div>
+          <input
+            ref="fileInputRef"
+            type="file"
+            class="file-input"
+            accept="image/*"
+            @change="handleFileUpload"
+          />
         </div>
 
         <!-- 標籤輸入區域 -->
@@ -81,7 +81,7 @@
       <!-- 底部按鈕 -->
       <div class="upload-footer">
         <TheButton :bxIcon="`bx-x`" :reverse="true" @click="handleClose">取消</TheButton>
-        <TheButton :bxIcon="`bx-send`">發布貼文</TheButton>
+        <TheButton :bxIcon="`bx-send`" @click="publishPost">發布貼文</TheButton>
       </div>
     </div>
   </TheModal>
@@ -92,10 +92,12 @@ import TheModal from '@/components/common/TheModal.vue'
 import TheAvatar from '@/components/common/TheAvatar.vue'
 import TheButton from '@/components/common/TheButton.vue'
 
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
+import { createPost } from '@/apis/postApi'
 import { useUserStore } from '@/stores/modules/userStore'
 import { useModalStore } from '@/stores/modules/modalStore'
 import { useToastStore } from '@/stores/modules/toastStore'
+import { getJwtToken } from '@/utils/jwtUtils'
 
 const userStore = useUserStore()
 const modalStore = useModalStore()
@@ -114,6 +116,51 @@ const fileInputRef = ref(null)
 const userData = computed(() => {
   return userStore.user
 })
+
+// 驗證貼文表單是否符合要求
+const isFormValid = computed(() => {
+  return postContent.value.trim() !== '' && uploadedImage.value !== null
+})
+
+// 格式化 description，將內容和標籤合併
+const formatDescription = () => {
+  let description = postContent.value.trim()
+
+  if (postTags.value.length > 0) {
+    const tagsString = postTags.value.map((tag) => `#${tag}`).join(' ')
+    description = description ? `${description}\n\n${tagsString}` : tagsString
+  }
+
+  return description
+}
+
+const publishPost = async () => {
+  if (!isFormValid.value) {
+    toastStore.showError('請至少輸入內容與上傳圖片')
+    return
+  }
+
+  try {
+    const description = formatDescription()
+    const imageFile = uploadedImage.value.file
+
+    await createPost(imageFile, description)
+
+    // 清空表單
+    postContent.value = ''
+    newTag.value = ''
+    postTags.value = []
+    uploadedImage.value = null
+    fileInputRef.value.value = null
+
+    handleClose()
+
+    toastStore.showSuccess('貼文發佈成功！')
+  } catch (error) {
+    toastStore.showError('發布貼文失敗，請稍後再試')
+    console.error(`發布貼文失敗: ${error}`)
+  }
+}
 
 // 觸發文件選擇
 const triggerFileInput = () => {
@@ -337,16 +384,9 @@ const handleClose = () => {
         margin: 0;
       }
     }
-
-    .file-input {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      opacity: 0;
-      pointer-events: none; // 禁用指針事件，避免重複觸發
-    }
+  }
+  .file-input {
+    display: none; // 隱藏實際的文件輸入
   }
 }
 

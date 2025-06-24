@@ -21,6 +21,7 @@ serviceAxios.interceptors.request.use(
       }
     }
 
+    console.log('最終請求標頭:', requestConfig.headers)
     return requestConfig
   },
   (error) => {
@@ -38,7 +39,57 @@ const request = async (options) => {
     throw error
   }
 }
+
 export const get = (url, params, auth = true) => request({ method: 'GET', url, params, auth })
 export const post = (url, data, auth = true) => request({ method: 'POST', url, data, auth })
 export const put = (url, data, auth = true) => request({ method: 'PUT', url, data, auth })
 export const del = (url, auth = true) => request({ method: 'DELETE', url, auth })
+
+// 單獨的 FormData 處理方法
+export const postFormData = async (url, formData, auth) => {
+  try {
+    const config = {
+      method: 'POST',
+      url,
+      data: formData,
+      headers: {},
+      timeout: 30000,
+    }
+
+    if (auth) {
+      const token = getJwtToken()
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`
+      }
+    }
+
+    const response = await axios(config)
+    return response.data
+  } catch (error) {
+    throw error
+  }
+}
+
+export const putFormData = async (url, formData, auth) => {
+  try {
+    const config = {
+      method: 'PUT',
+      url,
+      data: formData,
+      headers: {},
+      timeout: 30000,
+    }
+
+    if (auth) {
+      const token = getJwtToken()
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`
+      }
+    }
+
+    const response = await axios(config)
+    return response.data
+  } catch (error) {
+    throw error
+  }
+}

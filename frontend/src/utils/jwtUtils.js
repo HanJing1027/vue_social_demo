@@ -1,5 +1,4 @@
 import Cookies from 'js-cookie'
-import router from '@/router'
 
 // Token 常數
 const TOKEN_KEY = 'jwt_token'

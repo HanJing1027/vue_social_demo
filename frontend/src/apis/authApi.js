@@ -22,7 +22,6 @@ export const authApi = {
         { identifier: data.email, password: data.password },
         false
       )
-
       return response
     } catch (error) {
       throw error
