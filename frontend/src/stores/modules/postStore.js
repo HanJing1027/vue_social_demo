@@ -5,9 +5,9 @@ import { ref } from 'vue'
 export const usePostStore = defineStore('post', () => {
   const list = ref([]) // 貼文列表
 
-  const loadPosts = async (filters = {}) => {
+  const loadAllPosts = async () => {
     try {
-      const data = await postApi.loadPosts(filters)
+      const data = await postApi.loadPosts()
       list.value = data
 
       return data
@@ -30,7 +30,7 @@ export const usePostStore = defineStore('post', () => {
   return {
     list,
 
-    loadPosts,
+    loadAllPosts,
     createPost,
   }
 })

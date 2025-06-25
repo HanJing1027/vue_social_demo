@@ -36,6 +36,30 @@ serviceAxios.interceptors.request.use(
   }
 )
 
+serviceAxios.interceptors.response.use(
+  (response) => {
+    // 處理 Strapi 的貼文圖片
+    if (response.data?.data && Array.isArray(response.data.data)) {
+      response.data.data.forEach((item) => {
+        // 如果有圖片，修正 URL
+        if (item.attributes?.image?.data?.[0]?.attributes?.url) {
+          const imageUrl = item.attributes.image.data[0].attributes.url
+
+          // 如果不是完整 URL，加上 baseURL
+          if (!imageUrl.startsWith('http')) {
+            item.attributes.image.data[0].attributes.url = `${import.meta.env.VITE_API_BASE_URL}${imageUrl}`
+          }
+        }
+      })
+    }
+
+    return response
+  },
+  (error) => {
+    return Promise.reject(error)
+  }
+)
+
 // 統一處理所有 API 請求
 const request = async (options) => {
   try {

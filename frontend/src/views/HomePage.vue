@@ -1,8 +1,7 @@
 <template>
   <section>
     <PostList>
-      <PostCard v-for="i in 5" :key="i" />
-      <button @click="test">test</button>
+      <PostCard v-for="post in posts" :key="post.id" :post="post" />
     </PostList>
   </section>
 </template>
@@ -11,11 +10,16 @@
 import PostCard from '@/components/post/PostCard.vue'
 import PostList from '@/components/post/PostList.vue'
 
+import { onMounted, computed } from 'vue'
 import { usePostStore } from '@/stores/modules/postStore'
 
 const postStore = usePostStore()
 
-const test = async () => postStore.loadPosts()
+const posts = computed(() => postStore.list)
+
+onMounted(() => {
+  postStore.loadAllPosts()
+})
 </script>
 
 <style lang="scss" scoped></style>

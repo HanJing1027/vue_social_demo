@@ -3,15 +3,15 @@
     <!-- 用戶資訊區 -->
     <div class="post-header">
       <div class="user-info">
-        <TheAvatar :width="40" :height="40" :fontSize="20" />
-        <span class="username">用戶名稱</span>
+        <TheAvatar :src="post.user?.avatar" :width="40" :height="40" :fontSize="20" />
+        <span class="username">{{ post.user?.name }}</span>
       </div>
-      <span class="post-time">2小時前</span>
+      <span class="post-time">{{ formatTimeAgo(post.createdAt) }}</span>
     </div>
 
     <!-- 貼文圖片 -->
     <div class="post-image">
-      <img src="https://picsum.photos/500/300?blur=2" vb alt="貼文圖片" />
+      <img :src="post.image" alt="貼文圖片" />
     </div>
 
     <!-- 互動按鈕區 -->
@@ -20,15 +20,13 @@
     <!-- 貼文內容 -->
     <div class="post-content">
       <p class="post-text">
-        這是一篇範例貼文的內容，可以包含多行文字。用戶可以在這裡分享他們的想法、經歷或任何有趣的內容。
+        {{ post.shortDescription }}
       </p>
     </div>
 
     <!-- 標籤區 -->
     <div class="post-tags">
-      <span class="tag">#旅行</span>
-      <span class="tag">#美食</span>
-      <span class="tag">#生活</span>
+      <span v-for="(tag, index) in post.tags" :key="index" class="tag">{{ tag }}</span>
     </div>
   </div>
 </template>
@@ -36,6 +34,15 @@
 <script setup>
 import TheAvatar from '@/components/common/TheAvatar.vue'
 import PostActions from '@/components/post/PostActions.vue'
+
+import { formatTimeAgo } from '@/utils/postUtils'
+
+const props = defineProps({
+  post: {
+    type: Object,
+    default: {},
+  },
+})
 </script>
 
 <style lang="scss" scoped>
@@ -77,7 +84,7 @@ import PostActions from '@/components/post/PostActions.vue'
 
 .post-time {
   color: $text-secondary;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .post-image {
