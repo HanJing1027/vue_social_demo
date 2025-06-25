@@ -11,9 +11,11 @@
 import PostCard from '@/components/post/PostCard.vue'
 import PostList from '@/components/post/PostList.vue'
 
-import { postApi } from '@/apis/postApi'
+import { usePostStore } from '@/stores/modules/postStore'
 
-const test = async () => await postApi.loadPosts()
+const postStore = usePostStore()
+
+const test = async () => postStore.loadPosts()
 </script>
 
 <style lang="scss" scoped></style>

@@ -93,7 +93,7 @@ import TheAvatar from '@/components/common/TheAvatar.vue'
 import TheButton from '@/components/common/TheButton.vue'
 
 import { ref, computed } from 'vue'
-import { postApi } from '@/apis/postApi'
+import { usePostStore } from '@/stores/modules/postStore'
 import { useUserStore } from '@/stores/modules/userStore'
 import { useModalStore } from '@/stores/modules/modalStore'
 import { useToastStore } from '@/stores/modules/toastStore'
@@ -101,6 +101,7 @@ import { useToastStore } from '@/stores/modules/toastStore'
 const userStore = useUserStore()
 const modalStore = useModalStore()
 const toastStore = useToastStore()
+const postStore = usePostStore()
 
 // 用於存儲貼文內容
 const postContent = ref('')
@@ -143,7 +144,7 @@ const publishPost = async () => {
     const description = formatDescription()
     const imageFile = uploadedImage.value.file
 
-    await postApi.createPost(imageFile, description)
+    await postStore.createPost(imageFile, description)
 
     // 清空表單
     postContent.value = ''
