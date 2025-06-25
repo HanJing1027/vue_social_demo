@@ -7,6 +7,7 @@ export const postApi = {
     const formData = new FormData()
     formData.append('files.image', image)
     formData.append('data', JSON.stringify({ description }))
+
     try {
       const response = await postFormData('/api/posts', formData)
       return response

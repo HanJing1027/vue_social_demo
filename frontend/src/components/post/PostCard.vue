@@ -89,12 +89,22 @@ const props = defineProps({
 
 .post-image {
   width: 100%;
-}
+  height: 370px;
+  overflow: hidden;
+  position: relative;
+  background-color: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-.post-image img {
-  width: 100%;
-  height: auto;
-  display: block;
+  img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    object-position: center;
+    display: block;
+    transition: transform 0.3s ease;
+  }
 }
 
 .post-content {
@@ -141,6 +151,10 @@ const props = defineProps({
 
   .post-content {
     padding: 12px;
+  }
+
+  .post-image {
+    height: 300px;
   }
 
   .post-tags {
