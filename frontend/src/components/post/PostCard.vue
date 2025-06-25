@@ -4,7 +4,7 @@
     <div class="post-header">
       <div class="user-info">
         <TheAvatar :src="post.user?.avatar" :width="40" :height="40" :fontSize="20" />
-        <span class="username">{{ post.user?.name }}</span>
+        <span class="username">{{ post.user?.name || post.user?.username }}</span>
       </div>
       <span class="post-time">{{ formatTimeAgo(post.createdAt) }}</span>
     </div>
