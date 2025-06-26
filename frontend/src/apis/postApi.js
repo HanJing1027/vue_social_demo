@@ -18,7 +18,7 @@ export const postApi = {
 
   /**
    *
-   * @param {string} filters 过滤条件，例如自己发布的
+   * @param {string} filters 過濾條件，例如自己發布的貼文
    * @returns
    */
   // 加載貼文

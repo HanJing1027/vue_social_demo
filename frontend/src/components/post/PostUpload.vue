@@ -64,7 +64,9 @@
               type="text"
               class="tag-input"
               placeholder="新增標籤 (按 Enter 確認)"
-              @keyup.enter="addTag"
+              @keydown="inputHandler.handleKeyDown"
+              @compositionstart="inputHandler.handleCompositionStart"
+              @compositionend="inputHandler.handleCompositionEnd"
             />
             <button class="add-tag-btn" @click="addTag" :disabled="!newTag.trim()">
               <i class="bx bx-plus"></i>
@@ -97,6 +99,7 @@ import { usePostStore } from '@/stores/modules/postStore'
 import { useUserStore } from '@/stores/modules/userStore'
 import { useModalStore } from '@/stores/modules/modalStore'
 import { useToastStore } from '@/stores/modules/toastStore'
+import { createInputMethodHandler } from '@/utils/createInputMethodHandler'
 
 const userStore = useUserStore()
 const modalStore = useModalStore()
@@ -215,6 +218,9 @@ const addTag = () => {
     toastStore.showError('請輸入有效的標籤')
   }
 }
+
+// 使用輸入法處理工具
+const inputHandler = createInputMethodHandler(addTag)
 
 // 移除標籤
 const removeTag = (index) => {
