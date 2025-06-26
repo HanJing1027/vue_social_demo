@@ -1,24 +1,31 @@
 <template>
   <div class="post-actions">
     <div class="action-icons">
-      <div class="icon-item heart-action" :class="{ active: isLiked }" @click.stop="toggleLike">
-        <i :class="isLiked ? 'bxs-heart' : 'bx-heart'" class="bx"></i>
-        <span class="action-count">{{ likeCount }}</span>
+      <div
+        class="icon-item heart-action"
+        :class="{ active: post.likedByMe }"
+        @click.stop="toggleLike"
+      >
+        <i :class="post.likedByMe ? 'bxs-heart' : 'bx-heart'" class="bx"></i>
+        <span class="action-count">{{ post.liked_bies || 0 }}</span>
       </div>
       <div class="icon-item comment-action" @click.stop="handlePostClick">
         <i class="bx bx-message-square"></i>
-        <span class="action-count">{{ commentCount }}</span>
+        <span class="action-count">{{ post.comments || 0 }}</span>
       </div>
-      <div class="icon-item star-action" :class="{ active: isSaved }" @click.stop="toggleSave">
-        <i :class="isSaved ? 'bxs-star' : 'bx-star'" class="bx"></i>
-        <span class="action-count">{{ saveCount }}</span>
+      <div
+        class="icon-item star-action"
+        :class="{ active: post.favoredByMe }"
+        @click.stop="toggleSave"
+      >
+        <i :class="post.favoredByMe ? 'bxs-star' : 'bx-star'" class="bx"></i>
+        <span class="action-count">{{ post.favored_bies || 0 }}</span>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
 import { useModalStore } from '@/stores/modules/modalStore'
 import { usePostStore } from '@/stores/modules/postStore'
 
@@ -32,70 +39,27 @@ const props = defineProps({
 const modalStore = useModalStore()
 const postStore = usePostStore()
 
-// 定義響應式狀態
-const isLiked = ref(props.post.likedByMe)
-const likeCount = ref(props.post.liked_bies)
-const isSaved = ref(props.post.favoredByMe)
-const saveCount = ref(props.post.favored_bies)
-const commentCount = ref(props.post.comments)
-
-// 監聽 props 變化，確保帳號切換時即時正確反饋
-watch(
-  () => props.post,
-  (newPost) => {
-    isLiked.value = newPost.likedByMe || false
-    likeCount.value = newPost.liked_bies || 0
-    isSaved.value = newPost.favoredByMe || false
-    saveCount.value = newPost.favored_bies || 0
-    commentCount.value = newPost.comments || 0
-  },
-  { deep: true, immediate: true }
-)
-
 // 按讚功能
 const toggleLike = async () => {
-  // 保存原始狀態 用於錯誤時能夠回滾
-  const originalLiked = isLiked.value
-  const originalLikedCount = likeCount.value
-
-  // 先樂觀更新 UI 用於即時反饋
-  isLiked.value = !originalLiked
-  likeCount.value += isLiked.value ? 1 : -1
-
   try {
     await postStore.toggleLikePost(props.post.id)
   } catch (error) {
-    // 調用失敗 回滾到原始狀態
-    isLiked.value = originalLiked
-    likeCount.value = originalLikedCount
+    console.error('按讚失敗:', error)
   }
 }
 
 // 收藏功能
 const toggleSave = async () => {
-  // 保存原始狀態 用於錯誤時能夠回滾
-  const originalSaved = isSaved.value
-  const originalSavedCount = saveCount.value
-
-  // 先樂觀更新 UI 用於即時反饋
-  isSaved.value = !originalSaved
-  saveCount.value += isSaved.value ? 1 : -1
-
   try {
     await postStore.toggleFavorPost(props.post.id)
   } catch (error) {
-    // 調用失敗 回滾到原始狀態
-    isSaved.value = originalSaved
-    saveCount.value = originalSavedCount
+    console.error('收藏失敗:', error)
   }
 }
 
 // 點擊評論圖示打開詳情彈跳視窗
 const handlePostClick = () => {
-  // 打開詳情彈跳視窗
   modalStore.openModal('postDetails')
-
-  // 傳遞當前 post 資料到彈跳視窗
   postStore.setCurrentPostId(props.post.id)
 }
 </script>

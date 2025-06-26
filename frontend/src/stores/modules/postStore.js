@@ -19,6 +19,14 @@ export const usePostStore = defineStore('post', () => {
     currentPostId.value = postId
   }
 
+  // 更新特定貼文的狀態
+  const updatePostState = (postId, updates) => {
+    const postIndex = list.value.findIndex((post) => post.id === postId)
+    if (postIndex !== -1) {
+      list.value[postIndex] = { ...list.value[postIndex], ...updates }
+    }
+  }
+
   // 創建新貼文
   const createPost = async (image, description) => {
     try {
@@ -45,34 +53,66 @@ export const usePostStore = defineStore('post', () => {
 
   // 按讚貼文
   const toggleLikePost = async (postId) => {
+    const post = list.value.find((p) => p.id === postId)
+    if (!post) return false
+
+    // 樂觀更新
+    const originalLiked = post.likedByMe
+    const originalCount = post.liked_bies
+
+    updatePostState(postId, {
+      likedByMe: !originalLiked,
+      liked_bies: originalCount + (originalLiked ? -1 : 1),
+    })
+
     try {
       const isLiked = await postApi.likePost(postId)
       return isLiked
     } catch (error) {
+      // 回滾狀態
+      updatePostState(postId, {
+        likedByMe: originalLiked,
+        liked_bies: originalCount,
+      })
       throw error
     }
   }
 
   // 收藏貼文
   const toggleFavorPost = async (postId) => {
+    const post = list.value.find((p) => p.id === postId)
+    if (!post) return false
+
+    // 樂觀更新
+    const originalFavored = post.favoredByMe
+    const originalCount = post.favored_bies
+
+    updatePostState(postId, {
+      favoredByMe: !originalFavored,
+      favored_bies: originalCount + (originalFavored ? -1 : 1),
+    })
+
     try {
       const isFavor = await postApi.favorPost(postId)
       return isFavor
     } catch (error) {
+      // 回滾狀態
+      updatePostState(postId, {
+        favoredByMe: originalFavored,
+        favored_bies: originalCount,
+      })
       throw error
     }
   }
 
   return {
     list,
-    // currentPostId,
-
     postDetails,
-
     loadAllPosts,
     createPost,
     toggleLikePost,
     toggleFavorPost,
     setCurrentPostId,
+    updatePostState,
   }
 })
