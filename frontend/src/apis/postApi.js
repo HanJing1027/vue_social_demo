@@ -1,4 +1,4 @@
-import { postFormData, get } from '@/apis/request'
+import { postFormData, get, put } from '@/apis/request'
 import { formatPostContent } from '@/utils/postUtils'
 
 export const postApi = {
@@ -48,6 +48,26 @@ export const postApi = {
           },
         }
       })
+    } catch (error) {
+      throw error
+    }
+  },
+
+  // 按讚貼文
+  likePost: async (postId) => {
+    try {
+      const response = await put(`/api/posts/${postId}/like`)
+      return response.data
+    } catch (error) {
+      throw error
+    }
+  },
+
+  // 收藏貼文
+  favorPost: async (postId) => {
+    try {
+      const response = await put(`/api/posts/${postId}/favor`)
+      return response.data
     } catch (error) {
       throw error
     }

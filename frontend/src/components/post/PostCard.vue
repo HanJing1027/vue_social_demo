@@ -15,7 +15,7 @@
     </div>
 
     <!-- 互動按鈕區 -->
-    <PostActions />
+    <PostActions :post="post" />
 
     <!-- 貼文內容 -->
     <div class="post-content">
