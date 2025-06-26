@@ -34,20 +34,20 @@ const postStore = usePostStore()
 
 // 定義響應式狀態
 const isLiked = ref(props.post.likedByMe)
-const isSaved = ref(props.post.favoredByMe)
 const likeCount = ref(props.post.liked_bies)
-const commentCount = ref(props.post.comments)
+const isSaved = ref(props.post.favoredByMe)
 const saveCount = ref(props.post.favored_bies)
+const commentCount = ref(props.post.comments)
 
 // 監聽 props 變化，確保帳號切換時即時正確反饋
 watch(
   () => props.post,
   (newPost) => {
     isLiked.value = newPost.likedByMe || false
-    isSaved.value = newPost.favoredByMe || false
     likeCount.value = newPost.liked_bies || 0
-    commentCount.value = newPost.comments || 0
+    isSaved.value = newPost.favoredByMe || false
     saveCount.value = newPost.favored_bies || 0
+    commentCount.value = newPost.comments || 0
   },
   { deep: true, immediate: true }
 )
@@ -56,7 +56,7 @@ watch(
 const toggleLike = async () => {
   // 保存原始狀態 用於錯誤時能夠回滾
   const originalLiked = isLiked.value
-  const originalCount = likeCount.value
+  const originalLikedCount = likeCount.value
 
   // 先樂觀更新 UI 用於即時反饋
   isLiked.value = !originalLiked
@@ -67,14 +67,27 @@ const toggleLike = async () => {
   } catch (error) {
     // 調用失敗 回滾到原始狀態
     isLiked.value = originalLiked
-    likeCount.value = originalCount
+    likeCount.value = originalLikedCount
   }
 }
 
 // 收藏功能
-const toggleSave = () => {
-  isSaved.value = !isSaved.value
+const toggleSave = async () => {
+  // 保存原始狀態 用於錯誤時能夠回滾
+  const originalSaved = isSaved.value
+  const originalSavedCount = saveCount.value
+
+  // 先樂觀更新 UI 用於即時反饋
+  isSaved.value = !originalSaved
   saveCount.value += isSaved.value ? 1 : -1
+
+  try {
+    await postStore.toggleFavorPost(props.post.id)
+  } catch (error) {
+    // 調用失敗 回滾到原始狀態
+    isSaved.value = originalSaved
+    saveCount.value = originalSavedCount
+  }
 }
 
 // 點擊評論圖示打開詳情彈跳視窗

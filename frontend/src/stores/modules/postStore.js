@@ -39,11 +39,22 @@ export const usePostStore = defineStore('post', () => {
     }
   }
 
+  // 收藏貼文
+  const toggleFavorPost = async (postId) => {
+    try {
+      const isFavor = await postApi.favorPost(postId)
+      return isFavor
+    } catch (error) {
+      throw error
+    }
+  }
+
   return {
     list,
 
     loadAllPosts,
     createPost,
     toggleLikePost,
+    toggleFavorPost,
   }
 })
