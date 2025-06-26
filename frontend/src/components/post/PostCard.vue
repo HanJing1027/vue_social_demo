@@ -92,7 +92,7 @@ const props = defineProps({
   height: 370px;
   overflow: hidden;
   position: relative;
-  background-color: #f5f5f5;
+  background-color: $surface-alt;
   display: flex;
   align-items: center;
   justify-content: center;

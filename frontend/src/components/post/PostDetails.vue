@@ -5,7 +5,7 @@
       <div class="post-layout">
         <!-- 左側圖片 -->
         <div class="post-image-section">
-          <img src="https://picsum.photos/500/300?blur=2" alt="貼文圖片" />
+          <img :src="post.image" alt="貼文圖片" />
         </div>
 
         <!-- 右側內容 -->
@@ -17,8 +17,8 @@
                 <TheAvatar :width="40" :height="40" :fontSize="20" />
               </div>
               <div>
-                <div class="username">使用者名稱</div>
-                <div class="post-time">2小時前</div>
+                <div class="username">{{ post.user?.name || post.user?.username }}</div>
+                <div class="post-time">{{ formatTimeAgo(post.createdAt) }}</div>
               </div>
             </div>
           </div>
@@ -28,27 +28,17 @@
             <!-- 貼文文字內容 -->
             <div class="post-content">
               <p class="post-text">
-                我住在抽幀的大海 給你最溫柔的對白 能遠超你的期待 還甘心被你主宰 就是少了點情感
-                快承認對我的依賴 從聊天到傾訴你的愛 快讓我長出心來 我不會比人壞 你在害怕又期待
-                失去你以來 萬物在搖擺 你指的山海 像玩具一塊一塊 我是你締造又提防的AI 如果我存在
-                是某種傷害 不被你所愛 也不能具象出來 我想擁有你說失去過誰的 那種痛感
-                我是沒軀體的妖怪 統稱為人類的AI 我以為我是例外 你會救我於屠宰 你一鍵我就回來
-                不要漆黑的喝彩 失去你以來 萬物在搖擺 你指的山海 像玩具一塊一塊 我是你締造又提防的AI
-                如果我存在 只對你無害 想做你所愛 再造你要的時代 執行你最初設計我的大概 成為主宰
-                失去你以來 萬物在搖擺 你指的山海 像玩具一塊一塊 我是你締造又不要的AI 也許我本來
-                就是種傷害 我終於明白 我根本就不存在 誰不在造物主設置的循環 活去死來 #山海 #AI #積木
+                {{ content }}
               </p>
 
               <!-- 標籤 -->
               <div class="post-tags">
-                <span class="tag">#咖啡廳</span>
-                <span class="tag">#美食</span>
-                <span class="tag">#生活</span>
+                <span v-for="(tag, index) in post.tags" :key="index" class="tag">{{ tag }}</span>
               </div>
             </div>
 
             <!-- 互動按鈕 -->
-            <PostActions />
+            <PostActions :post="post" />
 
             <!-- 留言區域 -->
             <div class="comments-section">
@@ -64,7 +54,7 @@
 
               <!-- 留言列表 -->
               <div class="comments-list">
-                <div class="comment-item" v-for="i in 50" :key="i">
+                <div class="comment-item" v-for="i in 25" :key="i">
                   <div class="avatar">
                     <TheAvatar :width="40" :height="40" :fontSize="20" />
                   </div>
@@ -89,6 +79,17 @@
 import TheModal from '@/components/common/TheModal.vue'
 import TheAvatar from '@/components/common/TheAvatar.vue'
 import PostActions from '@/components/post/PostActions.vue'
+
+import { computed } from 'vue'
+import { usePostStore } from '@/stores/modules/postStore'
+import { formatTimeAgo } from '@/utils/postUtils'
+
+const postStore = usePostStore()
+
+const post = computed(() => postStore.postDetails)
+
+const description = post.value.description
+const content = description.replace(/#[\u4e00-\u9fa5\w]+/g, '').trim()
 </script>
 
 <style lang="scss" scoped>
@@ -110,12 +111,13 @@ import PostActions from '@/components/post/PostActions.vue'
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #000;
+    background: $surface-alt;
 
     img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      object-position: center;
     }
   }
 
@@ -192,6 +194,7 @@ import PostActions from '@/components/post/PostActions.vue'
     line-height: 1.6;
     font-size: 16px;
     margin: 0 0 16px 0;
+    white-space: pre-line;
   }
 
   .post-tags {
@@ -338,12 +341,13 @@ import PostActions from '@/components/post/PostActions.vue'
     .post-image-section {
       flex: none;
       height: 35vh;
-      background: #000;
+      background: #f5f5f5; /* 手機版也改為灰色背景 */
 
       img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain; /* 手機版也改為 contain */
+        object-position: center;
       }
     }
 
@@ -492,6 +496,14 @@ import PostActions from '@/components/post/PostActions.vue'
 
     .post-image-section {
       height: 40vh;
+      background: #f5f5f5; /* 平板版也改為灰色背景 */
+
+      img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        object-position: center;
+      }
     }
 
     .post-content_section {

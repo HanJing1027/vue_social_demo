@@ -92,7 +92,11 @@ const toggleSave = async () => {
 
 // 點擊評論圖示打開詳情彈跳視窗
 const handlePostClick = () => {
+  // 打開詳情彈跳視窗
   modalStore.openModal('postDetails')
+
+  // 傳遞當前 post 資料到彈跳視窗
+  postStore.setCurrentPostId(props.post.id)
 }
 </script>
 

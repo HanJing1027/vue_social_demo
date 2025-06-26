@@ -1,9 +1,23 @@
 import { defineStore } from 'pinia'
 import { postApi } from '@/apis/postApi'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 export const usePostStore = defineStore('post', () => {
   const list = ref([]) // 貼文列表
+  const currentPostId = ref(null) // 當前貼文 ID
+
+  // 計算屬性：獲取當前貼文詳情
+  const postDetails = computed(() => {
+    if (!currentPostId.value) return null
+
+    // 根據 currentPostId 獲取當前貼文詳情
+    return list.value.find((post) => post.id === currentPostId.value)
+  })
+
+  // 設置當前貼文 ID
+  const setCurrentPostId = (postId) => {
+    currentPostId.value = postId
+  }
 
   // 創建新貼文
   const createPost = async (image, description) => {
@@ -51,10 +65,14 @@ export const usePostStore = defineStore('post', () => {
 
   return {
     list,
+    // currentPostId,
+
+    postDetails,
 
     loadAllPosts,
     createPost,
     toggleLikePost,
     toggleFavorPost,
+    setCurrentPostId,
   }
 })
