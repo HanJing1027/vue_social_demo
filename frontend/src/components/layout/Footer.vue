@@ -4,7 +4,7 @@
       <div class="footer-content">
         <!-- 左側：品牌資訊 -->
         <div class="footer-section">
-          <h3 class="footer-title">Vue Social</h3>
+          <h3 class="footer-title">MiVida</h3>
           <p class="footer-description">連結世界，分享生活</p>
         </div>
 
@@ -30,7 +30,7 @@
       <!-- 底部版權資訊 -->
       <div class="footer-bottom">
         <div class="copyright">
-          <p>&copy; 2025 Vue Social Demo. All rights reserved.</p>
+          <p>&copy; 2025 Huang Hanjing. All rights reserved.</p>
         </div>
         <div class="footer-policies">
           <a href="#" class="policy-link">隱私政策</a>

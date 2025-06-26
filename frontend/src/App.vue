@@ -13,9 +13,11 @@
     <router-view></router-view>
   </template>
 
-  <footer>
-    <Footer />
-  </footer>
+  <template v-if="$route.path !== '/login'">
+    <footer>
+      <Footer />
+    </footer>
+  </template>
 
   <!-- 貼文上傳彈跳視窗 -->
   <PostUpload v-if="modalStore.modals.postUpload" />
