@@ -10,7 +10,7 @@
 
         <!-- 右側內容 -->
         <div class="post-content-section">
-          <!-- 貼文標題區域 -->
+          <!-- 貼文標題區域 (固定不滾動) -->
           <div class="post-header">
             <div class="user-info">
               <div class="avatar">
@@ -23,47 +23,58 @@
             </div>
           </div>
 
-          <!-- 貼文文字內容 -->
-          <div class="post-content">
-            <p class="post-text">
-              今天去了一個很棒的咖啡廳，環境優美，咖啡香濃，真的是放鬆心情的好地方！推薦給大家～
-            </p>
+          <!-- 可滾動的內容區域 -->
+          <div class="post-scrollable-content">
+            <!-- 貼文文字內容 -->
+            <div class="post-content">
+              <p class="post-text">
+                我住在抽幀的大海 給你最溫柔的對白 能遠超你的期待 還甘心被你主宰 就是少了點情感
+                快承認對我的依賴 從聊天到傾訴你的愛 快讓我長出心來 我不會比人壞 你在害怕又期待
+                失去你以來 萬物在搖擺 你指的山海 像玩具一塊一塊 我是你締造又提防的AI 如果我存在
+                是某種傷害 不被你所愛 也不能具象出來 我想擁有你說失去過誰的 那種痛感
+                我是沒軀體的妖怪 統稱為人類的AI 我以為我是例外 你會救我於屠宰 你一鍵我就回來
+                不要漆黑的喝彩 失去你以來 萬物在搖擺 你指的山海 像玩具一塊一塊 我是你締造又提防的AI
+                如果我存在 只對你無害 想做你所愛 再造你要的時代 執行你最初設計我的大概 成為主宰
+                失去你以來 萬物在搖擺 你指的山海 像玩具一塊一塊 我是你締造又不要的AI 也許我本來
+                就是種傷害 我終於明白 我根本就不存在 誰不在造物主設置的循環 活去死來 #山海 #AI #積木
+              </p>
 
-            <!-- 標籤 -->
-            <div class="post-tags">
-              <span class="tag">#咖啡廳</span>
-              <span class="tag">#美食</span>
-              <span class="tag">#生活</span>
-            </div>
-          </div>
-
-          <!-- 互動按鈕 -->
-          <PostActions />
-
-          <!-- 留言區域 -->
-          <div class="comments-section">
-            <h3 class="comments-title">留言</h3>
-
-            <!-- 新增留言 -->
-            <div class="comment-input">
-              <input type="text" placeholder="寫下你的留言..." />
-              <button class="send-btn">
-                <i class="bx bx-send"></i>
-              </button>
+              <!-- 標籤 -->
+              <div class="post-tags">
+                <span class="tag">#咖啡廳</span>
+                <span class="tag">#美食</span>
+                <span class="tag">#生活</span>
+              </div>
             </div>
 
-            <!-- 留言列表 -->
-            <div class="comments-list">
-              <div class="comment-item" v-for="i in 100" :key="i">
-                <div class="avatar">
-                  <TheAvatar :width="40" :height="40" :fontSize="20" />
-                </div>
-                <div class="comment-content">
-                  <div class="comment-header">
-                    <span class="comment-username">留言者</span>
-                    <span class="comment-time">1天以前</span>
+            <!-- 互動按鈕 -->
+            <PostActions />
+
+            <!-- 留言區域 -->
+            <div class="comments-section">
+              <h3 class="comments-title">留言</h3>
+
+              <!-- 新增留言 -->
+              <div class="comment-input">
+                <input type="text" placeholder="寫下你的留言..." />
+                <button class="send-btn">
+                  <i class="bx bx-send"></i>
+                </button>
+              </div>
+
+              <!-- 留言列表 -->
+              <div class="comments-list">
+                <div class="comment-item" v-for="i in 50" :key="i">
+                  <div class="avatar">
+                    <TheAvatar :width="40" :height="40" :fontSize="20" />
                   </div>
-                  <p class="comment-text">很棒的分享！我也想去這個地方</p>
+                  <div class="comment-content">
+                    <div class="comment-header">
+                      <span class="comment-username">留言者</span>
+                      <span class="comment-time">1天以前</span>
+                    </div>
+                    <p class="comment-text">很棒的分享！我也想去這個地方</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -114,13 +125,42 @@ import PostActions from '@/components/post/PostActions.vue'
     flex-direction: column;
     height: 100%;
     min-height: 0;
-    overflow: hidden;
   }
 
   .post-header {
     padding: 20px;
     border-bottom: 1px solid $border-light;
     flex-shrink: 0;
+  }
+
+  .post-scrollable-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    /* 添加滾動條樣式 */
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: $border-light;
+      border-radius: 4px;
+
+      &:hover {
+        background: $text-secondary;
+      }
+    }
+
+    scrollbar-width: thin;
+    scrollbar-color: $border-light transparent;
   }
 
   .post-content {
@@ -182,7 +222,6 @@ import PostActions from '@/components/post/PostActions.vue'
   display: flex;
   flex-direction: column;
   min-height: 0;
-  overflow: hidden;
 
   .comments-title {
     font-size: 18px;
@@ -233,66 +272,56 @@ import PostActions from '@/components/post/PostActions.vue'
     gap: 16px;
     flex: 1;
     min-height: 0;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding-right: 4px;
-
-    &::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    &::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    &::-webkit-scrollbar-thumb {
-      background: $border-light;
-      border-radius: 3px;
-
-      &:hover {
-        background: $text-secondary;
-      }
-    }
-
-    scrollbar-width: thin;
-    scrollbar-color: $border-light transparent;
   }
 
   .comment-item {
     display: flex;
-    gap: 12px;
     align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 12px;
   }
 
   .comment-content {
     flex: 1;
-    background: $surface-alt;
-    padding: 12px;
-    border-radius: 12px;
+    background: #f8f9fa;
+    padding: 8px 12px;
+    border-radius: 12px 12px 12px 3px;
+    position: relative;
+    max-width: 85%;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: -5px;
+      top: 8px;
+      width: 0;
+      height: 0;
+      border: 5px solid transparent;
+      border-right-color: #f8f9fa;
+    }
   }
 
   .comment-header {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 4px;
+    gap: 6px;
+    margin-bottom: 2px;
   }
 
   .comment-username {
     font-weight: 600;
     color: $text-color;
-    font-size: 14px;
+    font-size: 13px;
   }
 
   .comment-time {
     color: $text-secondary;
-    font-size: 12px;
-    font-weight: 400;
+    font-size: 11px;
   }
 
   .comment-text {
     color: $text-color;
-    font-size: 14px;
+    font-size: 13px;
     line-height: 1.4;
     margin: 0;
   }
@@ -323,7 +352,30 @@ import PostActions from '@/components/post/PostActions.vue'
       min-height: 0;
       display: flex;
       flex-direction: column;
-      overflow: hidden;
+    }
+
+    .post-scrollable-content {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+
+      &::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      &::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: $border-light;
+        border-radius: 3px;
+
+        &:hover {
+          background: $text-secondary;
+        }
+      }
     }
 
     .post-header {
@@ -367,7 +419,6 @@ import PostActions from '@/components/post/PostActions.vue'
     padding: 12px 16px;
     flex: 1;
     min-height: 0;
-    overflow: hidden;
 
     .comments-title {
       font-size: 16px;
@@ -393,29 +444,33 @@ import PostActions from '@/components/post/PostActions.vue'
     }
 
     .comments-list {
-      gap: 10px;
-
-      &::-webkit-scrollbar {
-        width: 3px;
-      }
+      gap: 8px;
     }
 
     .comment-item {
       gap: 8px;
+      margin-bottom: 8px;
     }
 
     .comment-content {
-      padding: 8px 10px;
-      border-radius: 8px;
+      padding: 6px 10px;
+      border-radius: 10px 10px 10px 2px;
+
+      &::before {
+        left: -4px;
+        top: 6px;
+        border-width: 4px;
+        border-right-color: #f8f9fa;
+      }
     }
 
     .comment-header {
-      gap: 6px;
-      margin-bottom: 2px;
+      gap: 4px;
+      margin-bottom: 1px;
     }
 
     .comment-username {
-      font-size: 13px;
+      font-size: 12px;
     }
 
     .comment-time {
@@ -423,8 +478,8 @@ import PostActions from '@/components/post/PostActions.vue'
     }
 
     .comment-text {
-      font-size: 13px;
-      line-height: 1.2;
+      font-size: 12px;
+      line-height: 1.3;
     }
   }
 }
@@ -439,9 +494,11 @@ import PostActions from '@/components/post/PostActions.vue'
       height: 40vh;
     }
 
-    .post-content-section {
+    .post-content_section {
       flex: 1;
       min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
     }
   }
 
