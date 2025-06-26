@@ -99,6 +99,7 @@ import { usePostStore } from '@/stores/modules/postStore'
 import { useUserStore } from '@/stores/modules/userStore'
 import { useModalStore } from '@/stores/modules/modalStore'
 import { useToastStore } from '@/stores/modules/toastStore'
+import { debounce } from '@/utils/debounce'
 import { createInputMethodHandler } from '@/utils/createInputMethodHandler'
 
 const userStore = useUserStore()
@@ -137,7 +138,8 @@ const formatDescription = () => {
   return description
 }
 
-const publishPost = async () => {
+// 發布貼文
+const originalPublishPost = async () => {
   if (!isFormValid.value) {
     toastStore.showError('請至少輸入內容與上傳圖片')
     return
@@ -164,6 +166,7 @@ const publishPost = async () => {
     console.error(`發布貼文失敗: ${error}`)
   }
 }
+const publishPost = debounce(originalPublishPost, 300)
 
 // 觸發文件選擇
 const triggerFileInput = () => {

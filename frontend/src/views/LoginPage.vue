@@ -87,7 +87,6 @@ const userStore = useUserStore()
 const toastStore = useToastStore()
 
 const isLogin = ref(true) // 初始狀態為登入模式
-const isLoading = ref(false) // 是否正在處理請求
 const agreement = ref(false)
 
 const formData = reactive({
