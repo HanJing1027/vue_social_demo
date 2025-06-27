@@ -20,7 +20,7 @@
     <!-- 貼文內容 -->
     <div class="post-content">
       <p class="post-text">
-        <template v-if="post.description.length < 80">{{ post.shortDescription }}</template>
+        <template v-if="(post.description || '').length < 80">{{ post.shortDescription }}</template>
         <template v-else>
           {{ post.shortDescription }}
           <span @click="handlePostClick">...查看更多</span>

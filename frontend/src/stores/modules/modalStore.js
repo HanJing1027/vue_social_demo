@@ -9,6 +9,11 @@ export const useModalStore = defineStore('modal', () => {
     // 其他可以在這繼續添加
   })
 
+  const isAnyModalOpen = computed(() => {
+    // 檢查是否有任何彈跳視窗是開啟的
+    return Object.values(modals.value).some((isOpen) => isOpen)
+  })
+
   // 打開指定的彈跳視窗
   const openModal = (modalName) => {
     if (modalName in modals.value) {
@@ -30,16 +35,21 @@ export const useModalStore = defineStore('modal', () => {
     })
   }
 
-  const isAnyModalOpen = computed(() => {
-    // 檢查是否有任何彈跳視窗是開啟的
-    return Object.values(modals.value).some((isOpen) => isOpen)
-  })
+  // Esc 鍵關閉彈跳視窗
+  const handleEscKey = (event) => {
+    if (event.key === 'Escape') {
+      closeAllModals()
+    }
+  }
 
+  // 監聽彈跳窗開啟時禁止滾動與 Esc 鍵關閉
   watch(isAnyModalOpen, (isOpen) => {
     if (isOpen) {
       document.body.style.overflow = 'hidden' // 禁止滾動
+      document.addEventListener('keydown', handleEscKey) // 監聽 Esc 鍵
     } else {
       document.body.style.overflow = '' // 恢復滾動
+      document.removeEventListener('keydown', handleEscKey) // 移除 Esc 鍵監聽
     }
   })
 
