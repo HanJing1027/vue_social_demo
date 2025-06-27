@@ -78,6 +78,16 @@ export const usePostStore = defineStore('post', () => {
     }
   }
 
+  // 貼文留言
+  const increaseCommentCount = (postId) => {
+    const post = list.value.find((p) => p.id === postId)
+    if (!post) return false
+
+    post.comments++
+
+    return true
+  }
+
   // 收藏貼文
   const toggleFavorPost = async (postId) => {
     const post = list.value.find((p) => p.id === postId)
@@ -108,11 +118,12 @@ export const usePostStore = defineStore('post', () => {
   return {
     list,
     postDetails,
+
     loadAllPosts,
     createPost,
     toggleLikePost,
     toggleFavorPost,
     setCurrentPostId,
-    updatePostState,
+    increaseCommentCount,
   }
 })

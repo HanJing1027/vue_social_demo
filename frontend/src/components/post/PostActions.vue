@@ -9,10 +9,12 @@
         <i :class="post.likedByMe ? 'bxs-heart' : 'bx-heart'" class="bx"></i>
         <span class="action-count">{{ post.liked_bies || 0 }}</span>
       </div>
+
       <div class="icon-item comment-action" @click.stop="handlePostClick">
         <i class="bx bx-message-square"></i>
         <span class="action-count">{{ post.comments || 0 }}</span>
       </div>
+
       <div
         class="icon-item star-action"
         :class="{ active: post.favoredByMe }"

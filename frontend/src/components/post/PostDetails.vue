@@ -45,12 +45,12 @@
               <h3 class="comments-title">留言</h3>
 
               <!-- 新增留言 -->
-              <div class="comment-input">
-                <input type="text" placeholder="寫下你的留言..." />
-                <button class="send-btn">
+              <form class="comment-input" @submit.prevent="addComment">
+                <input v-model="commentContent" type="text" placeholder="寫下你的留言..." />
+                <button type="submit" class="send-btn">
                   <i class="bx bx-send"></i>
                 </button>
-              </div>
+              </form>
 
               <!-- 留言列表 -->
               <div class="comments-list">
@@ -80,16 +80,45 @@ import TheModal from '@/components/common/TheModal.vue'
 import TheAvatar from '@/components/common/TheAvatar.vue'
 import PostActions from '@/components/post/PostActions.vue'
 
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import { usePostStore } from '@/stores/modules/postStore'
+import { useCommentStore } from '@/stores/modules/commentStore'
+import { useToastStore } from '@/stores/modules/toastStore'
 import { formatTimeAgo } from '@/utils/postUtils'
+import { debounce } from '@/utils/debounce'
 
 const postStore = usePostStore()
+const commentStore = useCommentStore()
+const toastStore = useToastStore()
+const commentContent = ref('')
 
 const post = computed(() => postStore.postDetails)
 
 const description = post.value.description
 const content = description.replace(/#[\u4e00-\u9fa5\w]+/g, '').trim()
+
+// 新增留言
+const originalAddComment = async () => {
+  if (!commentContent.value.trim()) {
+    toastStore.showError('留言內容不能為空')
+    return
+  }
+
+  try {
+    await commentStore.addComment(commentContent.value.trim(), post.value.id)
+
+    postStore.increaseCommentCount(post.value.id) // 更新貼文的留言數量
+
+    toastStore.showSuccess('留言新增成功')
+  } catch (error) {
+    toastStore.showError('新增留言失敗，請稍後再試')
+    console.error('新增留言失敗:', error)
+  } finally {
+    commentContent.value = '' // 清空留言輸入框
+  }
+}
+
+const addComment = debounce(originalAddComment, 300)
 </script>
 
 <style lang="scss" scoped>
