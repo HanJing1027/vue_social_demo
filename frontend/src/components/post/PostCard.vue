@@ -20,7 +20,11 @@
     <!-- 貼文內容 -->
     <div class="post-content">
       <p class="post-text">
-        {{ post.shortDescription }}
+        <template v-if="post.description.length < 80">{{ post.shortDescription }}</template>
+        <template v-else>
+          {{ post.shortDescription }}
+          <span @click="handlePostClick">...查看更多</span>
+        </template>
       </p>
     </div>
 
@@ -35,7 +39,12 @@
 import TheAvatar from '@/components/common/TheAvatar.vue'
 import PostActions from '@/components/post/PostActions.vue'
 
+import { usePostStore } from '@/stores/modules/postStore'
+import { useModalStore } from '@/stores/modules/modalStore'
 import { formatTimeAgo } from '@/utils/postUtils'
+
+const postStore = usePostStore()
+const modalStore = useModalStore()
 
 const props = defineProps({
   post: {
@@ -43,6 +52,11 @@ const props = defineProps({
     default: {},
   },
 })
+
+const handlePostClick = () => {
+  postStore.setCurrentPostId(props.post.id)
+  modalStore.openModal('postDetails')
+}
 </script>
 
 <style lang="scss" scoped>
@@ -116,6 +130,31 @@ const props = defineProps({
   line-height: 1.5;
   font-size: 14px;
   margin: 0;
+
+  span {
+    cursor: pointer;
+    color: $primary-color;
+    font-size: 14px;
+    line-height: 1.5;
+    margin-left: 2px;
+    position: relative;
+    text-decoration: none;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 1px;
+      background-color: $primary-color;
+      transition: width $transition-speed ease;
+    }
+
+    &:hover::after {
+      width: 100%;
+    }
+  }
 }
 
 .post-tags {

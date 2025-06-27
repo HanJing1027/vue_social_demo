@@ -12,9 +12,8 @@ export const formatPostContent = (description, maxLength = 80) => {
 
   // 限制內文長度
   if (content.length > maxLength) {
-    content = content.substring(0, maxLength) + '...'
+    content = content.substring(0, maxLength)
   }
-
   return {
     content,
     tags,

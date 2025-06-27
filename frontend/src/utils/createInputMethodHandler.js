@@ -38,6 +38,6 @@ export const createInputMethodHandler = (callback, options = {}) => {
     handleCompositionStart,
     handleCompositionEnd,
     handleKeyDown,
-    isComposing: () => isComposing,
+    isComposing: () => isComposing, // 把內部變數 isComposing 透過一個函式包起來，讓外部可以 讀取狀態，但無法修改它
   }
 }
