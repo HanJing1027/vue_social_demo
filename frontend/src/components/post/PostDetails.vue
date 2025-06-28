@@ -386,6 +386,7 @@ onMounted(() => {
     font-size: 13px;
     line-height: 1.4;
     margin: 0;
+    white-space: pre-line;
   }
 }
 
