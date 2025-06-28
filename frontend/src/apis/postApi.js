@@ -9,8 +9,7 @@ export const postApi = {
     formData.append('data', JSON.stringify({ description }))
 
     try {
-      const response = await postFormData('/api/posts', formData)
-      return response
+      return await postFormData('/api/posts', formData)
     } catch (error) {
       throw error
     }

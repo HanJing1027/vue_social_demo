@@ -14,7 +14,7 @@
           <div class="post-header">
             <div class="user-info">
               <div class="avatar">
-                <TheAvatar :width="40" :height="40" :fontSize="20" />
+                <TheAvatar :src="post.user?.avatar" :width="40" :height="40" :fontSize="20" />
               </div>
               <div>
                 <div class="username">{{ post.user?.name || post.user?.username }}</div>
@@ -53,19 +53,30 @@
               </form>
 
               <!-- 留言列表 -->
-              <div class="comments-list">
-                <div class="comment-item" v-for="i in 25" :key="i">
+              <div v-if="comments.length > 0" class="comments-list">
+                <div class="comment-item" v-for="comment in comments" :key="comment.id">
                   <div class="avatar">
-                    <TheAvatar :width="40" :height="40" :fontSize="20" />
+                    <TheAvatar
+                      :src="comment.user?.avatar"
+                      :width="40"
+                      :height="40"
+                      :fontSize="20"
+                    />
                   </div>
                   <div class="comment-content">
                     <div class="comment-header">
-                      <span class="comment-username">留言者</span>
-                      <span class="comment-time">1天以前</span>
+                      <span class="comment-username">{{
+                        comment.user?.name || comment.user?.username
+                      }}</span>
+                      <span class="comment-time">{{ formatTimeAgo(comment.pubDate) }}</span>
                     </div>
-                    <p class="comment-text">很棒的分享！我也想去這個地方</p>
+                    <p class="comment-text">{{ comment.content }}</p>
                   </div>
                 </div>
+              </div>
+              <!-- 如果沒有留言，顯示提示 -->
+              <div v-else class="no-comments">
+                <p>還沒有留言，快來搶沙發！</p>
               </div>
             </div>
           </div>
@@ -80,7 +91,7 @@ import TheModal from '@/components/common/TheModal.vue'
 import TheAvatar from '@/components/common/TheAvatar.vue'
 import PostActions from '@/components/post/PostActions.vue'
 
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { usePostStore } from '@/stores/modules/postStore'
 import { useCommentStore } from '@/stores/modules/commentStore'
 import { useToastStore } from '@/stores/modules/toastStore'
@@ -93,6 +104,7 @@ const toastStore = useToastStore()
 const commentContent = ref('')
 
 const post = computed(() => postStore.postDetails)
+const comments = computed(() => commentStore.list)
 
 const description = post.value.description
 const content = description.replace(/#[\u4e00-\u9fa5\w]+/g, '').trim()
@@ -119,6 +131,10 @@ const originalAddComment = async () => {
 }
 
 const addComment = debounce(originalAddComment, 300)
+
+onMounted(() => {
+  commentStore.loadComments(postStore.currentPostId)
+})
 </script>
 
 <style lang="scss" scoped>
@@ -514,6 +530,17 @@ const addComment = debounce(originalAddComment, 300)
       font-size: 12px;
       line-height: 1.3;
     }
+  }
+}
+
+.no-comments {
+  text-align: center;
+  padding: 40px 20px;
+  color: $text-secondary;
+
+  p {
+    margin: 0;
+    font-size: 14px;
   }
 }
 

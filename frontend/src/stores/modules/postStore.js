@@ -117,6 +117,8 @@ export const usePostStore = defineStore('post', () => {
 
   return {
     list,
+    currentPostId,
+
     postDetails,
 
     loadAllPosts,

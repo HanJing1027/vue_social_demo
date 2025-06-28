@@ -16,7 +16,7 @@ serviceAxios.interceptors.request.use(
     // console.log('Method:', requestConfig.method)
     // console.log('Params:', requestConfig.params)
     // console.log('Data (body):', requestConfig.data)
-    // console.log('最終請求標頭:', requestConfig.headers)
+    // console.log('最終請求標頭:', requestConfig.headers)e
 
     // 如果 auth 為 false 則不需要攜帶 token (預設為 true)
     const needAuth = requestConfig.auth !== false
