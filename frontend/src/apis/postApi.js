@@ -23,7 +23,11 @@ export const postApi = {
   // 加載貼文
   loadPosts: async (filters = '') => {
     try {
-      const response = await get('/api/posts', { populate: '*', ...filters })
+      const response = await get('/api/posts', {
+        populate: '*',
+        sort: 'createdAt:desc', // 按創建時間降序排列
+        ...filters,
+      })
 
       // 如果需要調試 可以取消註解以下行
       // console.log('response:', response.data)

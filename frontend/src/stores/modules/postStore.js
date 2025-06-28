@@ -31,7 +31,8 @@ export const usePostStore = defineStore('post', () => {
   const createPost = async (image, description) => {
     try {
       const newPost = await postApi.createPost(image, description)
-      list.value.unshift(newPost)
+
+      loadAllPosts() // 重新載入所有貼文以確保最新數據
 
       return newPost
     } catch (error) {
