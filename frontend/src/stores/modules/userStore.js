@@ -35,6 +35,11 @@ export const useUserStore = defineStore('user', () => {
     return !!(token && hasUser)
   })
 
+  // 取得用戶 id
+  const getUserId = computed(() => {
+    return user.value ? user.value.id : null
+  })
+
   // 保存用戶資料
   const saveUserDataToStorage = (userData) => {
     try {
@@ -43,6 +48,12 @@ export const useUserStore = defineStore('user', () => {
     } catch (error) {
       return false
     }
+  }
+
+  // 更新用戶資料
+  const updateUser = (userData) => {
+    user.value = userData
+    saveUserDataToStorage(userData)
   }
 
   // 從本地存儲恢復用戶資料
@@ -111,6 +122,9 @@ export const useUserStore = defineStore('user', () => {
     user,
 
     isAuthenticated,
+    getUserId,
+
+    updateUser,
     saveUserDataToStorage,
     restoreUserFromStorage,
     registerUser,

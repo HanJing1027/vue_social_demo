@@ -103,26 +103,26 @@ export const postFormData = async (url, formData, auth = true) => {
   }
 }
 
-export const putFormData = async (url, formData, auth = true) => {
-  try {
-    const config = {
-      method: 'PUT',
-      url,
-      data: formData,
-      headers: {},
-      timeout: 30000,
-    }
+// export const putFormData = async (url, formData, auth = true) => {
+//   try {
+//     const config = {
+//       method: 'PUT',
+//       url,
+//       data: formData,
+//       headers: {},
+//       timeout: 30000,
+//     }
 
-    if (auth) {
-      const token = getJwtToken()
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`
-      }
-    }
+//     if (auth) {
+//       const token = getJwtToken()
+//       if (token) {
+//         config.headers.Authorization = `Bearer ${token}`
+//       }
+//     }
 
-    const response = await axios(config)
-    return response.data
-  } catch (error) {
-    throw error
-  }
-}
+//     const response = await axios(config)
+//     return response.data
+//   } catch (error) {
+//     throw error
+//   }
+// }

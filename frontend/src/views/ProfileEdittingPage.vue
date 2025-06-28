@@ -13,9 +13,9 @@
       <!-- 頭像編輯區 -->
       <div class="avatar-section">
         <div class="avatar-wrapper">
-          <TheAvatar :width="130" :height="130" :fontSize="70" />
+          <TheAvatar :src="previewAvatar" :width="130" :height="130" :fontSize="70" />
+          <!-- 修改頭像按鈕 -->
         </div>
-        <!-- 修改頭像按鈕 -->
         <button type="button" class="change-avatar-btn" @click="selectAvatar">
           <i class="bx bx-edit"></i>
           修改頭像
@@ -30,7 +30,7 @@
       </div>
 
       <!-- 表單區域 -->
-      <form class="profile-form">
+      <form class="profile-form" @submit.prevent="handleSave">
         <!-- 基本資訊 -->
         <div class="form-section">
           <h3 class="section-title">基本資訊</h3>
@@ -41,49 +41,44 @@
               <span class="required">*</span>
             </label>
             <input
+              v-model="profileData.username"
               type="text"
               class="form-input"
               placeholder="請輸入用戶名稱"
-              value="使用者名稱"
               required
             />
           </div>
 
           <div class="form-field">
-            <label class="field-label">
-              顯示名稱
-              <span class="required">*</span>
-            </label>
+            <label class="field-label">顯示名稱</label>
             <input
+              v-model="profileData.name"
               type="text"
               class="form-input"
               placeholder="請輸入顯示名稱"
-              value="yufeng_zhang"
             />
           </div>
 
           <div class="form-field">
-            <label class="field-label">
-              手機號碼
-              <span class="required">*</span>
-            </label>
+            <label class="field-label">手機號碼</label>
             <input
-              type="email"
+              v-model="profileData.mobilePhone"
+              type="number"
               class="form-input"
               placeholder="請輸入手機號碼"
-              value="0123-456-7890"
-              required
             />
           </div>
 
           <div class="form-field">
             <label class="field-label">個人簡介</label>
-            <textarea class="form-textarea" placeholder="介紹一下自己..." rows="4" maxlength="200">
-熱愛攝影與生活分享 📸
-咖啡愛好者 ☕
-#攝影 #美食 #旅行</textarea
-            >
-            <span class="char-count">55/200</span>
+            <textarea
+              v-model="profileData.intro"
+              class="form-textarea"
+              placeholder="介紹一下自己..."
+              rows="4"
+              maxlength="200"
+            ></textarea>
+            <span class="char-count">{{ (profileData.intro || '').length }}/200</span>
           </div>
         </div>
 
@@ -94,18 +89,18 @@
           <div class="form-field">
             <label class="field-label">個人網站</label>
             <input
+              v-model="profileData.website"
               type="url"
               class="form-input"
               placeholder="https://example.com"
-              value="https://example.com"
             />
           </div>
 
           <div class="form-field">
             <label class="field-label">性別</label>
             <i class="bx bx-chevron-down"></i>
-            <select class="form-input">
-              <option value="">請選擇性別</option>
+            <select v-model="profileData.gender" class="form-input">
+              <option value="" disabled>請選擇性別</option>
               <option value="male">男性</option>
               <option value="female">女性</option>
             </select>
@@ -115,7 +110,7 @@
         <!-- 操作按鈕 -->
         <div class="form-actions">
           <TheButton :bxIcon="`bx-reset`" :reverse="true">重置</TheButton>
-          <TheButton :bxIcon="`bxs-save`" @click="handleSave">儲存變更</TheButton>
+          <TheButton :btnType="`submit`" :bxIcon="`bxs-save`">儲存變更</TheButton>
         </div>
       </form>
     </div>
@@ -126,21 +121,72 @@
 import TheAvatar from '@/components/common/TheAvatar.vue'
 import TheButton from '@/components/common/TheButton.vue'
 
-import { ref } from 'vue'
+import { ref, reactive, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/modules/userStore'
 import { useToastStore } from '@/stores/modules/toastStore'
+import { updateUserApi } from '@/apis/updateUserProfileApi'
 import { debounce } from '@/utils/debounce'
 
+const router = useRouter()
 const toastStore = useToastStore()
+const userStore = useUserStore()
+
+const userData = computed(() => userStore.user)
+
 const avatarInput = ref(null)
+const previewAvatar = ref(null)
+const profileData = reactive({
+  avatar: userData.value.avatar || '',
+  username: userData.value.username || '',
+  name: userData.value.name || '',
+  mobilePhone: userData.value.mobilePhone || '',
+  intro: userData.value.intro || '',
+  website: userData.value.website || '',
+  gender: userData.value.gender || '',
+})
 
 // 選擇頭像
 const selectAvatar = () => {
   avatarInput.value?.click()
 }
 
+// 處理頭像變更
+const handleAvatarChange = async (event) => {
+  const file = event.target.files[0]
+  if (!file) return
+
+  // 驗證文件大小 (例如：5MB)
+  if (file.size > 5 * 1024 * 1024) {
+    toastStore.showError('圖片大小不能超過 5MB')
+    return
+  }
+
+  try {
+    // 上傳文件
+    const avatarUrl = await updateUserApi.uploadFile(file)
+    profileData.avatar = avatarUrl
+
+    // 處理頭像預覽
+    const BASE_URL = import.meta.env.VITE_API_BASE_URL
+    previewAvatar.value = BASE_URL + avatarUrl
+
+    toastStore.showSuccess('頭像更新成功！')
+
+    // 清空文件輸入框
+    if (avatarInput.value) {
+      avatarInput.value.value = ''
+    }
+  } catch (error) {
+    console.error('頭像上傳失敗:', error)
+    toastStore.showError('頭像上傳失敗，請稍後再試')
+  }
+}
+
 // 保存個人資料變更
 const originalHandleSave = () => {
   toastStore.showSuccess('個人資料已儲存！')
+  // console.log(profileData)
 }
 
 const handleSave = debounce(originalHandleSave, 300)
@@ -382,6 +428,18 @@ const handleSave = debounce(originalHandleSave, 300)
 
 .form-textarea {
   @include base-input($borderRadius: 8px);
+}
+
+input[type='number'] {
+  /* Chrome、Safari、Edge、Opera */
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* Firefox */
+  -moz-appearance: textfield;
 }
 
 // 下拉選單特殊樣式

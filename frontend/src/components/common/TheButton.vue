@@ -1,5 +1,5 @@
 <template>
-  <button type="button" class="base-button" :class="{ primary: color === 'primary', reverse }">
+  <button :type="btnType" class="base-button" :class="{ primary: color === 'primary', reverse }">
     <i class="bx" :class="bxIcon"></i>
     <slot></slot>
   </button>
@@ -17,6 +17,10 @@ const props = defineProps({
   reverse: {
     type: Boolean,
     default: false,
+  },
+  btnType: {
+    type: String,
+    default: 'button',
   },
 })
 </script>
