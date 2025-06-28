@@ -8,8 +8,8 @@
   background   : $surface-alt;
   font-size    : 14px;
   outline      : none;
-  transition   : all 0.2s ease;
-  resize       : vertical;
+  transition   : all $transition-speed ease;
+  resize       : none;
   color        : $text-color;
 
   &:focus {

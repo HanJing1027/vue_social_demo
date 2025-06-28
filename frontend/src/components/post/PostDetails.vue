@@ -46,7 +46,7 @@
 
               <!-- 新增留言 -->
               <form class="comment-input" @submit.prevent="addComment">
-                <input v-model="commentContent" type="text" placeholder="寫下你的留言..." />
+                <textarea v-model="commentContent" type="text" placeholder="寫下你的留言..." />
                 <button type="submit" class="send-btn">
                   <i class="bx bx-send"></i>
                 </button>
@@ -287,8 +287,22 @@ onMounted(() => {
     border-radius: 12px;
     flex-shrink: 0;
 
-    input {
+    textarea {
       @include base-input($borderRadius: 20px);
+      min-height: 40px;
+      max-height: 120px;
+      height: 40px;
+      resize: none;
+      padding: 12px 16px;
+      line-height: 1.4;
+      font-size: 14px;
+      overflow-y: auto;
+
+      // 自動擴展高度
+      &:focus {
+        height: auto;
+        min-height: 60px;
+      }
     }
 
     .send-btn {
