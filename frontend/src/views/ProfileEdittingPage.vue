@@ -63,7 +63,7 @@
             <label class="field-label">手機號碼</label>
             <input
               v-model="profileData.mobilePhone"
-              type="number"
+              type="text"
               class="form-input"
               placeholder="請輸入手機號碼"
             />
@@ -76,9 +76,9 @@
               class="form-textarea"
               placeholder="介紹一下自己..."
               rows="4"
-              maxlength="200"
+              maxlength="150"
             ></textarea>
-            <span class="char-count">{{ (profileData.intro || '').length }}/200</span>
+            <span class="char-count">{{ (profileData.intro || '').length }}/150</span>
           </div>
         </div>
 
@@ -101,8 +101,8 @@
             <i class="bx bx-chevron-down"></i>
             <select v-model="profileData.gender" class="form-input">
               <option value="" disabled>請選擇性別</option>
-              <option value="male">男性</option>
-              <option value="female">女性</option>
+              <option value="M">男性</option>
+              <option value="F">女性</option>
             </select>
           </div>
         </div>
@@ -143,7 +143,7 @@ const profileData = reactive({
   mobilePhone: userData.value.mobilePhone || '',
   intro: userData.value.intro || '',
   website: userData.value.website || '',
-  gender: userData.value.gender || '',
+  gender: userData.value.gender || 'M', // 預設為男性
 })
 
 // 用於重置功能
@@ -192,16 +192,18 @@ const resetProfile = () => {
 }
 
 // 保存個人資料變更
-const originalHandleSave = () => {
-  console.log(profileData)
+const originalHandleSave = async () => {
   try {
+    if (profileData.intro.length > 150) {
+      toastStore.showError('個人簡介不能超過 150 字')
+      return
+    }
+
+    await updateUserApi.updateUserData(profileData)
     toastStore.showSuccess('個人資料已儲存！')
 
-    // 調用 API 儲存個人資料
-
-    // router.push({ name: 'profile' })
+    router.push({ name: 'profile' })
   } catch (error) {
-    console.error('儲存個人資料失敗:', error)
     toastStore.showError('儲存個人資料失敗，請稍後再試')
   }
 }

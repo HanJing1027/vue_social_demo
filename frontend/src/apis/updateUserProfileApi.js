@@ -19,7 +19,7 @@ export const updateUserApi = {
   // 更新用戶資料的 API
   updateUserData: async (userData) => {
     const userStore = useUserStore()
-    const userId = userStore.getUserId()
+    const userId = userStore.getUserId
 
     try {
       const response = await put(`/api/users/${userId}`, userData)
