@@ -26,7 +26,7 @@
         </button>
 
         <div class="profile-dropdown">
-          <TheAvatar :width="40" :height="40" :fontSize="20" />
+          <TheAvatar :src="userStore?.user?.avatar" :width="40" :height="40" :fontSize="20" />
           <ul class="profile-menu">
             <li><router-link to="/profile">個人主頁</router-link></li>
             <li><button class="logout-btn" @click="handleLogout">退出登出</button></li>

@@ -16,7 +16,7 @@ serviceAxios.interceptors.request.use(
     // console.log('Method:', requestConfig.method)
     // console.log('Params:', requestConfig.params)
     // console.log('Data (body):', requestConfig.data)
-    // console.log('最終請求標頭:', requestConfig.headers)e
+    // console.log('最終請求標頭:', requestConfig.headers)
 
     // 如果 auth 為 false 則不需要攜帶 token (預設為 true)
     const needAuth = requestConfig.auth !== false
@@ -38,21 +38,26 @@ serviceAxios.interceptors.request.use(
 
 serviceAxios.interceptors.response.use(
   (response) => {
-    // 處理 Strapi 的貼文圖片
-    if (response.data?.data && Array.isArray(response.data.data)) {
-      response.data.data.forEach((item) => {
-        // 如果有圖片，修正 URL
-        if (item.attributes?.image?.data?.[0]?.attributes?.url) {
-          const imageUrl = item.attributes.image.data[0].attributes.url
+    const baseURL = import.meta.env.VITE_API_BASE_URL
 
-          // 如果不是完整 URL，加上 baseURL
-          if (!imageUrl.startsWith('http')) {
-            item.attributes.image.data[0].attributes.url = `${import.meta.env.VITE_API_BASE_URL}${imageUrl}`
-          }
+    // 處理多筆貼文的圖片 URL
+    if (Array.isArray(response.data?.data)) {
+      response.data.data.forEach((item) => {
+        const attributes = item.attributes
+
+        // 補完整的 user.avatar
+        const avatar = attributes?.user?.data?.attributes?.avatar
+        if (avatar && !avatar.startsWith('http')) {
+          attributes.user.data.attributes.avatar = `${baseURL}${avatar}`
+        }
+
+        // 補完整的 image 圖片 URL（假設取第一張）
+        const imageUrl = attributes?.image?.data?.[0]?.attributes?.url
+        if (imageUrl && !imageUrl.startsWith('http')) {
+          attributes.image.data[0].attributes.url = `${baseURL}${imageUrl}`
         }
       })
     }
-
     return response
   },
   (error) => {

@@ -4,8 +4,15 @@ import { authApi } from '@/apis/authApi'
 import { setJwtToken, getJwtToken, removeJwtToken } from '@/utils/jwtUtils'
 
 export const useUserStore = defineStore('user', () => {
-  const user = ref(null)
+  const user = ref({})
   const isInit = ref(false)
+
+  // 將 Avatar URL 轉換為完整的 URL
+  const resolveAvatarUrl = (avatar) => {
+    const baseURL = import.meta.env.VITE_API_BASE_URL
+    if (!avatar || avatar.startsWith('http')) return avatar
+    return `${baseURL}${avatar}`
+  }
 
   // 初始化用戶資料，只在創建 store 時執行一次
   const initUser = () => {
@@ -52,8 +59,12 @@ export const useUserStore = defineStore('user', () => {
 
   // 更新用戶資料
   const updateUser = (userData) => {
-    user.value = userData
-    saveUserDataToStorage(userData)
+    const updatedUser = {
+      ...userData,
+      avatar: resolveAvatarUrl(userData.avatar),
+    }
+    user.value = updatedUser
+    saveUserDataToStorage(updatedUser)
   }
 
   // 從本地存儲恢復用戶資料
@@ -64,6 +75,7 @@ export const useUserStore = defineStore('user', () => {
 
       if (savedUser && token) {
         const userData = JSON.parse(savedUser)
+        userData.avatar = resolveAvatarUrl(userData.avatar)
         user.value = userData
         return true
       } else {
@@ -100,13 +112,18 @@ export const useUserStore = defineStore('user', () => {
       const response = await authApi.login(formData)
 
       if (response.jwt && response.user) {
-        // 保存 JWT Token 到 cookie
+        // 設置 JWT Token
         setJwtToken(response.jwt)
-        // 保存用戶資料到本地存儲
-        user.value = response.user
-        saveUserDataToStorage(response.user)
+        // 將 Avatar URL 轉換為完整的 URL
+        const userWithFullAvatar = {
+          ...response.user,
+          avatar: resolveAvatarUrl(response.user.avatar),
+        }
+        // 更新用戶資料
+        user.value = userWithFullAvatar
+        saveUserDataToStorage(userWithFullAvatar)
 
-        return response.user
+        return userWithFullAvatar
       }
     } catch (error) {
       throw error

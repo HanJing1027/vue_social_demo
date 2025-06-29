@@ -13,7 +13,14 @@
       <!-- 頭像編輯區 -->
       <div class="avatar-section">
         <div class="avatar-wrapper">
-          <TheAvatar :src="previewAvatar" :width="130" :height="130" :fontSize="70" />
+          <TheAvatar
+            v-if="!previewAvatar"
+            :src="userStore.user.avatar"
+            :width="130"
+            :height="130"
+            :fontSize="70"
+          />
+          <TheAvatar v-else :src="previewAvatar" :width="130" :height="130" :fontSize="70" />
           <!-- 修改頭像按鈕 -->
         </div>
         <button type="button" class="change-avatar-btn" @click="selectAvatar">
@@ -189,6 +196,8 @@ const handleAvatarChange = async (event) => {
 // 重置個人資料
 const resetProfile = () => {
   Object.assign(profileData, originalProfileData) // 恢復到原始資料，確保不斷開 reactive
+
+  console.log(userData.value)
 }
 
 // 保存個人資料變更
