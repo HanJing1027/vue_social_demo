@@ -109,7 +109,7 @@
 
         <!-- 操作按鈕 -->
         <div class="form-actions">
-          <TheButton :bxIcon="`bx-reset`" :reverse="true">重置</TheButton>
+          <TheButton :bxIcon="`bx-reset`" :reverse="true" @click="resetProfile">重置</TheButton>
           <TheButton :btnType="`submit`" :bxIcon="`bxs-save`">儲存變更</TheButton>
         </div>
       </form>
@@ -145,6 +145,9 @@ const profileData = reactive({
   website: userData.value.website || '',
   gender: userData.value.gender || '',
 })
+
+// 用於重置功能
+const originalProfileData = { ...profileData }
 
 // 選擇頭像
 const selectAvatar = () => {
@@ -183,10 +186,24 @@ const handleAvatarChange = async (event) => {
   }
 }
 
+// 重置個人資料
+const resetProfile = () => {
+  Object.assign(profileData, originalProfileData) // 恢復到原始資料，確保不斷開 reactive
+}
+
 // 保存個人資料變更
 const originalHandleSave = () => {
-  toastStore.showSuccess('個人資料已儲存！')
-  // console.log(profileData)
+  console.log(profileData)
+  try {
+    toastStore.showSuccess('個人資料已儲存！')
+
+    // 調用 API 儲存個人資料
+
+    // router.push({ name: 'profile' })
+  } catch (error) {
+    console.error('儲存個人資料失敗:', error)
+    toastStore.showError('儲存個人資料失敗，請稍後再試')
+  }
 }
 
 const handleSave = debounce(originalHandleSave, 300)
