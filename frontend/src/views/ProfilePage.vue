@@ -80,7 +80,9 @@
       </div>
 
       <!-- 網格視圖 -->
-      <div class="posts-grid">
+      <p v-if="postList.length === 0" class="no-posts-message">尚未有貼文</p>
+
+      <div v-else class="posts-grid">
         <div class="grid-item" v-for="post in postList" :key="post.id">
           <img :src="post.image" alt="貼文圖片" />
           <div class="overlay">
@@ -89,10 +91,7 @@
                 <i class="bx bx-heart"></i>
                 {{ post.liked_bies }}
               </span>
-              <span class="stat">
-                <i class="bx bx-comment"></i>
-                {{ post.comments }}
-              </span>
+              <span class="stat"> <i class="bx bx-comment"></i> {{ post.comments }} </span>
             </div>
           </div>
         </div>
@@ -535,5 +534,12 @@ onMounted(() => {
       font-size: 16px;
     }
   }
+}
+
+.no-posts-message {
+  text-align: center;
+  color: $text-secondary;
+  font-size: 16px;
+  font-weight: 600;
 }
 </style>
