@@ -196,8 +196,6 @@ const handleAvatarChange = async (event) => {
 // 重置個人資料
 const resetProfile = () => {
   Object.assign(profileData, originalProfileData) // 恢復到原始資料，確保不斷開 reactive
-
-  console.log(userData.value)
 }
 
 // 保存個人資料變更

@@ -2,7 +2,7 @@
   <div class="post-item">
     <!-- 用戶資訊區 -->
     <div class="post-header">
-      <div class="user-info">
+      <div class="user-info" @click="goToUserProfile">
         <TheAvatar :src="post.user?.avatar" :width="40" :height="40" :fontSize="20" />
         <span class="username">{{ post.user?.name || post.user?.username }}</span>
       </div>
@@ -41,10 +41,16 @@ import PostActions from '@/components/post/PostActions.vue'
 
 import { usePostStore } from '@/stores/modules/postStore'
 import { useModalStore } from '@/stores/modules/modalStore'
+import { useToastStore } from '@/stores/modules/toastStore'
+import { useUserStore } from '@/stores/modules/userStore'
 import { formatTimeAgo } from '@/utils/postUtils'
+import { useRouter } from 'vue-router'
 
 const postStore = usePostStore()
 const modalStore = useModalStore()
+const toastStore = useToastStore()
+const userStore = useUserStore()
+const router = useRouter()
 
 const props = defineProps({
   post: {
@@ -52,6 +58,15 @@ const props = defineProps({
     default: {},
   },
 })
+
+const goToUserProfile = () => {
+  if (!props?.post?.user || !props?.post?.user?.id) {
+    toastStore.showError('用戶資訊不完整，無法跳轉到個人主頁')
+    return
+  }
+
+  router.push(`/profile/${props.post.user.id}`)
+}
 
 const handlePostClick = () => {
   postStore.setCurrentPostId(props.post.id)

@@ -28,7 +28,7 @@
         <div class="profile-dropdown">
           <TheAvatar :src="userStore?.user?.avatar" :width="40" :height="40" :fontSize="20" />
           <ul class="profile-menu">
-            <li><router-link to="/profile">個人主頁</router-link></li>
+            <li><button @click="goToUserProfile">個人主頁</button></li>
             <li><button class="logout-btn" @click="handleLogout">退出登出</button></li>
           </ul>
         </div>
@@ -60,6 +60,10 @@ const userStore = useUserStore()
 const modalStore = useModalStore()
 const showMobileSearch = ref(false)
 const mobileSearchInput = ref(null)
+
+const goToUserProfile = () => {
+  router.push(`/profile/${userStore.user.id}`)
+}
 
 // 打開貼文上傳彈跳視窗
 const handleCreatePost = () => {

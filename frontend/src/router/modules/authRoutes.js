@@ -16,7 +16,7 @@ export default [
     },
   },
   {
-    path: '/profile',
+    path: '/profile/:userId',
     name: 'profile',
     component: () => import('@/views/ProfilePage.vue'),
     meta: {

@@ -13,11 +13,13 @@
           <!-- 貼文標題區域 (固定不滾動) -->
           <div class="post-header">
             <div class="user-info">
-              <div class="avatar">
+              <div class="avatar" @click="goToUserProfile(post.user?.id)">
                 <TheAvatar :src="post.user?.avatar" :width="40" :height="40" :fontSize="20" />
               </div>
               <div>
-                <div class="username">{{ post.user?.name || post.user?.username }}</div>
+                <div class="username" @click="goToUserProfile(post.user?.id)">
+                  {{ post.user?.name || post.user?.username }}
+                </div>
                 <div class="post-time">{{ formatTimeAgo(post.createdAt) }}</div>
               </div>
             </div>
@@ -55,7 +57,7 @@
               <!-- 留言列表 -->
               <div v-if="comments.length > 0" class="comments-list">
                 <div class="comment-item" v-for="comment in comments" :key="comment.id">
-                  <div class="avatar">
+                  <div class="avatar" @click="goToUserProfile(comment.user?.id)">
                     <TheAvatar
                       :src="comment.user?.avatar"
                       :width="40"
@@ -65,7 +67,7 @@
                   </div>
                   <div class="comment-content">
                     <div class="comment-header">
-                      <span class="comment-username">{{
+                      <span class="comment-username" @click="goToUserProfile(comment.user?.id)">{{
                         comment.user?.name || comment.user?.username
                       }}</span>
                       <span class="comment-time">{{ formatTimeAgo(comment.pubDate) }}</span>
@@ -92,15 +94,21 @@ import TheAvatar from '@/components/common/TheAvatar.vue'
 import PostActions from '@/components/post/PostActions.vue'
 
 import { ref, computed, onMounted } from 'vue'
+import { useUserStore } from '@/stores/modules/userStore'
 import { usePostStore } from '@/stores/modules/postStore'
 import { useCommentStore } from '@/stores/modules/commentStore'
 import { useToastStore } from '@/stores/modules/toastStore'
+import { useModalStore } from '@/stores/modules/modalStore'
 import { formatTimeAgo } from '@/utils/postUtils'
+import { useRouter } from 'vue-router'
 import { debounce } from '@/utils/debounce'
 
+const userStore = useUserStore()
 const postStore = usePostStore()
 const commentStore = useCommentStore()
 const toastStore = useToastStore()
+const modalStore = useModalStore()
+const router = useRouter()
 const commentContent = ref('')
 
 const post = computed(() => postStore.postDetails)
@@ -108,6 +116,17 @@ const comments = computed(() => commentStore.list)
 
 const description = post.value.description
 const content = description.replace(/#[\u4e00-\u9fa5\w]+/g, '').trim()
+
+const goToUserProfile = (userId) => {
+  if (!post.value?.user || !post.value?.user?.id) {
+    toastStore.showError('用戶資訊不完整，無法跳轉到個人主頁')
+    return
+  }
+
+  router.push(`/profile/${userId}`)
+
+  modalStore.closeAllModals() // 關閉所有彈跳視窗
+}
 
 // 新增留言
 const originalAddComment = async () => {
@@ -124,7 +143,6 @@ const originalAddComment = async () => {
     toastStore.showSuccess('留言新增成功')
   } catch (error) {
     toastStore.showError('新增留言失敗，請稍後再試')
-    console.error('新增留言失敗:', error)
   } finally {
     commentContent.value = '' // 清空留言輸入框
   }
@@ -220,9 +238,14 @@ onMounted(() => {
     display: flex;
     align-items: center;
     gap: 12px;
+
+    .avatar {
+      cursor: pointer;
+    }
   }
 
   .username {
+    cursor: pointer;
     font-weight: 600;
     color: $text-color;
     font-size: 16px;
@@ -341,6 +364,10 @@ onMounted(() => {
     align-items: flex-start;
     gap: 10px;
     margin-bottom: 12px;
+
+    .avatar {
+      cursor: pointer;
+    }
   }
 
   .comment-content {
@@ -371,8 +398,9 @@ onMounted(() => {
   }
 
   .comment-username {
+    cursor: pointer;
     font-weight: 600;
-    color: $text-color;
+    color: $primary-color;
     font-size: 13px;
   }
 
