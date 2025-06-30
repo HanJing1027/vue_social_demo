@@ -11,7 +11,7 @@
         <!-- 用戶資訊 -->
         <div class="user-info">
           <div class="avatar">
-            <TheAvatar :width="40" :height="40" :fontSize="20" />
+            <TheAvatar :src="userStore.user.avatar" :width="40" :height="40" :fontSize="20" />
           </div>
           <div class="user-name">{{ userData.username }}</div>
         </div>

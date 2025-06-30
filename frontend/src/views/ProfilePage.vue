@@ -46,15 +46,19 @@
 
       <!-- 篩選標籤 -->
       <div class="filter-tabs">
-        <button class="filter-tab active">
+        <div
+          class="active-indicator"
+          :style="{ transform: `translateX(${activeIndex * 100}%)` }"
+        ></div>
+        <button class="filter-tab" :class="{ active: activeIndex === 0 }" @click="setActiveTab(0)">
           <i class="bx bx-grid-alt"></i>
           我的
         </button>
-        <button class="filter-tab">
+        <button class="filter-tab" :class="{ active: activeIndex === 1 }" @click="setActiveTab(1)">
           <i class="bx bx-heart"></i>
           讚過
         </button>
-        <button class="filter-tab">
+        <button class="filter-tab" :class="{ active: activeIndex === 2 }" @click="setActiveTab(2)">
           <i class="bx bx-bookmark"></i>
           收藏
         </button>
@@ -94,6 +98,7 @@ const userStore = useUserStore()
 const route = useRoute()
 
 const userData = ref({})
+const activeIndex = ref(0)
 
 // 判斷是否為自己的頁面
 const isSelf = computed(() => {
@@ -105,6 +110,10 @@ const loadUserData = async () => {
   const respone = await getUserApi.getUserById(route.params.userId)
   userData.value = respone
   console.log('用戶資料:', userData.value)
+}
+
+const setActiveTab = (index) => {
+  activeIndex.value = index
 }
 
 onMounted(() => {
@@ -280,6 +289,7 @@ onMounted(() => {
 }
 
 .filter-tabs {
+  position: relative;
   display: flex;
   gap: 2px;
   margin-bottom: 24px;
@@ -287,37 +297,49 @@ onMounted(() => {
   border-radius: 12px;
   padding: 4px;
   border: 1px solid $border-light;
-}
+  overflow: hidden;
 
-.filter-tab {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 12px 16px;
-  background: transparent;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  color: $text-secondary;
-  cursor: pointer;
-  transition: all $transition-speed ease;
-
-  &:hover {
+  .active-indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: calc(100% / 3); // 根據按鈕數量計算寬度
+    height: 100%;
     background: $surface-hover;
-    color: $text-color;
+    border-radius: 8px;
+    transition: transform $transition-speed ease;
+    z-index: 0;
   }
 
-  &.active {
-    background: $surface;
-    color: $primary-color;
-    box-shadow: $shadow-light;
-  }
+  .filter-tab {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: $text-secondary;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    position: relative;
+    z-index: 1; // 確保按鈕在指示器上方
 
-  i {
-    font-size: 16px;
+    &:hover {
+      color: $text-color;
+    }
+
+    &.active {
+      color: $primary-color;
+    }
+
+    i {
+      font-size: 16px;
+    }
   }
 }
 
