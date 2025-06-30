@@ -27,8 +27,8 @@
           <p v-else class="bio-text no-bio">用戶還沒有填寫個人簡介。</p>
           <div v-if="userData.website" class="bio-weblink">
             <i class="bx bx-link"></i>
-            <a :href="userData.website" class="bio-weblink" target="_blank">
-              {{ userData.website || '沒有個人網站' }}
+            <a :href="userData.website" target="_blank">
+              {{ userData.website }}
             </a>
           </div>
         </div>
@@ -40,7 +40,7 @@
       <div class="section-header">
         <div class="posts-info">
           <h2 class="section-title">貼文</h2>
-          <span class="posts-count">42 篇貼文</span>
+          <span class="posts-count">{{ postList.length }} 篇貼文</span>
         </div>
       </div>
 
@@ -50,15 +50,30 @@
           class="active-indicator"
           :style="{ transform: `translateX(${activeIndex * 100}%)` }"
         ></div>
-        <button class="filter-tab" :class="{ active: activeIndex === 0 }" @click="setActiveTab(0)">
+        <button
+          class="filter-tab"
+          :class="{ active: activeIndex === 0 }"
+          :disabled="activeIndex === 0"
+          @click="activeIndex !== 0 && (setActiveTab(0), loadPostsByUser(route.params.userId))"
+        >
           <i class="bx bx-grid-alt"></i>
           我的
         </button>
-        <button class="filter-tab" :class="{ active: activeIndex === 1 }" @click="setActiveTab(1)">
+        <button
+          class="filter-tab"
+          :class="{ active: activeIndex === 1 }"
+          :disabled="activeIndex === 1"
+          @click="activeIndex !== 1 && setActiveTab(1)"
+        >
           <i class="bx bx-heart"></i>
           讚過
         </button>
-        <button class="filter-tab" :class="{ active: activeIndex === 2 }" @click="setActiveTab(2)">
+        <button
+          class="filter-tab"
+          :class="{ active: activeIndex === 2 }"
+          :disabled="activeIndex === 2"
+          @click="activeIndex !== 2 && setActiveTab(2)"
+        >
           <i class="bx bx-bookmark"></i>
           收藏
         </button>
@@ -66,17 +81,17 @@
 
       <!-- 網格視圖 -->
       <div class="posts-grid">
-        <div class="grid-item" v-for="i in 5" :key="i">
-          <img src="https://picsum.photos/300/300?random=1" alt="貼文圖片" />
+        <div class="grid-item" v-for="post in postList" :key="post.id">
+          <img :src="post.image" alt="貼文圖片" />
           <div class="overlay">
             <div class="overlay-stats">
               <span class="stat">
                 <i class="bx bx-heart"></i>
-                42
+                {{ post.liked_bies }}
               </span>
               <span class="stat">
                 <i class="bx bx-comment"></i>
-                8
+                {{ post.comments }}
               </span>
             </div>
           </div>
@@ -93,11 +108,13 @@ import { ref, computed, onMounted } from 'vue'
 import { useUserStore } from '@/stores/modules/userStore'
 import { useRoute } from 'vue-router'
 import { getUserApi } from '@/apis/getUserApi'
+import { postApi } from '@/apis/postApi'
 
 const userStore = useUserStore()
 const route = useRoute()
 
 const userData = ref({})
+const postList = ref([])
 const activeIndex = ref(0)
 
 // 判斷是否為自己的頁面
@@ -109,7 +126,18 @@ const isSelf = computed(() => {
 const loadUserData = async () => {
   const respone = await getUserApi.getUserById(route.params.userId)
   userData.value = respone
-  console.log('用戶資料:', userData.value)
+}
+
+// 加載用戶貼文
+const loadPostsByUser = async () => {
+  try {
+    const response = await postApi.loadPostById(route.params.userId)
+    console.log('用戶貼文:', response)
+
+    postList.value = response
+  } catch (error) {
+    console.error('加載貼文失敗:', error)
+  }
 }
 
 const setActiveTab = (index) => {
@@ -118,6 +146,7 @@ const setActiveTab = (index) => {
 
 onMounted(() => {
   loadUserData()
+  loadPostsByUser()
 })
 </script>
 

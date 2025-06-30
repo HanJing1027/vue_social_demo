@@ -23,10 +23,8 @@ export const postApi = {
   // 加載貼文
   loadPosts: async (filters = '') => {
     try {
-      const response = await get('/api/posts', {
-        populate: '*',
+      const response = await get('/api/posts?populate=*' + (filters && `&${filters}`), {
         sort: 'createdAt:desc', // 按創建時間降序排列
-        ...filters,
       })
 
       // 如果需要調試 可以取消註解以下行
@@ -54,6 +52,11 @@ export const postApi = {
     } catch (error) {
       throw error
     }
+  },
+
+  // 加載相對應 ID 用戶的貼文
+  loadPostById: async (id) => {
+    return postApi.loadPosts(`filters[user][id][$eq]=${id}`)
   },
 
   // 按讚貼文
