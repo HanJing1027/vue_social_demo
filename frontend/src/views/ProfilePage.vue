@@ -48,7 +48,10 @@
       <div class="filter-tabs">
         <div
           class="active-indicator"
-          :style="{ transform: `translateX(${activeIndex * 100}%)` }"
+          :style="{
+            width: `calc(100% / ${isSelf ? 3 : 2})`, // 根據按鈕數量動態計算寬度
+            transform: `translateX(${activeIndex * 100}%)`,
+          }"
         ></div>
         <button
           class="filter-tab"
@@ -69,6 +72,7 @@
           讚過
         </button>
         <button
+          v-if="isSelf"
           class="filter-tab"
           :class="{ active: activeIndex === 2 }"
           :disabled="activeIndex === 2"
@@ -331,7 +335,7 @@ onMounted(() => {
     position: absolute;
     top: 0;
     left: 0;
-    width: calc(100% / 3); // 根據按鈕數量計算寬度
+    // width: calc(100% / 3); // 根據按鈕數量計算寬度
     height: 100%;
     background: $surface-hover;
     border-radius: 8px;
