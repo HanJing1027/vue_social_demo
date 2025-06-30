@@ -209,9 +209,10 @@ const originalHandleSave = async () => {
     await updateUserApi.updateUserData(profileData)
     toastStore.showSuccess('個人資料已儲存！')
 
-    router.push({ name: 'profile' })
+    router.push(`/profile/${userStore.user.id}`)
   } catch (error) {
     toastStore.showError('儲存個人資料失敗，請稍後再試')
+    console.error('儲存個人資料失敗:', error)
   }
 }
 

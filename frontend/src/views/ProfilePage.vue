@@ -5,28 +5,30 @@
       <div class="profile-info">
         <div class="profile-main">
           <div class="avatar-section">
-            <TheAvatar :width="100" :height="100" :fontSize="60" />
+            <TheAvatar :src="userData.avatar" :width="100" :height="100" :fontSize="60" />
           </div>
 
           <div class="user-content">
             <div class="user-info">
-              <h1 class="username">使用者名稱</h1>
-              <h4 class="userid">@yufeng_zhang</h4>
+              <h1 class="username">{{ userData.username }}</h1>
+              <h4 v-if="!userData.name" class="userid">@{{ userData.username?.toLowerCase() }}</h4>
+              <h4 v-else class="userid">@{{ userData.name }}</h4>
             </div>
-            <router-link to="/profile/edit" class="edit-profile-btn"> 編輯個人資料 </router-link>
+            <router-link v-if="isSelf" to="/profile/edit" class="edit-profile-btn">
+              編輯個人資料
+            </router-link>
           </div>
         </div>
 
         <div class="bio">
-          <p class="bio-text">
-            熱愛攝影與生活分享 📸<br />
-            咖啡愛好者 ☕<br />
-            #攝影 #美食 #旅行
+          <p v-if="userData.intro" class="bio-text">
+            {{ userData.intro }}
           </p>
-          <div class="bio-weblink">
+          <p v-else class="bio-text no-bio">用戶還沒有填寫個人簡介。</p>
+          <div v-if="userData.website" class="bio-weblink">
             <i class="bx bx-link"></i>
-            <a href="https://example.com" class="bio-weblink" target="_blank">
-              https://example.com
+            <a :href="userData.website" class="bio-weblink" target="_blank">
+              {{ userData.website || '沒有個人網站' }}
             </a>
           </div>
         </div>
@@ -82,6 +84,32 @@
 
 <script setup>
 import TheAvatar from '@/components/common/TheAvatar.vue'
+
+import { ref, computed, onMounted } from 'vue'
+import { useUserStore } from '@/stores/modules/userStore'
+import { useRoute } from 'vue-router'
+import { getUserApi } from '@/apis/getUserApi'
+
+const userStore = useUserStore()
+const route = useRoute()
+
+const userData = ref({})
+
+// 判斷是否為自己的頁面
+const isSelf = computed(() => {
+  return String(userStore.user.id) === String(route.params.userId)
+})
+
+// 加載用戶資料
+const loadUserData = async () => {
+  const respone = await getUserApi.getUserById(route.params.userId)
+  userData.value = respone
+  console.log('用戶資料:', userData.value)
+}
+
+onMounted(() => {
+  loadUserData()
+})
 </script>
 
 <style lang="scss" scoped>
@@ -177,8 +205,14 @@ import TheAvatar from '@/components/common/TheAvatar.vue'
   .bio-text {
     color: $text-color;
     line-height: 1.6;
-    font-size: 16px;
+    font-size: 15px;
+    font-weight: 500;
     margin: 0;
+    white-space: pre-wrap;
+  }
+
+  .no-bio {
+    color: $text-secondary;
   }
 
   .bio-weblink {
