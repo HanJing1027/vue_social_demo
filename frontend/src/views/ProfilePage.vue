@@ -75,8 +75,8 @@
 
         <button
           v-if="isSelf"
-          class="filter-tab"
           :class="{ active: activeIndex === 2 }"
+          class="filter-tab"
           :disabled="activeIndex === 2"
           @click="activeIndex !== 2 && setActiveTab(2)"
         >
@@ -118,7 +118,7 @@
 <script setup>
 import TheAvatar from '@/components/common/TheAvatar.vue'
 
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useUserStore } from '@/stores/modules/userStore'
 import { usePostStore } from '@/stores/modules/postStore'
 import { useModalStore } from '@/stores/modules/modalStore'
@@ -172,6 +172,14 @@ const handlePostClick = (id) => {
   postStore.setCurrentPostId(id)
   modalStore.openModal('postDetails')
 }
+
+watch(
+  () => route.params.userId,
+  (newUserId) => {
+    loadUserData()
+    postStore.loadPostsByUser(newUserId)
+  }
+)
 
 onMounted(() => {
   loadUserData()
