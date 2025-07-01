@@ -99,6 +99,7 @@ import { usePostStore } from '@/stores/modules/postStore'
 import { useUserStore } from '@/stores/modules/userStore'
 import { useModalStore } from '@/stores/modules/modalStore'
 import { useToastStore } from '@/stores/modules/toastStore'
+import { useRoute } from 'vue-router'
 import { debounce } from '@/utils/debounce'
 import { createInputMethodHandler } from '@/utils/createInputMethodHandler'
 
@@ -106,6 +107,7 @@ const userStore = useUserStore()
 const modalStore = useModalStore()
 const toastStore = useToastStore()
 const postStore = usePostStore()
+const route = useRoute()
 
 // 用於存儲貼文內容
 const postContent = ref('')
@@ -149,7 +151,7 @@ const originalPublishPost = async () => {
     const description = formatDescription()
     const imageFile = uploadedImage.value.file
 
-    await postStore.createPost(imageFile, description)
+    await postStore.createPost(imageFile, description, route.params.userId || '')
 
     // 清空表單
     postContent.value = ''

@@ -31,11 +31,16 @@ export const usePostStore = defineStore('post', () => {
   }
 
   // 創建新貼文
-  const createPost = async (image, description) => {
+  const createPost = async (image, description, userId = '') => {
     try {
       const newPost = await postApi.createPost(image, description)
 
-      loadAllPosts() // 重新載入所有貼文以確保最新數據
+      // 發佈成功後，重新加載用戶的貼文
+      if (userId) {
+        await loadPostsByUser(userId)
+      }
+
+      await loadAllPosts() // 重新載入所有貼文以確保最新數據
 
       return newPost
     } catch (error) {
