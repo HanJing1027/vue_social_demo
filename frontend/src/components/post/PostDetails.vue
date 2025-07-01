@@ -94,7 +94,6 @@ import TheAvatar from '@/components/common/TheAvatar.vue'
 import PostActions from '@/components/post/PostActions.vue'
 
 import { ref, computed, onMounted } from 'vue'
-import { useUserStore } from '@/stores/modules/userStore'
 import { usePostStore } from '@/stores/modules/postStore'
 import { useCommentStore } from '@/stores/modules/commentStore'
 import { useToastStore } from '@/stores/modules/toastStore'
@@ -103,7 +102,6 @@ import { formatTimeAgo } from '@/utils/postUtils'
 import { useRouter } from 'vue-router'
 import { debounce } from '@/utils/debounce'
 
-const userStore = useUserStore()
 const postStore = usePostStore()
 const commentStore = useCommentStore()
 const toastStore = useToastStore()

@@ -97,6 +97,7 @@
               ? postStore.likedPostList
               : postStore.favoredPostList"
           :key="post.id"
+          @click="handlePostClick(post.id)"
         >
           <img :src="post.image" alt="貼文圖片" />
           <div class="overlay">
@@ -120,11 +121,13 @@ import TheAvatar from '@/components/common/TheAvatar.vue'
 import { ref, computed, onMounted } from 'vue'
 import { useUserStore } from '@/stores/modules/userStore'
 import { usePostStore } from '@/stores/modules/postStore'
+import { useModalStore } from '@/stores/modules/modalStore'
 import { useRoute } from 'vue-router'
 import { getUserApi } from '@/apis/getUserApi'
 
 const userStore = useUserStore()
 const postStore = usePostStore()
+const modalStore = useModalStore()
 const route = useRoute()
 
 const userData = ref({})
@@ -163,6 +166,11 @@ const setActiveTab = (index) => {
   } else if (index === 2) {
     postStore.loadPostsLikedOrFavoredByUser(route.params.userId, 'favors')
   }
+}
+
+const handlePostClick = (id) => {
+  postStore.setCurrentPostId(id)
+  modalStore.openModal('postDetails')
 }
 
 onMounted(() => {
