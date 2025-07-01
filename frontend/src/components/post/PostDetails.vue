@@ -70,6 +70,9 @@
                       <span class="comment-username" @click="goToUserProfile(comment.user?.id)">{{
                         comment.user?.name || comment.user?.username
                       }}</span>
+                      <span v-if="comment.user?.id === post.user?.id" class="original-poster-tag"
+                        >原po</span
+                      >
                       <span class="comment-time">{{ formatTimeAgo(comment.pubDate) }}</span>
                     </div>
                     <p class="comment-text">{{ comment.content }}</p>
@@ -400,6 +403,14 @@ onMounted(() => {
     font-weight: 600;
     color: $primary-color;
     font-size: 13px;
+  }
+
+  .original-poster-tag {
+    background-color: $primary-color;
+    color: $background;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 8px;
   }
 
   .comment-time {
