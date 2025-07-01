@@ -55,8 +55,20 @@ export const postApi = {
   },
 
   // 加載相對應 ID 用戶的貼文
-  loadPostById: async (id) => {
-    return postApi.loadPosts(`filters[user][id][$eq]=${id}`)
+  loadPostById: async (userId) => {
+    return postApi.loadPosts(`filters[user][id][$eq]=${userId}`)
+  },
+
+  // 加載相對應 ID 用戶按讚、收藏貼文
+  loadPostsLikedOrFavoredByUser: async (userId, type = '') => {
+    try {
+      const response = await get(`/api/users/${userId}?populate[${type}]`)
+      return response[type].map((post) => ({
+        id: post.id,
+      }))
+    } catch (error) {
+      throw error
+    }
   },
 
   // 按讚貼文

@@ -3,8 +3,11 @@ import { postApi } from '@/apis/postApi'
 import { ref, computed } from 'vue'
 
 export const usePostStore = defineStore('post', () => {
-  const list = ref([]) // 貼文列表
+  const list = ref([]) // 首頁貼文列表
   const currentPostId = ref(null) // 當前貼文 ID
+  const userPostList = ref([]) // 用戶發佈的所有貼文
+  const likedPostList = ref([]) // 按讚的貼文
+  const favoredPostList = ref([]) // 收藏的貼文
 
   // 計算屬性：獲取當前貼文詳情
   const postDetails = computed(() => {
@@ -49,6 +52,44 @@ export const usePostStore = defineStore('post', () => {
       return data
     } catch (error) {
       throw error
+    }
+  }
+
+  // 載入相對應 ID 用戶的貼文
+  const loadPostsByUser = async (userId) => {
+    try {
+      const response = await postApi.loadPostById(userId)
+      userPostList.value = response
+    } catch (error) {
+      console.error('加載用戶貼文失敗:', error)
+      userPostList.value = [] // 清空列表以防止錯誤狀態
+    }
+  }
+
+  // 載入相對應 ID 用戶按讚、收藏貼文
+  const loadPostsLikedOrFavoredByUser = async (userId, type = '') => {
+    try {
+      const response = await postApi.loadPostsLikedOrFavoredByUser(userId, type)
+
+      // 從 list 中篩選對應的貼文
+      const filteredPosts = list.value.filter((post) =>
+        response.some((resPost) => resPost.id === post.id)
+      )
+
+      if (type === 'likes') {
+        likedPostList.value = filteredPosts // 更新讚過的貼文列表
+      } else if (type === 'favors') {
+        favoredPostList.value = filteredPosts // 更新收藏的貼文列表
+      }
+    } catch (error) {
+      console.error(`加載用戶 ${type} 貼文失敗:`, error)
+
+      // 清空對應的列表
+      if (type === 'likes') {
+        likedPostList.value = []
+      } else if (type === 'favors') {
+        favoredPostList.value = []
+      }
     }
   }
 
@@ -119,11 +160,16 @@ export const usePostStore = defineStore('post', () => {
   return {
     list,
     currentPostId,
+    userPostList,
+    likedPostList,
+    favoredPostList,
 
     postDetails,
 
-    loadAllPosts,
     createPost,
+    loadAllPosts,
+    loadPostsByUser,
+    loadPostsLikedOrFavoredByUser,
     toggleLikePost,
     toggleFavorPost,
     setCurrentPostId,

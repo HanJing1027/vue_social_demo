@@ -40,7 +40,7 @@
       <div class="section-header">
         <div class="posts-info">
           <h2 class="section-title">貼文</h2>
-          <span class="posts-count">{{ postList.length }} 篇貼文</span>
+          <span class="posts-count">{{ currentPostList.length || '0' }} 篇貼文</span>
         </div>
       </div>
 
@@ -57,11 +57,12 @@
           class="filter-tab"
           :class="{ active: activeIndex === 0 }"
           :disabled="activeIndex === 0"
-          @click="activeIndex !== 0 && (setActiveTab(0), loadPostsByUser(route.params.userId))"
+          @click="activeIndex !== 0 && setActiveTab(0)"
         >
           <i class="bx bx-grid-alt"></i>
-          我的
+          {{ isSelf ? '我的' : '用戶的' }}
         </button>
+
         <button
           class="filter-tab"
           :class="{ active: activeIndex === 1 }"
@@ -71,6 +72,7 @@
           <i class="bx bx-heart"></i>
           讚過
         </button>
+
         <button
           v-if="isSelf"
           class="filter-tab"
@@ -84,10 +86,18 @@
       </div>
 
       <!-- 網格視圖 -->
-      <p v-if="postList.length === 0" class="no-posts-message">尚未有貼文</p>
+      <p v-if="currentPostList.length === 0" class="no-posts-message">尚未有貼文</p>
 
       <div v-else class="posts-grid">
-        <div class="grid-item" v-for="post in postList" :key="post.id">
+        <div
+          class="grid-item"
+          v-for="post in activeIndex === 0
+            ? postStore.userPostList
+            : activeIndex === 1
+              ? postStore.likedPostList
+              : postStore.favoredPostList"
+          :key="post.id"
+        >
           <img :src="post.image" alt="貼文圖片" />
           <div class="overlay">
             <div class="overlay-stats">
@@ -109,20 +119,32 @@ import TheAvatar from '@/components/common/TheAvatar.vue'
 
 import { ref, computed, onMounted } from 'vue'
 import { useUserStore } from '@/stores/modules/userStore'
+import { usePostStore } from '@/stores/modules/postStore'
 import { useRoute } from 'vue-router'
 import { getUserApi } from '@/apis/getUserApi'
-import { postApi } from '@/apis/postApi'
 
 const userStore = useUserStore()
+const postStore = usePostStore()
 const route = useRoute()
 
 const userData = ref({})
-const postList = ref([])
 const activeIndex = ref(0)
 
 // 判斷是否為自己的頁面
 const isSelf = computed(() => {
   return String(userStore.user.id) === String(route.params.userId)
+})
+
+// 根據 activeIndex 動態選擇對應的貼文列表
+const currentPostList = computed(() => {
+  if (activeIndex.value === 0) {
+    return postStore.userPostList || [] // 我的貼文
+  } else if (activeIndex.value === 1) {
+    return postStore.likedPostList || [] // 讚過的貼文
+  } else if (activeIndex.value === 2) {
+    return postStore.favoredPostList || [] // 收藏的貼文
+  }
+  return [] // 預設為空陣列
 })
 
 // 加載用戶資料
@@ -131,25 +153,22 @@ const loadUserData = async () => {
   userData.value = respone
 }
 
-// 加載用戶貼文
-const loadPostsByUser = async () => {
-  try {
-    const response = await postApi.loadPostById(route.params.userId)
-    console.log('用戶貼文:', response)
-
-    postList.value = response
-  } catch (error) {
-    console.error('加載貼文失敗:', error)
-  }
-}
-
+// 標籤切換
 const setActiveTab = (index) => {
   activeIndex.value = index
+  if (index === 0) {
+    postStore.loadPostsByUser(route.params.userId)
+  } else if (index === 1) {
+    postStore.loadPostsLikedOrFavoredByUser(route.params.userId, 'likes')
+  } else if (index === 2) {
+    postStore.loadPostsLikedOrFavoredByUser(route.params.userId, 'favors')
+  }
 }
 
 onMounted(() => {
   loadUserData()
-  loadPostsByUser()
+  postStore.loadAllPosts()
+  postStore.loadPostsByUser(route.params.userId)
 })
 </script>
 
