@@ -1,10 +1,19 @@
 <template>
-  <div class="post-list">
+  <div class="post-list" :class="{ empty: isEmpty }">
     <slot></slot>
   </div>
 </template>
 
-<script setup></script>
+<script setup>
+import { computed } from 'vue'
+
+const props = defineProps({
+  isEmpty: {
+    type: Boolean,
+    default: false,
+  },
+})
+</script>
 
 <style lang="scss" scoped>
 @use '@/assets/styles/variables' as *;
@@ -13,6 +22,13 @@
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 20px;
+
+  &.empty {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px; // 根據需求調整高度
+  }
 }
 
 @media (max-width: $mobile-breakpoint) {
