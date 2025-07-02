@@ -135,7 +135,7 @@ const activeIndex = ref(0)
 
 // 判斷是否為自己的頁面
 const isSelf = computed(() => {
-  return String(userStore.user.id) === String(route.params.userId)
+  return String(userStore?.user?.id) === String(route.params.userId)
 })
 
 // 根據 activeIndex 動態選擇對應的貼文列表

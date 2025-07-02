@@ -8,11 +8,7 @@ export const postApi = {
     formData.append('files.image', image)
     formData.append('data', JSON.stringify({ description }))
 
-    try {
-      return await postFormData('/api/posts', formData)
-    } catch (error) {
-      throw error
-    }
+    return await postFormData('/api/posts', formData)
   },
 
   /**
@@ -22,36 +18,37 @@ export const postApi = {
    */
   // 加載貼文
   loadPosts: async (filters = '') => {
-    try {
-      const response = await get('/api/posts?populate=*' + (filters && `&${filters}`), {
-        sort: 'createdAt:desc', // 按創建時間降序排列
-      })
+    const response = await get('/api/posts?populate=*' + (filters && `&${filters}`), {
+      sort: 'createdAt:desc', // 按創建時間降序排列
+    })
 
-      // 如果需要調試 可以取消註解以下行
-      // console.log('response:', response.data)
+    // 如果需要調試 可以取消註解以下行
+    // console.log('response:', response.data)
 
-      return response.data.map((post) => {
-        const originalDescription = post?.attributes?.description
+    return response.data.map((post) => {
+      const originalDescription = post?.attributes?.description
 
-        // 使用工具函數格式化
-        const { content: shortDescription, tags } = formatPostContent(originalDescription)
+      // 使用工具函數格式化
+      const { content: shortDescription, tags } = formatPostContent(originalDescription)
 
-        return {
-          id: post?.id,
-          ...post?.attributes,
-          description: originalDescription, // 完整內容
-          shortDescription, // 30字短內容
-          tags, // 標籤陣列
-          image: post?.attributes?.image?.data?.[0]?.attributes?.url,
-          user: {
-            id: post?.attributes?.user?.data?.id,
-            ...post?.attributes?.user?.data?.attributes,
-          },
-        }
-      })
-    } catch (error) {
-      throw error
-    }
+      return {
+        id: post?.id,
+        ...post?.attributes,
+        description: originalDescription, // 完整內容
+        shortDescription, // 30字短內容
+        tags, // 標籤陣列
+        image: post?.attributes?.image?.data?.[0]?.attributes?.url,
+        user: {
+          id: post?.attributes?.user?.data?.id,
+          ...post?.attributes?.user?.data?.attributes,
+        },
+      }
+    })
+  },
+
+  // 搜尋貼文
+  searchPosts: async (keyword) => {
+    return postApi.loadPosts(`filters[description][$contains]=${keyword}`)
   },
 
   // 加載相對應 ID 用戶的貼文
@@ -61,33 +58,21 @@ export const postApi = {
 
   // 加載相對應 ID 用戶按讚、收藏貼文
   loadPostsLikedOrFavoredByUser: async (userId, type = '') => {
-    try {
-      const response = await get(`/api/users/${userId}?populate[${type}]`)
-      return response[type].map((post) => ({
-        id: post.id,
-      }))
-    } catch (error) {
-      throw error
-    }
+    const response = await get(`/api/users/${userId}?populate[${type}]`)
+    return response[type].map((post) => ({
+      id: post.id,
+    }))
   },
 
   // 按讚貼文
   likePost: async (postId) => {
-    try {
-      const response = await put(`/api/posts/${postId}/like`)
-      return response.data
-    } catch (error) {
-      throw error
-    }
+    const response = await put(`/api/posts/${postId}/like`)
+    return response.data
   },
 
   // 收藏貼文
   favorPost: async (postId) => {
-    try {
-      const response = await put(`/api/posts/${postId}/favor`)
-      return response.data
-    } catch (error) {
-      throw error
-    }
+    const response = await put(`/api/posts/${postId}/favor`)
+    return response.data
   },
 }

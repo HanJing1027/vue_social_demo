@@ -4,6 +4,7 @@ import { ref, computed } from 'vue'
 
 export const usePostStore = defineStore('post', () => {
   const list = ref([]) // 首頁貼文列表
+  const searchResult = ref([]) // 搜尋貼文列表
   const currentPostId = ref(null) // 當前貼文 ID
   const userPostList = ref([]) // 用戶發佈的所有貼文
   const likedPostList = ref([]) // 按讚的貼文
@@ -32,31 +33,33 @@ export const usePostStore = defineStore('post', () => {
 
   // 創建新貼文
   const createPost = async (image, description, userId = '') => {
-    try {
-      const newPost = await postApi.createPost(image, description)
+    const newPost = await postApi.createPost(image, description)
 
-      // 發佈成功後，重新加載用戶的貼文
-      if (userId) {
-        await loadPostsByUser(userId)
-      }
-
-      await loadAllPosts() // 重新載入所有貼文以確保最新數據
-
-      return newPost
-    } catch (error) {
-      throw error
+    // 發佈成功後，重新加載用戶的貼文
+    if (userId) {
+      await loadPostsByUser(userId)
     }
+
+    await loadAllPosts() // 重新載入所有貼文以確保最新數據
+
+    return newPost
   }
 
   // 載入所有貼文
   const loadAllPosts = async () => {
-    try {
-      const data = await postApi.loadPosts()
-      list.value = data
+    const data = await postApi.loadPosts()
+    list.value = data
 
-      return data
+    return data
+  }
+
+  // 載入搜尋貼文
+  const searchPostsResult = async (keyword) => {
+    try {
+      const response = await postApi.searchPosts(keyword)
+      searchResult.value = response
     } catch (error) {
-      throw error
+      searchResult.value = [] // 清空搜尋結果以防止錯誤狀態
     }
   }
 
@@ -66,7 +69,6 @@ export const usePostStore = defineStore('post', () => {
       const response = await postApi.loadPostById(userId)
       userPostList.value = response
     } catch (error) {
-      console.error('加載用戶貼文失敗:', error)
       userPostList.value = [] // 清空列表以防止錯誤狀態
     }
   }
@@ -87,8 +89,6 @@ export const usePostStore = defineStore('post', () => {
         favoredPostList.value = filteredPosts // 更新收藏的貼文列表
       }
     } catch (error) {
-      console.error(`加載用戶 ${type} 貼文失敗:`, error)
-
       // 清空對應的列表
       if (type === 'likes') {
         likedPostList.value = []
@@ -121,7 +121,6 @@ export const usePostStore = defineStore('post', () => {
         likedByMe: originalLiked,
         liked_bies: originalCount,
       })
-      throw error
     }
   }
 
@@ -158,12 +157,12 @@ export const usePostStore = defineStore('post', () => {
         favoredByMe: originalFavored,
         favored_bies: originalCount,
       })
-      throw error
     }
   }
 
   return {
     list,
+    searchResult,
     currentPostId,
     userPostList,
     likedPostList,
@@ -173,6 +172,7 @@ export const usePostStore = defineStore('post', () => {
 
     createPost,
     loadAllPosts,
+    searchPostsResult,
     loadPostsByUser,
     loadPostsLikedOrFavoredByUser,
     toggleLikePost,

@@ -7,13 +7,9 @@ export const updateUserApi = {
     const formData = new FormData()
     formData.append('files', file)
 
-    try {
-      const response = await postFormData('/api/upload', formData)
+    const response = await postFormData('/api/upload', formData)
 
-      return response[0].url
-    } catch (error) {
-      throw error
-    }
+    return response[0].url
   },
 
   // 更新用戶資料的 API
@@ -21,12 +17,8 @@ export const updateUserApi = {
     const userStore = useUserStore()
     const userId = userStore.getUserId
 
-    try {
-      const response = await put(`/api/users/${userId}`, userData)
-      userStore.updateUser(response)
-      return response
-    } catch (error) {
-      throw error
-    }
+    const response = await put(`/api/users/${userId}`, userData)
+    userStore.updateUser(response)
+    return response
   },
 }

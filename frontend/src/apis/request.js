@@ -67,15 +67,11 @@ serviceAxios.interceptors.response.use(
 
 // 統一處理所有 API 請求
 const request = async (options) => {
-  try {
-    // 移除自定義的 auth 參數，避免傳遞給 axios
-    const { auth, ...axiosOptions } = options
+  // 移除自定義的 auth 參數，避免傳遞給 axios
+  const { auth, ...axiosOptions } = options
 
-    const response = await serviceAxios(axiosOptions)
-    return response.data
-  } catch (error) {
-    throw error
-  }
+  const response = await serviceAxios(axiosOptions)
+  return response.data
 }
 
 export const get = (url, params, auth = true) => request({ method: 'GET', url, params, auth })
@@ -85,49 +81,21 @@ export const del = (url, auth = true) => request({ method: 'DELETE', url, auth }
 
 // 單獨的 FormData 處理方法
 export const postFormData = async (url, formData, auth = true) => {
-  try {
-    const config = {
-      method: 'POST',
-      url,
-      data: formData,
-      headers: {},
-      timeout: 30000,
-    }
-
-    if (auth) {
-      const token = getJwtToken()
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`
-      }
-    }
-
-    const response = await axios(config)
-    return response.data
-  } catch (error) {
-    throw error
+  const config = {
+    method: 'POST',
+    url,
+    data: formData,
+    headers: {},
+    timeout: 30000,
   }
+
+  if (auth) {
+    const token = getJwtToken()
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
+  }
+
+  const response = await axios(config)
+  return response.data
 }
-
-// export const putFormData = async (url, formData, auth = true) => {
-//   try {
-//     const config = {
-//       method: 'PUT',
-//       url,
-//       data: formData,
-//       headers: {},
-//       timeout: 30000,
-//     }
-
-//     if (auth) {
-//       const token = getJwtToken()
-//       if (token) {
-//         config.headers.Authorization = `Bearer ${token}`
-//       }
-//     }
-
-//     const response = await axios(config)
-//     return response.data
-//   } catch (error) {
-//     throw error
-//   }
-// }

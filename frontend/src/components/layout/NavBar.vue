@@ -7,7 +7,7 @@
 
       <!-- 桌面版搜尋框 -->
       <div class="search-input desktop-search">
-        <input type="text" placeholder="搜尋內容..." />
+        <input type="text" placeholder="搜尋內容..." @change="searchPosts" />
         <i class="bx bx-search-alt"></i>
       </div>
 
@@ -38,7 +38,12 @@
     <!-- 手機版搜尋框 -->
     <div class="mobile-search-container" :class="{ show: showMobileSearch }">
       <div class="mobile-search-input">
-        <input type="text" placeholder="搜尋內容..." ref="mobileSearchInput" />
+        <input
+          type="text"
+          placeholder="搜尋內容..."
+          ref="mobileSearchInput"
+          @change="searchPosts"
+        />
         <button class="close-search-btn" @click="toggleMobileSearch">
           <i class="bx bx-x"></i>
         </button>
@@ -52,12 +57,14 @@ import TheAvatar from '@/components/common/TheAvatar.vue'
 
 import { useUserStore } from '@/stores/modules/userStore'
 import { useModalStore } from '@/stores/modules/modalStore'
+import { usePostStore } from '@/stores/modules/postStore'
 import { useRouter } from 'vue-router'
 import { ref, nextTick } from 'vue'
 
 const router = useRouter()
 const userStore = useUserStore()
 const modalStore = useModalStore()
+const postStore = usePostStore()
 const showMobileSearch = ref(false)
 const mobileSearchInput = ref(null)
 
@@ -80,6 +87,13 @@ const toggleMobileSearch = async () => {
       mobileSearchInput.value?.focus()
     }, 50)
   }
+}
+
+// 搜尋貼文
+const searchPosts = async (event) => {
+  const keyword = event.target.value.trim()
+
+  //
 }
 
 const handleLogout = () => {

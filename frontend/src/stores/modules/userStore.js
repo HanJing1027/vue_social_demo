@@ -97,36 +97,28 @@ export const useUserStore = defineStore('user', () => {
 
   // 註冊
   const registerUser = async (formData) => {
-    try {
-      const response = await authApi.register(formData)
+    const response = await authApi.register(formData)
 
-      return response
-    } catch (error) {
-      throw error
-    }
+    return response
   }
 
   // 登入
   const loginUser = async (formData) => {
-    try {
-      const response = await authApi.login(formData)
+    const response = await authApi.login(formData)
 
-      if (response.jwt && response.user) {
-        // 設置 JWT Token
-        setJwtToken(response.jwt)
-        // 將 Avatar URL 轉換為完整的 URL
-        const userWithFullAvatar = {
-          ...response.user,
-          avatar: resolveAvatarUrl(response.user.avatar),
-        }
-        // 更新用戶資料
-        user.value = userWithFullAvatar
-        saveUserDataToStorage(userWithFullAvatar)
-
-        return userWithFullAvatar
+    if (response.jwt && response.user) {
+      // 設置 JWT Token
+      setJwtToken(response.jwt)
+      // 將 Avatar URL 轉換為完整的 URL
+      const userWithFullAvatar = {
+        ...response.user,
+        avatar: resolveAvatarUrl(response.user.avatar),
       }
-    } catch (error) {
-      throw error
+      // 更新用戶資料
+      user.value = userWithFullAvatar
+      saveUserDataToStorage(userWithFullAvatar)
+
+      return userWithFullAvatar
     }
   }
 
