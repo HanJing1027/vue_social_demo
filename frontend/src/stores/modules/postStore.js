@@ -66,8 +66,6 @@ export const usePostStore = defineStore('post', () => {
     try {
       const response = await postApi.searchPosts(keyword)
       searchResult.value = response
-
-      console.log('搜尋結果:', searchResult.value)
     } catch (error) {
       searchResult.value = [] // 清空搜尋結果以防止錯誤狀態
     }

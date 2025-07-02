@@ -4,8 +4,17 @@
       搜尋結果：
       <span>{{ keyword }}</span>
     </h2>
-    <PostList>
-      <PostCard v-for="post in searchResultList" :post="post" :key="post.id" />
+
+    <PostList :isEmpty="searchResultList.length === 0">
+      <template v-if="searchResultList.length > 0">
+        <PostCard v-for="post in searchResultList" :key="post.id" :post="post" />
+      </template>
+
+      <template v-else>
+        <div class="no-posts-message">
+          <p>目前沒有符合條件的內容，試試其他關鍵字吧！</p>
+        </div>
+      </template>
     </PostList>
   </section>
 </template>
@@ -78,6 +87,22 @@ onMounted(() => {
     &::after {
       width: 35px;
     }
+  }
+}
+
+.no-posts-message {
+  text-align: center;
+  color: $text-secondary;
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 20px;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: $shadow-light;
+
+  p {
+    margin: 0;
+    line-height: 1.5;
   }
 }
 </style>
