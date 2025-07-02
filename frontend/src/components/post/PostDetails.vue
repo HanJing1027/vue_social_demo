@@ -112,10 +112,10 @@ const modalStore = useModalStore()
 const router = useRouter()
 const commentContent = ref('')
 
-const post = computed(() => postStore.postDetails)
+const post = computed(() => postStore.postDetails || {})
 const comments = computed(() => commentStore.list)
 
-const description = post.value.description
+const description = post.value.description || ''
 const content = description.replace(/#[\u4e00-\u9fa5\w]+/g, '').trim()
 
 const goToUserProfile = (userId) => {

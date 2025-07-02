@@ -25,10 +25,18 @@ export const usePostStore = defineStore('post', () => {
 
   // 更新特定貼文的狀態
   const updatePostState = (postId, updates) => {
-    const postIndex = list.value.findIndex((post) => post.id === postId)
-    if (postIndex !== -1) {
-      list.value[postIndex] = { ...list.value[postIndex], ...updates }
+    const updateList = (list) => {
+      const postIndex = list.findIndex((post) => post.id === postId)
+      if (postIndex !== -1) {
+        list[postIndex] = { ...list[postIndex], ...updates }
+      }
     }
+
+    // 更新全局貼文列表
+    updateList(list.value)
+
+    // 更新搜尋結果
+    updateList(searchResult.value)
   }
 
   // 創建新貼文
@@ -58,6 +66,8 @@ export const usePostStore = defineStore('post', () => {
     try {
       const response = await postApi.searchPosts(keyword)
       searchResult.value = response
+
+      console.log('搜尋結果:', searchResult.value)
     } catch (error) {
       searchResult.value = [] // 清空搜尋結果以防止錯誤狀態
     }

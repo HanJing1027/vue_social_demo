@@ -93,7 +93,12 @@ const toggleMobileSearch = async () => {
 const searchPosts = async (event) => {
   const keyword = event.target.value.trim()
 
-  //
+  if (keyword) {
+    await postStore.searchPostsResult(keyword)
+    router.push({ name: 'search_result', query: { keyword } })
+  }
+
+  event.target.value = ''
 }
 
 const handleLogout = () => {

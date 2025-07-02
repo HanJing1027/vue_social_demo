@@ -1,47 +1,37 @@
 <template>
   <section>
-    <h2 class="search-title">搜尋結果：植物</h2>
+    <h2 class="search-title">
+      搜尋結果：
+      <span>{{ keyword }}</span>
+    </h2>
     <PostList>
-      <PostCard v-for="i in 5" :key="i" @openDetails="openPostDetails" />
+      <PostCard v-for="post in searchResultList" :post="post" :key="post.id" />
     </PostList>
   </section>
-
-  <PostDetails v-if="showPostDetails" @close="closePostDetails" />
 </template>
 
 <script setup>
 import PostCard from '@/components/post/PostCard.vue'
-import PostDetails from '@/components/post/PostDetails.vue'
 import PostList from '@/components/post/PostList.vue'
-import { ref, watch, onUnmounted } from 'vue'
 
-// 控制 PostDetails 顯示狀態
-const showPostDetails = ref(false)
+import { ref, computed, onMounted } from 'vue'
+import { usePostStore } from '@/stores/modules/postStore'
+import { useRoute } from 'vue-router'
 
-// 開啟貼文詳情
-const openPostDetails = () => {
-  showPostDetails.value = true
-}
+const postStore = usePostStore()
+const route = useRoute()
 
-// 關閉貼文詳情
-const closePostDetails = () => {
-  showPostDetails.value = false
-}
+const searchResultList = computed(() => postStore.searchResult || [])
+const keyword = computed(() => route.query.keyword)
 
-// 監聽 PostDetails 顯示狀態，控制頁面滾動
-watch(showPostDetails, (newValue) => {
-  if (newValue) {
-    // 顯示 PostDetails 時禁用滾動
-    document.body.style.overflow = 'hidden'
+onMounted(() => {
+  if (!keyword.value) {
+    route.replace({ name: 'home' })
   } else {
-    // 隱藏 PostDetails 時恢復滾動
-    document.body.style.overflow = ''
+    postStore.searchPostsResult(keyword.value)
   }
-})
 
-// 組件卸載時確保恢復滾動
-onUnmounted(() => {
-  document.body.style.overflow = ''
+  postStore.loadAllPosts()
 })
 </script>
 
@@ -55,6 +45,10 @@ onUnmounted(() => {
   margin: 1.5rem 0 3rem;
   color: $text-color;
   position: relative;
+
+  span {
+    color: $primary-color;
+  }
 
   // 簡潔的底部線條
   &::after {
