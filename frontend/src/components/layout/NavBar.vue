@@ -99,6 +99,7 @@ const searchPosts = async (event) => {
   }
 
   event.target.value = ''
+  showMobileSearch.value = !showMobileSearch.value
 }
 
 const handleLogout = () => {
