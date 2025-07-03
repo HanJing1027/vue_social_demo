@@ -154,7 +154,8 @@ const profileData = reactive({
 })
 
 // 用於重置功能
-const originalProfileData = { ...profileData }
+const { avatar, ...resetProfileData } = profileData
+const originalProfileData = resetProfileData
 
 // 選擇頭像
 const selectAvatar = () => {
