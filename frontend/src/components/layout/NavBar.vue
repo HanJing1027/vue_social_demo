@@ -29,7 +29,7 @@
           <TheAvatar :src="userStore?.user?.avatar" :width="40" :height="40" :fontSize="20" />
           <ul class="profile-menu">
             <li><button @click="goToUserProfile">個人主頁</button></li>
-            <li><button class="logout-btn" @click="handleLogout">退出登出</button></li>
+            <li><button class="logout-btn" @click="handleLogout">登出</button></li>
           </ul>
         </div>
       </div>
@@ -165,10 +165,23 @@ const handleLogout = () => {
       transform: translateY(-50%);
       color: $text-secondary;
       font-size: 18px;
-      transition: all $transition-speed ease;
+      transition: all 0.25s ease;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
 
       &:hover {
-        //
+        color: $primary-color;
+        background: rgba(var(--primary-color-rgb), 0.08);
+        transform: translateY(-50%) scale(1.05);
+      }
+
+      &:active {
+        transform: translateY(-50%) scale(0.98);
+        background: rgba(var(--primary-color-rgb), 0.12);
       }
     }
   }
