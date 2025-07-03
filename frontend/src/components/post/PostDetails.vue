@@ -398,6 +398,11 @@ onMounted(() => {
       line-height: 1.4;
       font-size: 14px;
       overflow-y: auto;
+      scrollbar-width: none; // 隱藏 Firefox 的滑桿
+
+      &::-webkit-scrollbar {
+        display: none; // 隱藏 Webkit 瀏覽器的滑桿
+      }
 
       // 自動擴展高度
       &:focus {
