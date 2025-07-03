@@ -133,7 +133,10 @@ const formatDescription = () => {
   let description = postContent.value.trim()
 
   if (postTags.value.length > 0) {
-    const tagsString = postTags.value.map((tag) => `#${tag}`).join(' ')
+    // 將標籤中的空格替換為 "_"
+    const tagsString = postTags.value
+      .map((tag) => `#${tag.replace(/\s+/g, '_')}`) // 替換空格為 "_"
+      .join(' ')
     description = description ? `${description}\n\n${tagsString}` : tagsString
   }
 
