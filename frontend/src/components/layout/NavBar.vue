@@ -25,9 +25,9 @@
           <i class="bx bx-message-alt-add"></i>
         </button>
 
-        <div class="profile-dropdown">
+        <div class="profile-dropdown" @click="toggleProfileMenu">
           <TheAvatar :src="userStore?.user?.avatar" :width="40" :height="40" :fontSize="20" />
-          <ul class="profile-menu">
+          <ul :class="{ open: isProfileMenuOpen }" class="profile-menu">
             <li><button @click="goToUserProfile">個人主頁</button></li>
             <li><button class="logout-btn" @click="handleLogout">登出</button></li>
           </ul>
@@ -59,7 +59,8 @@ import { useUserStore } from '@/stores/modules/userStore'
 import { useModalStore } from '@/stores/modules/modalStore'
 import { usePostStore } from '@/stores/modules/postStore'
 import { useRouter } from 'vue-router'
-import { ref, nextTick } from 'vue'
+import { onBeforeRouteUpdate } from 'vue-router'
+import { ref, nextTick, watch, onMounted, onUnmounted } from 'vue'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -68,8 +69,15 @@ const postStore = usePostStore()
 const showMobileSearch = ref(false)
 const mobileSearchInput = ref(null)
 const isMobileSearch = ref(false)
+const isProfileMenuOpen = ref(false)
+
+const toggleProfileMenu = (event) => {
+  event.stopPropagation()
+  isProfileMenuOpen.value = !isProfileMenuOpen.value
+}
 
 const goToUserProfile = () => {
+  isProfileMenuOpen.value = false
   router.push(`/profile/${userStore.user.id}`)
 }
 
@@ -111,10 +119,39 @@ const searchPosts = async (event) => {
   event.target.value = ''
 }
 
+onBeforeRouteUpdate(() => {
+  isProfileMenuOpen.value = false // 路由變化時收起 profile-menu
+})
+
 const handleLogout = () => {
+  isProfileMenuOpen.value = false
   userStore.logoutUser()
   router.push('/login')
 }
+
+// 監聽路由變化
+watch(
+  () => router.currentRoute.value.path,
+  () => {
+    isProfileMenuOpen.value = false
+  }
+)
+
+// 點擊外部關閉
+const handleClickOutside = (event) => {
+  const profileDropdown = document.querySelector('.profile-dropdown')
+  if (profileDropdown && !profileDropdown.contains(event.target)) {
+    isProfileMenuOpen.value = false
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
 </script>
 
 <style lang="scss" scoped>
@@ -282,14 +319,7 @@ const handleLogout = () => {
       position: relative;
       z-index: 1000;
       cursor: pointer;
-
-      > i {
-        transition: background-color 0.2s ease;
-
-        &:hover {
-          background: $surface-hover;
-        }
-      }
+      user-select: none;
 
       .profile-menu {
         position: absolute;
@@ -303,32 +333,42 @@ const handleLogout = () => {
         opacity: 0;
         visibility: hidden;
         transform: translateY(-10px);
-        transition: all 0.2s ease;
+        transition:
+          opacity 0.3s ease,
+          transform 0.3s ease;
         margin-top: 8px;
         padding: 8px 0;
         list-style: none;
 
-        li {
-          a,
-          button {
-            display: block;
-            width: 100%;
-            padding: 10px 16px;
-            text-decoration: none;
-            color: $text-color;
-            background: none;
-            border: none;
-            text-align: left;
-            font-size: 14px;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
+        &.open {
+          opacity: 1;
+          visibility: visible;
+          transform: translateY(0);
+        }
 
-            &:hover {
-              background: $surface-hover;
-            }
+        li {
+          margin: 0;
+          padding: 0;
+          list-style: none;
+        }
+
+        button {
+          width: 100%;
+          padding: 10px 16px;
+          background: transparent;
+          border: none;
+          color: $text-color;
+          font-size: 14px;
+          font-weight: 500;
+          text-align: left;
+          cursor: pointer;
+          transition: background-color 0.2s ease;
+
+          &:hover {
+            background: $surface-hover;
           }
 
-          .logout-btn {
+          &.logout-btn {
             color: $danger-color;
 
             &:hover {
@@ -336,12 +376,6 @@ const handleLogout = () => {
             }
           }
         }
-      }
-
-      &:hover .profile-menu {
-        opacity: 1;
-        visibility: visible;
-        transform: translateY(0);
       }
     }
   }
