@@ -10,7 +10,7 @@
     </div>
 
     <!-- 貼文圖片 -->
-    <div class="post-image">
+    <div class="post-image" @dblclick="handleImageClick">
       <img :src="post.image" alt="貼文圖片" />
     </div>
 
@@ -80,6 +80,17 @@ const handleTagClick = (tag) => {
   const keyword = tag.startsWith('#') ? tag.slice(1) : tag
   if (keyword) {
     router.push({ name: 'search_result', query: { keyword } })
+  }
+}
+
+// 處理點擊圖片按讚事件
+const handleImageClick = async () => {
+  if (props.post.likedByMe) return
+
+  try {
+    await postStore.toggleLikePost(props.post.id)
+  } catch (error) {
+    toastStore.showError('按讚失敗，請稍後再試')
   }
 }
 

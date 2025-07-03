@@ -4,7 +4,7 @@
     <div class="post-detail">
       <div class="post-layout">
         <!-- 左側圖片 -->
-        <div class="post-image-section">
+        <div class="post-image-section" @dblclick="handleImageClick">
           <img :src="post.image" alt="貼文圖片" />
         </div>
 
@@ -144,6 +144,17 @@ const handleTagClick = (tag) => {
   }
 
   modalStore.closeAllModals() // 關閉所有彈跳視窗
+}
+
+// 處理點擊圖片按讚事件
+const handleImageClick = async () => {
+  if (post.value.likedByMe) return
+
+  try {
+    await postStore.toggleLikePost(post.value.id)
+  } catch (error) {
+    toastStore.showError('按讚失敗，請稍後再試')
+  }
 }
 
 // 新增留言
