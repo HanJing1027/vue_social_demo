@@ -25,7 +25,7 @@
           <i class="bx bx-message-alt-add"></i>
         </button>
 
-        <div class="profile-dropdown" @click="toggleProfileMenu">
+        <div class="profile-dropdown" @click="toggleProfileMenu" ref="profileDropdownRef">
           <TheAvatar :src="userStore?.user?.avatar" :width="40" :height="40" :fontSize="20" />
           <ul :class="{ open: isProfileMenuOpen }" class="profile-menu">
             <li><button @click="goToUserProfile">個人主頁</button></li>
@@ -59,8 +59,7 @@ import { useUserStore } from '@/stores/modules/userStore'
 import { useModalStore } from '@/stores/modules/modalStore'
 import { usePostStore } from '@/stores/modules/postStore'
 import { useRouter } from 'vue-router'
-import { onBeforeRouteUpdate } from 'vue-router'
-import { ref, nextTick, watch, onMounted, onUnmounted } from 'vue'
+import { ref, nextTick, onMounted, onUnmounted } from 'vue'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -70,6 +69,7 @@ const showMobileSearch = ref(false)
 const mobileSearchInput = ref(null)
 const isMobileSearch = ref(false)
 const isProfileMenuOpen = ref(false)
+const profileDropdownRef = ref(null) // 新增
 
 const toggleProfileMenu = (event) => {
   event.stopPropagation()
@@ -78,7 +78,29 @@ const toggleProfileMenu = (event) => {
 
 const goToUserProfile = () => {
   isProfileMenuOpen.value = false
-  router.push(`/profile/${userStore.user.id}`)
+
+  // 延遲路由跳轉，確保選單關閉動畫完成
+  setTimeout(() => {
+    router.push(`/profile/${userStore.user.id}`)
+  }, 100)
+}
+
+const handleLogout = () => {
+  isProfileMenuOpen.value = false
+  userStore.logoutUser()
+  router.push('/login')
+}
+
+// 監聽路由變化 - 替代 router.afterEach
+router.afterEach(() => {
+  isProfileMenuOpen.value = false
+})
+
+// 改進的點擊外部關閉
+const handleClickOutside = (event) => {
+  if (profileDropdownRef.value && !profileDropdownRef.value.contains(event.target)) {
+    isProfileMenuOpen.value = false
+  }
 }
 
 // 打開貼文上傳彈跳視窗
@@ -88,12 +110,10 @@ const handleCreatePost = () => {
 
 const toggleMobileSearch = async () => {
   showMobileSearch.value = !showMobileSearch.value
-
   isMobileSearch.value = true
 
   if (showMobileSearch.value) {
     await nextTick()
-    // 確保 DOM 更新後再 focus 輸入框
     setTimeout(() => {
       mobileSearchInput.value?.focus()
     }, 50)
@@ -103,8 +123,8 @@ const toggleMobileSearch = async () => {
 // 搜尋貼文
 const searchPosts = async (event) => {
   const keyword = event.target.value.trim()
+  const isMobile = window.innerWidth <= 768
 
-  const isMobile = window.innerWidth <= 768 // 判斷是否為手機介面
   if (isMobile) return
 
   if (isMobileSearch.value) {
@@ -117,32 +137,6 @@ const searchPosts = async (event) => {
   }
 
   event.target.value = ''
-}
-
-onBeforeRouteUpdate(() => {
-  isProfileMenuOpen.value = false // 路由變化時收起 profile-menu
-})
-
-const handleLogout = () => {
-  isProfileMenuOpen.value = false
-  userStore.logoutUser()
-  router.push('/login')
-}
-
-// 監聽路由變化
-watch(
-  () => router.currentRoute.value.path,
-  () => {
-    isProfileMenuOpen.value = false
-  }
-)
-
-// 點擊外部關閉
-const handleClickOutside = (event) => {
-  const profileDropdown = document.querySelector('.profile-dropdown')
-  if (profileDropdown && !profileDropdown.contains(event.target)) {
-    isProfileMenuOpen.value = false
-  }
 }
 
 onMounted(() => {
