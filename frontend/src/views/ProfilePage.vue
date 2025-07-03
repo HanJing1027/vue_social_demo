@@ -155,6 +155,7 @@ const loadUserData = async () => {
   const respone = await getUserApi.getUserById(route.params.userId)
   userData.value = respone
 }
+
 // 標籤切換
 const setActiveTab = (index) => {
   activeIndex.value = index

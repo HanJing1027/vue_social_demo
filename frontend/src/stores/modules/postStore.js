@@ -37,6 +37,11 @@ export const usePostStore = defineStore('post', () => {
 
     // 更新搜尋結果
     updateList(searchResult.value)
+
+    // 更新用戶相關的貼文列表
+    updateList(userPostList.value)
+    updateList(likedPostList.value)
+    updateList(favoredPostList.value)
   }
 
   // 創建新貼文
