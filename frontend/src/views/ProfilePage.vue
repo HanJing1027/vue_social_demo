@@ -5,12 +5,7 @@
       <div class="profile-info">
         <div class="profile-main">
           <div class="avatar-section">
-            <template v-if="isSelf">
-              <TheAvatar :src="userStore.user.avatar" :width="100" :height="100" :fontSize="60" />
-            </template>
-            <template v-else>
-              <TheAvatar :src="userData.avatar" :width="100" :height="100" :fontSize="60" />
-            </template>
+            <TheAvatar :src="userData.avatar" :width="100" :height="100" :fontSize="60" />
           </div>
 
           <div class="user-content">
@@ -159,8 +154,9 @@ const currentPostList = computed(() => {
 const loadUserData = async () => {
   const respone = await getUserApi.getUserById(route.params.userId)
   userData.value = respone
-}
 
+  console.log(respone)
+}
 // 標籤切換
 const setActiveTab = (index) => {
   activeIndex.value = index

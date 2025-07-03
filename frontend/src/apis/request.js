@@ -40,6 +40,11 @@ serviceAxios.interceptors.response.use(
   (response) => {
     const baseURL = import.meta.env.VITE_API_BASE_URL
 
+    // 處理單一用戶資料的 avatar URL
+    if (response.data?.avatar && !response.data.avatar.startsWith('http')) {
+      response.data.avatar = `${baseURL}${response.data.avatar}`
+    }
+
     // 處理多筆貼文的圖片 URL
     if (Array.isArray(response.data?.data)) {
       response.data.data.forEach((item) => {
