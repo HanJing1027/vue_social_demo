@@ -67,6 +67,7 @@ const modalStore = useModalStore()
 const postStore = usePostStore()
 const showMobileSearch = ref(false)
 const mobileSearchInput = ref(null)
+const isMobileSearch = ref(false)
 
 const goToUserProfile = () => {
   router.push(`/profile/${userStore.user.id}`)
@@ -79,6 +80,8 @@ const handleCreatePost = () => {
 
 const toggleMobileSearch = async () => {
   showMobileSearch.value = !showMobileSearch.value
+
+  isMobileSearch.value = true
 
   if (showMobileSearch.value) {
     await nextTick()
@@ -93,13 +96,16 @@ const toggleMobileSearch = async () => {
 const searchPosts = async (event) => {
   const keyword = event.target.value.trim()
 
+  if (isMobileSearch.value) {
+    showMobileSearch.value = !showMobileSearch.value
+  }
+
   if (keyword) {
     await postStore.searchPostsResult(keyword)
     router.push({ name: 'search_result', query: { keyword } })
   }
 
   event.target.value = ''
-  showMobileSearch.value = !showMobileSearch.value
 }
 
 const handleLogout = () => {
