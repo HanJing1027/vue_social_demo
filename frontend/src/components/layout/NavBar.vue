@@ -96,6 +96,9 @@ const toggleMobileSearch = async () => {
 const searchPosts = async (event) => {
   const keyword = event.target.value.trim()
 
+  const isMobile = window.innerWidth <= 768 // 判斷是否為手機介面
+  if (isMobile) return
+
   if (isMobileSearch.value) {
     showMobileSearch.value = !showMobileSearch.value
   }
