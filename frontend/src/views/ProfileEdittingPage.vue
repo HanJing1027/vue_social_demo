@@ -70,7 +70,7 @@
             <label class="field-label">手機號碼</label>
             <input
               v-model="profileData.mobilePhone"
-              type="text"
+              type="number"
               class="form-input"
               placeholder="請輸入手機號碼"
             />
