@@ -70,8 +70,9 @@
             <label class="field-label">手機號碼</label>
             <input
               v-model="profileData.mobilePhone"
-              type="number"
+              type="text"
               class="form-input"
+              inputmode="numeric"
               placeholder="請輸入手機號碼"
             />
           </div>
@@ -201,12 +202,17 @@ const resetProfile = () => {
 
 // 保存個人資料變更
 const originalHandleSave = async () => {
-  try {
-    if (profileData.intro.length > 150) {
-      toastStore.showError('個人簡介不能超過 150 字')
-      return
-    }
+  if (profileData.intro.length > 150) {
+    toastStore.showError('個人簡介不能超過 150 字')
+    return
+  }
 
+  if (profileData.mobilePhone && !/^[0-9]*$/.test(profileData.mobilePhone)) {
+    toastStore.showError('手機號碼只能包含數字')
+    return
+  }
+
+  try {
     await updateUserApi.updateUserData(profileData)
     toastStore.showSuccess('個人資料已儲存！')
 
@@ -456,18 +462,6 @@ const handleSave = debounce(originalHandleSave, 300)
 
 .form-textarea {
   @include base-input($borderRadius: 8px);
-}
-
-input[type='number'] {
-  /* Chrome、Safari、Edge、Opera */
-  &::-webkit-outer-spin-button,
-  &::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-
-  /* Firefox */
-  -moz-appearance: textfield;
 }
 
 // 下拉選單特殊樣式
