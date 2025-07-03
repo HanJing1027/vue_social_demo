@@ -151,10 +151,8 @@ const originalHandleSubmit = async () => {
 
       toastStore.showSuccess('註冊成功！')
 
-      setTimeout(() => {
-        resetForm()
-        isLogin.value = true // 切換到登入模式
-      }, 800)
+      resetForm()
+      isLogin.value = true // 切換到登入模式
     } else {
       // 登入提交 邏輯
       await userStore.loginUser(formData)
