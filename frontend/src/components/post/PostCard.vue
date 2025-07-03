@@ -176,6 +176,7 @@ const handlePostClick = () => {
   display: flex;
   align-items: center;
   justify-content: center;
+  user-select: none;
 
   img {
     max-width: 100%;

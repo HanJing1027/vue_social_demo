@@ -228,6 +228,7 @@ onMounted(() => {
     align-items: center;
     justify-content: center;
     background: $surface-alt;
+    user-select: none;
 
     img {
       max-width: 100%;
