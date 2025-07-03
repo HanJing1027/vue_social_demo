@@ -142,7 +142,10 @@ export const usePostStore = defineStore('post', () => {
     const post = list.value.find((p) => p.id === postId)
     if (!post) return false
 
-    post.comments++
+    // 使用 updatePostState 來同步更新所有列表
+    updatePostState(postId, {
+      comments: post.comments + 1,
+    })
 
     return true
   }

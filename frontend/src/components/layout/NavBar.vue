@@ -158,12 +158,18 @@ const handleLogout = () => {
     }
 
     i {
+      cursor: pointer;
       position: absolute;
       right: 12px;
       top: 50%;
       transform: translateY(-50%);
       color: $text-secondary;
       font-size: 18px;
+      transition: all $transition-speed ease;
+
+      &:hover {
+        //
+      }
     }
   }
 
