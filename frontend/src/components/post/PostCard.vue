@@ -12,6 +12,14 @@
     <!-- 貼文圖片 -->
     <div class="post-image" @dblclick="handleImageClick">
       <img :src="post.image" alt="貼文圖片" />
+      <i
+        v-if="showHeart"
+        class="bx bxs-heart liked-icon"
+        :style="{
+          top: `${heartPosition.y}px`,
+          left: `${heartPosition.x}px`,
+        }"
+      ></i>
     </div>
 
     <!-- 互動按鈕區 -->
@@ -45,6 +53,7 @@
 import TheAvatar from '@/components/common/TheAvatar.vue'
 import PostActions from '@/components/post/PostActions.vue'
 
+import { ref } from 'vue'
 import { usePostStore } from '@/stores/modules/postStore'
 import { useModalStore } from '@/stores/modules/modalStore'
 import { useToastStore } from '@/stores/modules/toastStore'
@@ -57,6 +66,9 @@ const modalStore = useModalStore()
 const toastStore = useToastStore()
 const userStore = useUserStore()
 const router = useRouter()
+
+const showHeart = ref(false) // 用於控制愛心圖標顯示
+const heartPosition = ref({ x: 0, y: 0 }) // 用於記錄點擊位置
 
 const props = defineProps({
   post: {
@@ -84,11 +96,24 @@ const handleTagClick = (tag) => {
 }
 
 // 處理點擊圖片按讚事件
-const handleImageClick = async () => {
+const handleImageClick = async (event) => {
   if (props.post.likedByMe) return
 
   try {
+    // 記錄滑鼠點擊的位置
+    const rect = event.currentTarget.getBoundingClientRect()
+    heartPosition.value = {
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top,
+    }
+
     await postStore.toggleLikePost(props.post.id)
+    showHeart.value = true
+
+    // 1秒後隱藏愛心圖標
+    setTimeout(() => {
+      showHeart.value = false
+    }, 1000)
   } catch (error) {
     toastStore.showError('按讚失敗，請稍後再試')
   }
@@ -159,6 +184,31 @@ const handlePostClick = () => {
     object-position: center;
     display: block;
     transition: transform 0.3s ease;
+  }
+
+  .liked-icon {
+    position: absolute;
+    transform: translate(-50%, -50%) scale(1); // 保持居中對齊
+    font-size: 68px;
+    color: $danger-color;
+    opacity: 0.7;
+    z-index: 999;
+    animation: heartPop 0.6s ease-out;
+  }
+
+  @keyframes heartPop {
+    0% {
+      transform: translate(-50%, -50%) scale(0);
+      opacity: 0;
+    }
+    50% {
+      transform: translate(-50%, -50%) scale(1.5);
+      opacity: 0.7;
+    }
+    100% {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 0.7;
+    }
   }
 }
 

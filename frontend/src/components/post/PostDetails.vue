@@ -6,6 +6,14 @@
         <!-- 左側圖片 -->
         <div class="post-image-section" @dblclick="handleImageClick">
           <img :src="post.image" alt="貼文圖片" />
+          <i
+            v-if="showHeart"
+            class="bx bxs-heart liked-icon"
+            :style="{
+              top: `${heartPosition.y}px`,
+              left: `${heartPosition.x}px`,
+            }"
+          ></i>
         </div>
 
         <!-- 右側內容 -->
@@ -118,6 +126,9 @@ const modalStore = useModalStore()
 const router = useRouter()
 const commentContent = ref('')
 
+const showHeart = ref(false) // 用於控制愛心圖標顯示
+const heartPosition = ref({ x: 0, y: 0 }) // 用於記錄點擊位置
+
 const post = computed(() => postStore.postDetails || {})
 const comments = computed(() => commentStore.list)
 
@@ -151,7 +162,20 @@ const handleImageClick = async () => {
   if (post.value.likedByMe) return
 
   try {
+    // 記錄滑鼠點擊的位置
+    const rect = event.currentTarget.getBoundingClientRect()
+    heartPosition.value = {
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top,
+    }
+
     await postStore.toggleLikePost(post.value.id)
+    showHeart.value = true
+
+    // 1秒後隱藏愛心圖標
+    setTimeout(() => {
+      showHeart.value = false
+    }, 1000)
   } catch (error) {
     toastStore.showError('按讚失敗，請稍後再試')
   }
@@ -210,6 +234,31 @@ onMounted(() => {
       max-height: 100%;
       object-fit: contain;
       object-position: center;
+    }
+
+    .liked-icon {
+      position: absolute;
+      transform: translate(-50%, -50%) scale(1); // 保持居中對齊
+      font-size: 68px;
+      color: $danger-color;
+      opacity: 0.7;
+      z-index: 999;
+      animation: heartPop 0.6s ease-out;
+    }
+
+    @keyframes heartPop {
+      0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+      }
+      50% {
+        transform: translate(-50%, -50%) scale(1.5);
+        opacity: 0.7;
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.7;
+      }
     }
   }
 
