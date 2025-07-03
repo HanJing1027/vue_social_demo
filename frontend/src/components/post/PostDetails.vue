@@ -355,7 +355,6 @@ onMounted(() => {
   .comments-list {
     display: flex;
     flex-direction: column;
-    gap: 16px;
     flex: 1;
     min-height: 0;
   }
@@ -363,8 +362,6 @@ onMounted(() => {
   .comment-item {
     display: flex;
     align-items: flex-start;
-    gap: 10px;
-    margin-bottom: 12px;
 
     .avatar {
       cursor: pointer;
@@ -378,6 +375,8 @@ onMounted(() => {
     border-radius: 12px 12px 12px 3px;
     position: relative;
     max-width: 85%;
+
+    margin-bottom: 20px;
 
     &::before {
       content: '';
@@ -548,14 +547,9 @@ onMounted(() => {
       gap: 8px;
     }
 
-    .comment-item {
-      gap: 8px;
-      margin-bottom: 8px;
-    }
-
     .comment-content {
-      padding: 6px 10px;
       border-radius: 10px 10px 10px 2px;
+      margin-bottom: 10px;
 
       &::before {
         left: -4px;
