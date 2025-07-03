@@ -23,19 +23,21 @@
 import PostCard from '@/components/post/PostCard.vue'
 import PostList from '@/components/post/PostList.vue'
 
-import { ref, computed, onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { usePostStore } from '@/stores/modules/postStore'
 import { useRoute } from 'vue-router'
+import { useRouter } from 'vue-router'
 
 const postStore = usePostStore()
 const route = useRoute()
+const router = useRouter()
 
 const searchResultList = computed(() => postStore.searchResult || [])
 const keyword = computed(() => route.query.keyword)
 
 onMounted(() => {
   if (!keyword.value) {
-    route.replace({ name: 'home' })
+    router.replace({ name: 'home' })
   } else {
     postStore.searchPostsResult(keyword.value)
   }

@@ -30,7 +30,13 @@
 
     <!-- 標籤區 -->
     <div class="post-tags">
-      <span v-for="(tag, index) in post.tags" :key="index" class="tag">{{ tag }}</span>
+      <span
+        v-for="(tag, index) in post.tags"
+        :key="index"
+        class="tag"
+        @click="handleTagClick(tag)"
+        >{{ tag }}</span
+      >
     </div>
   </div>
 </template>
@@ -66,6 +72,15 @@ const goToUserProfile = () => {
   }
 
   router.push(`/profile/${props.post.user.id}`)
+}
+
+// 處理點擊標籤事件
+const handleTagClick = (tag) => {
+  // 消除 # 前綴
+  const keyword = tag.startsWith('#') ? tag.slice(1) : tag
+  if (keyword) {
+    router.push({ name: 'search_result', query: { keyword } })
+  }
 }
 
 const handlePostClick = () => {
