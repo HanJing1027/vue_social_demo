@@ -406,6 +406,13 @@ const handleSubmit = debounce(originalHandleSubmit, 300)
         }
       }
 
+      @media (hover: none) {
+        .login-btn:hover {
+          opacity: 1;
+          transform: none;
+        }
+      }
+
       .info {
         text-align: center;
         font-size: 14px;
