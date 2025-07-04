@@ -13,7 +13,9 @@
           <h4 class="footer-subtitle">快速導航</h4>
           <ul class="footer-links">
             <li><router-link to="/" class="footer-link">首頁</router-link></li>
-            <li><router-link to="/profile" class="footer-link">個人檔案</router-link></li>
+            <li>
+              <router-link :to="`/profile/${userId}`" class="footer-link">個人檔案</router-link>
+            </li>
           </ul>
         </div>
 
@@ -42,7 +44,16 @@
   </footer>
 </template>
 
-<script setup></script>
+<script setup>
+import { computed } from 'vue'
+import { useUserStore } from '@/stores/modules/userStore'
+
+const userStore = useUserStore()
+
+const userId = computed(() => {
+  return userStore.user?.id || ''
+})
+</script>
 
 <style lang="scss" scoped>
 @use '@/assets/styles/_variables.scss' as *;
@@ -108,6 +119,14 @@
 
       &:hover {
         color: $primary-color;
+      }
+    }
+  }
+
+  @media (hover: none) {
+    .footer-links {
+      .footer-link:hover {
+        color: $text-secondary;
       }
     }
   }
