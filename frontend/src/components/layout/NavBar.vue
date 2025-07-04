@@ -91,7 +91,7 @@ const handleLogout = () => {
   router.push('/login')
 }
 
-// 監聽路由變化 - 替代 router.afterEach
+// 在路由變更後關閉個人下拉選單
 router.afterEach(() => {
   isProfileMenuOpen.value = false
 })
@@ -212,11 +212,6 @@ onUnmounted(() => {
         background: rgba(var(--primary-color-rgb), 0.08);
         transform: translateY(-50%) scale(1.05);
       }
-
-      &:active {
-        transform: translateY(-50%) scale(0.98);
-        background: rgba(var(--primary-color-rgb), 0.12);
-      }
     }
   }
 
@@ -306,6 +301,12 @@ onUnmounted(() => {
 
       &.mobile-search-btn {
         display: none;
+      }
+    }
+
+    @media (hover: none) {
+      .nav-item:hover {
+        background: transparent;
       }
     }
 

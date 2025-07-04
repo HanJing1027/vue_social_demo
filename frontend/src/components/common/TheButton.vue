@@ -72,4 +72,11 @@ const props = defineProps({
     }
   }
 }
+@media (hover: none) {
+  .base-button:hover {
+    transform: none;
+    box-shadow: none !important;
+    background: $primary-color;
+  }
+}
 </style>

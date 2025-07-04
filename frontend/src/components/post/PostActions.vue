@@ -194,6 +194,70 @@ const handlePostClick = () => {
   }
 }
 
+@media (hover: none) {
+  // 禁用移動端的 hover 效果，但保持 active 狀態
+  .heart-action:hover {
+    background-color: transparent;
+
+    i {
+      color: $text-secondary;
+      transform: none;
+    }
+
+    .action-count {
+      color: $text-secondary;
+    }
+  }
+
+  .comment-action:hover {
+    background-color: transparent;
+
+    i {
+      color: $text-secondary;
+      transform: none;
+    }
+
+    .action-count {
+      color: $text-secondary;
+    }
+  }
+
+  .star-action:hover {
+    background-color: transparent;
+
+    i {
+      color: $text-secondary;
+      transform: none;
+    }
+
+    .action-count {
+      color: $text-secondary;
+    }
+  }
+
+  .heart-action.active {
+    i {
+      color: $danger-color;
+    }
+
+    .action-count {
+      color: $danger-color;
+      font-weight: 600;
+    }
+  }
+
+  .star-action.active {
+    i {
+      color: #f39c12;
+    }
+
+    .action-count {
+      color: #f39c12;
+      font-weight: 600;
+    }
+  }
+}
+
 @keyframes heartBeat {
   0% {
     transform: scale(1);

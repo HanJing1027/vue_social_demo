@@ -391,6 +391,14 @@ const handleSave = debounce(originalHandleSave, 300)
   }
 }
 
+@media (hover: none) {
+  .change-avatar-btn:hover {
+    background: $primary-color;
+    transform: none;
+    box-shadow: none;
+  }
+}
+
 .avatar-input {
   display: none;
 }

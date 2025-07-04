@@ -172,6 +172,14 @@ const userId = computed(() => {
         font-size: 12px;
       }
     }
+
+    @media (hover: none) {
+      .footer-policies {
+        .policy-link:hover {
+          color: $text-secondary;
+        }
+      }
+    }
   }
 }
 </style>

@@ -433,6 +433,12 @@ onMounted(() => {
         color: white;
       }
     }
+
+    @media (hover: none) {
+      .send-btn:hover {
+        transform: none;
+      }
+    }
   }
 
   .comments-list {
@@ -488,6 +494,7 @@ onMounted(() => {
   }
 
   .original-poster-tag {
+    cursor: default;
     background-color: $primary-color;
     color: $background;
     font-size: 10px;

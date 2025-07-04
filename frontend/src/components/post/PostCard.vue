@@ -57,14 +57,12 @@ import { ref } from 'vue'
 import { usePostStore } from '@/stores/modules/postStore'
 import { useModalStore } from '@/stores/modules/modalStore'
 import { useToastStore } from '@/stores/modules/toastStore'
-import { useUserStore } from '@/stores/modules/userStore'
 import { formatTimeAgo } from '@/utils/postUtils'
 import { useRouter } from 'vue-router'
 
 const postStore = usePostStore()
 const modalStore = useModalStore()
 const toastStore = useToastStore()
-const userStore = useUserStore()
 const router = useRouter()
 
 const showHeart = ref(false) // 用於控制愛心圖標顯示
@@ -268,6 +266,12 @@ const handlePostClick = () => {
 
   &:hover {
     background-color: rgba(var(--primary-color-rgb), 0.2);
+  }
+}
+
+@media (hover: none) {
+  .tag:hover {
+    background-color: rgba(var(--primary-color-rgb), 0.1);
   }
 }
 
