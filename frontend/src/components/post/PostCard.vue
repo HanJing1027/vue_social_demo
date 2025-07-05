@@ -11,7 +11,17 @@
 
     <!-- 貼文圖片 -->
     <div class="post-image" @dblclick="handleImageClick">
-      <img :src="post.image" alt="貼文圖片" />
+      <swiper
+        :slides-per-view="1"
+        :space-between="10"
+        :pagination="{ clickable: true }"
+        :modules="[Pagination]"
+        class="post-swiper"
+      >
+        <swiper-slide v-for="postImg in post.image" :key="postImg.id">
+          <img :src="postImg.attributes.url" alt="貼文圖片" />
+        </swiper-slide>
+      </swiper>
       <i
         v-if="showHeart"
         class="bx bxs-heart liked-icon"
@@ -59,6 +69,11 @@ import { useModalStore } from '@/stores/modules/modalStore'
 import { useToastStore } from '@/stores/modules/toastStore'
 import { formatTimeAgo } from '@/utils/postUtils'
 import { useRouter } from 'vue-router'
+
+import { Swiper, SwiperSlide } from 'swiper/vue'
+import { Pagination } from 'swiper/modules'
+import 'swiper/css'
+import 'swiper/css/pagination'
 
 const postStore = usePostStore()
 const modalStore = useModalStore()
@@ -176,9 +191,45 @@ const handlePostClick = () => {
   justify-content: center;
   user-select: none;
 
+  /* 分頁點點樣式 */
+  .post-swiper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    /* 分頁點點樣式 */
+    :deep(.swiper-pagination-bullet) {
+      background: rgba(255, 255, 255, 0.7);
+      opacity: 0.7;
+      width: 8px;
+      height: 8px;
+    }
+
+    :deep(.swiper-pagination-bullet-active) {
+      background: $primary-color;
+      opacity: 1;
+    }
+
+    /* 調整分頁點點位置 */
+    :deep(.swiper-pagination) {
+      bottom: 10px;
+    }
+
+    /* 確保 swiper-slide 也保持完整顯示 */
+    :deep(.swiper-slide) {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
   img {
     max-width: 100%;
     max-height: 100%;
+    width: auto;
+    height: auto;
     object-fit: contain;
     object-position: center;
     display: block;
