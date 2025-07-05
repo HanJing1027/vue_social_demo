@@ -5,7 +5,21 @@
       <div class="post-layout">
         <!-- 左側圖片 -->
         <div class="post-image-section" @dblclick="handleImageClick">
-          <img :src="post.image" alt="貼文圖片" />
+          <swiper
+            :slides-per-view="1"
+            :space-between="0"
+            :pagination="{ clickable: true }"
+            :modules="[Pagination]"
+            class="post-swiper"
+            @swiper="onSwiper"
+            :observer="true"
+            :observeParents="true"
+            :watchSlidesProgress="true"
+          >
+            <swiper-slide v-for="postImg in post.image" :key="postImg.id">
+              <img :src="postImg.attributes.url" alt="貼文圖片" />
+            </swiper-slide>
+          </swiper>
           <i
             v-if="showHeart"
             class="bx bxs-heart liked-icon"
@@ -110,7 +124,7 @@ import TheModal from '@/components/common/TheModal.vue'
 import TheAvatar from '@/components/common/TheAvatar.vue'
 import PostActions from '@/components/post/PostActions.vue'
 
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { usePostStore } from '@/stores/modules/postStore'
 import { useCommentStore } from '@/stores/modules/commentStore'
 import { useToastStore } from '@/stores/modules/toastStore'
@@ -118,6 +132,11 @@ import { useModalStore } from '@/stores/modules/modalStore'
 import { formatTimeAgo } from '@/utils/postUtils'
 import { useRouter } from 'vue-router'
 import { debounce } from '@/utils/debounce'
+
+import { Swiper, SwiperSlide } from 'swiper/vue'
+import { Pagination } from 'swiper/modules'
+import 'swiper/css'
+import 'swiper/css/pagination'
 
 const postStore = usePostStore()
 const commentStore = useCommentStore()
@@ -158,7 +177,7 @@ const handleTagClick = (tag) => {
 }
 
 // 處理點擊圖片按讚事件
-const handleImageClick = async () => {
+const handleImageClick = async (event) => {
   if (post.value.likedByMe) return
 
   try {
@@ -203,8 +222,26 @@ const originalAddComment = async () => {
 
 const addComment = debounce(originalAddComment, 300)
 
+const swiperInstance = ref(null)
+
+// 處理 Swiper 實例
+const onSwiper = (swiper) => {
+  swiperInstance.value = swiper
+  // 確保 Swiper 正確初始化
+  nextTick(() => {
+    swiper.update()
+  })
+}
+
 onMounted(() => {
   commentStore.loadComments(postStore.currentPostId)
+
+  // 確保 Swiper 在組件掛載後正確更新
+  nextTick(() => {
+    if (swiperInstance.value) {
+      swiperInstance.value.update()
+    }
+  })
 })
 </script>
 
@@ -224,22 +261,62 @@ onMounted(() => {
 
   .post-image-section {
     flex: 1.5;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     background: $surface-alt;
     user-select: none;
+    position: relative;
+    overflow: hidden;
+
+    .post-swiper {
+      width: 100%;
+      height: 100%;
+
+      /* 確保 Swiper 容器不會溢出 */
+      .swiper-wrapper {
+        width: 100%;
+        height: 100%;
+      }
+
+      /* 分頁點點樣式 */
+      :deep(.swiper-pagination-bullet) {
+        background: rgba(255, 255, 255, 0.7);
+        opacity: 0.7;
+        width: 8px;
+        height: 8px;
+      }
+
+      :deep(.swiper-pagination-bullet-active) {
+        background: $primary-color;
+        opacity: 1;
+      }
+
+      /* 調整分頁點點位置 */
+      :deep(.swiper-pagination) {
+        bottom: 10px;
+      }
+
+      :deep(.swiper-slide) {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        flex-shrink: 0;
+      }
+    }
 
     img {
       max-width: 100%;
       max-height: 100%;
+      width: auto;
+      height: auto;
       object-fit: contain;
       object-position: center;
+      display: block;
     }
 
     .liked-icon {
       position: absolute;
-      transform: translate(-50%, -50%) scale(1); // 保持居中對齊
+      transform: translate(-50%, -50%) scale(1);
       font-size: 68px;
       color: $danger-color;
       opacity: 0.7;
@@ -399,13 +476,12 @@ onMounted(() => {
       line-height: 1.4;
       font-size: 14px;
       overflow-y: auto;
-      scrollbar-width: none; // 隱藏 Firefox 的滑桿
+      scrollbar-width: none;
 
       &::-webkit-scrollbar {
-        display: none; // 隱藏 Webkit 瀏覽器的滑桿
+        display: none;
       }
 
-      // 自動擴展高度
       &:focus {
         height: auto;
         min-height: 60px;
@@ -433,12 +509,6 @@ onMounted(() => {
         color: white;
       }
     }
-
-    @media (hover: none) {
-      .send-btn:hover {
-        transform: none;
-      }
-    }
   }
 
   .comments-list {
@@ -451,6 +521,8 @@ onMounted(() => {
   .comment-item {
     display: flex;
     align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 20px;
 
     .avatar {
       cursor: pointer;
@@ -464,8 +536,6 @@ onMounted(() => {
     border-radius: 12px 12px 12px 3px;
     position: relative;
     max-width: 85%;
-
-    margin-bottom: 20px;
 
     &::before {
       content: '';
@@ -516,6 +586,18 @@ onMounted(() => {
   }
 }
 
+.no-comments {
+  text-align: center;
+  padding: 40px 20px;
+  color: $text-secondary;
+
+  p {
+    margin: 0;
+    font-size: 14px;
+  }
+}
+
+/* 手機版樣式 */
 @media (max-width: $mobile-breakpoint) {
   .post-detail {
     .post-layout {
@@ -527,13 +609,16 @@ onMounted(() => {
     .post-image-section {
       flex: none;
       height: 35vh;
-      background: #f5f5f5; /* 手機版也改為灰色背景 */
+      background: $surface-alt;
+
+      .post-swiper {
+        :deep(.swiper-pagination) {
+          bottom: 5px;
+        }
+      }
 
       img {
-        max-width: 100%;
-        max-height: 100%;
-        object-fit: contain; /* 手機版也改為 contain */
-        object-position: center;
+        object-fit: contain;
       }
     }
 
@@ -618,7 +703,7 @@ onMounted(() => {
     .comment-input {
       margin-bottom: 12px;
 
-      input {
+      textarea {
         font-size: 14px;
         padding: 8px 16px;
       }
@@ -637,9 +722,12 @@ onMounted(() => {
       gap: 8px;
     }
 
+    .comment-item {
+      margin-bottom: 10px;
+    }
+
     .comment-content {
       border-radius: 10px 10px 10px 2px;
-      margin-bottom: 10px;
 
       &::before {
         left: -4px;
@@ -669,49 +757,13 @@ onMounted(() => {
   }
 }
 
-.no-comments {
-  text-align: center;
-  padding: 40px 20px;
-  color: $text-secondary;
-
-  p {
-    margin: 0;
-    font-size: 14px;
-  }
-}
-
-@media (max-width: 768px) and (min-width: $mobile-breakpoint) {
-  .post-detail {
-    .post-layout {
-      flex-direction: column;
-    }
-
-    .post-image-section {
-      height: 40vh;
-      background: #f5f5f5; /* 平板版也改為灰色背景 */
-
-      img {
-        max-width: 100%;
-        max-height: 100%;
-        object-fit: contain;
-        object-position: center;
-      }
-    }
-
-    .post-content_section {
-      flex: 1;
-      min-height: 0;
-      overflow-y: auto;
-      overflow-x: hidden;
-    }
+@media (hover: none) {
+  .tag:hover {
+    background-color: rgba(var(--primary-color-rgb), 0.1);
   }
 
-  .comments-section {
-    padding: 16px;
-
-    .comments-list {
-      gap: 12px;
-    }
+  .comment-input .send-btn:hover {
+    transform: none;
   }
 }
 </style>
