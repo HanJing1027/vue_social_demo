@@ -99,7 +99,12 @@
           :key="post.id"
           @click="handlePostClick(post.id)"
         >
-          <img :src="post.image" alt="貼文圖片" />
+          <img
+            v-for="postImg in post.image"
+            :src="postImg.attributes.url"
+            :key="postImg.id"
+            alt="貼文圖片"
+          />
           <div class="overlay">
             <div class="overlay-stats">
               <span class="stat">
