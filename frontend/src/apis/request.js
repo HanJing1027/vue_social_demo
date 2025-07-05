@@ -56,10 +56,16 @@ serviceAxios.interceptors.response.use(
           attributes.user.data.attributes.avatar = `${baseURL}${avatar}`
         }
 
-        // 補完整的 image 圖片 URL（假設取第一張）
-        const imageUrl = attributes?.image?.data?.[0]?.attributes?.url
-        if (imageUrl && !imageUrl.startsWith('http')) {
-          attributes.image.data[0].attributes.url = `${baseURL}${imageUrl}`
+        // 補完整的 image 圖片 URL（遍歷所有圖片）
+        const images = attributes?.image?.data
+        if (Array.isArray(images)) {
+          attributes.image.data = images.map((image) => {
+            const imageUrl = image?.attributes?.url
+            if (imageUrl && !imageUrl.startsWith('http')) {
+              image.attributes.url = `${baseURL}${imageUrl}`
+            }
+            return image
+          })
         }
       })
     }
