@@ -37,7 +37,8 @@ export const postApi = {
         description: originalDescription, // 完整內容
         shortDescription, // 30字短內容
         tags, // 標籤陣列
-        image: post?.attributes?.image?.data?.[0]?.attributes?.url,
+        // image: post?.attributes?.image?.data?.[0]?.attributes?.url, // 只取出第一張圖片
+        image: post?.attributes?.image?.data, // 取出所有圖片
         user: {
           id: post?.attributes?.user?.data?.id,
           ...post?.attributes?.user?.data?.attributes,
