@@ -446,7 +446,7 @@ onMounted(() => {
 .comments-section {
   padding: 20px;
   flex: 1;
-  display: flex;
+  // display: flex;
   flex-direction: column;
   min-height: 0;
 

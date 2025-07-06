@@ -44,8 +44,12 @@
           </div>
 
           <!-- 圖片預覽網格 -->
-          <div class="images-preview-grid" v-if="uploadedImages.length > 0">
-            <div v-for="(image, index) in uploadedImages" :key="index" class="preview-item">
+          <div
+            class="images-preview-grid"
+            ref="sortableContainer"
+            v-show="uploadedImages.length > 0"
+          >
+            <div v-for="(image, index) in uploadedImages" :key="image.id" class="preview-item">
               <img :src="image.url" alt="預覽圖片" class="preview-image" />
               <button class="remove-image-btn" @click.stop="removeImage(index)">
                 <i class="bx bx-x"></i>
@@ -102,7 +106,7 @@ import TheModal from '@/components/common/TheModal.vue'
 import TheAvatar from '@/components/common/TheAvatar.vue'
 import TheButton from '@/components/common/TheButton.vue'
 
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { usePostStore } from '@/stores/modules/postStore'
 import { useUserStore } from '@/stores/modules/userStore'
 import { useModalStore } from '@/stores/modules/modalStore'
@@ -110,6 +114,8 @@ import { useToastStore } from '@/stores/modules/toastStore'
 import { useRoute } from 'vue-router'
 import { debounce } from '@/utils/debounce'
 import { createInputMethodHandler } from '@/utils/createInputMethodHandler'
+
+import Sortable from 'sortablejs'
 
 const userStore = useUserStore()
 const modalStore = useModalStore()
@@ -125,6 +131,7 @@ const postTags = ref([])
 // 多圖片儲存
 const uploadedImages = ref([])
 const fileInputRef = ref(null)
+const sortableContainer = ref(null)
 
 // 獲取用戶資料
 const userData = computed(() => {
@@ -147,6 +154,24 @@ const formatDescription = () => {
 
   return description
 }
+
+const createId = () => {
+  return `img_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+}
+
+// Sortable.js
+onMounted(() => {
+  Sortable.create(sortableContainer.value, {
+    animation: 150, // 拖曳時的動畫效果
+    ghostClass: 'sortable-ghost', // 拖曳中的元素樣式
+    onEnd(event) {
+      nextTick(() => {
+        const [movedItem] = uploadedImages.value.splice(event.oldIndex, 1)
+        uploadedImages.value.splice(event.newIndex, 0, movedItem)
+      })
+    },
+  })
+})
 
 // 發布貼文 - 支援多圖片
 const originalPublishPost = async () => {
@@ -206,6 +231,7 @@ const handleFileUpload = (event) => {
     const reader = new FileReader()
     reader.onload = (e) => {
       uploadedImages.value.push({
+        id: createId(),
         file: file,
         url: e.target.result,
         name: file.name,
@@ -290,6 +316,7 @@ const handleDrop = (event) => {
     const reader = new FileReader()
     reader.onload = (e) => {
       uploadedImages.value.push({
+        id: createId(),
         file: file,
         url: e.target.result,
         name: file.name,
@@ -425,6 +452,8 @@ const handleDrop = (event) => {
     margin-top: 16px;
 
     .preview-item {
+      cursor: move;
+      user-select: none;
       position: relative;
       aspect-ratio: 1;
       border-radius: 8px;
@@ -492,6 +521,17 @@ const handleDrop = (event) => {
   .file-input {
     display: none;
   }
+}
+
+.sortable-ghost {
+  opacity: 0.4;
+  background: #f0f0f0;
+}
+
+.sortable-fallback {
+  opacity: 0.8;
+  background: #fff;
+  border: 2px dashed #ccc;
 }
 
 .tags-section {

@@ -3,11 +3,17 @@ import { formatPostContent } from '@/utils/postUtils'
 
 export const postApi = {
   // 發布貼文
+
   createPost: async (images, description) => {
     const formData = new FormData()
-    images.forEach((image) => {
-      formData.append(`files.image`, image)
+
+    // 使用帶順序的檔名
+    images.forEach((image, index) => {
+      // 在檔名前加上順序索引 確保排序
+      const orderedName = `${String(index).padStart(3, '0')}_${image.name}`
+      formData.append(`files.image`, image, orderedName)
     })
+
     formData.append('data', JSON.stringify({ description }))
 
     return await postFormData('/api/posts', formData)
@@ -33,6 +39,15 @@ export const postApi = {
       // 使用工具函數格式化
       const { content: shortDescription, tags } = formatPostContent(originalDescription)
 
+      let images = post?.attributes?.image?.data || []
+      if (images.length > 1) {
+        images = images.sort((a, b) => {
+          const aName = a.attributes.name || ''
+          const bName = b.attributes.name || ''
+          return aName.localeCompare(bName)
+        })
+      }
+
       return {
         id: post?.id,
         ...post?.attributes,
@@ -40,7 +55,8 @@ export const postApi = {
         shortDescription, // 30字短內容
         tags, // 標籤陣列
         // image: post?.attributes?.image?.data?.[0]?.attributes?.url, // 只取出第一張圖片
-        image: post?.attributes?.image?.data, // 取出所有圖片
+        // image: post?.attributes?.image?.data, // 取出所有圖片
+        image: images,
         user: {
           id: post?.attributes?.user?.data?.id,
           ...post?.attributes?.user?.data?.attributes,
