@@ -3,9 +3,11 @@ import { formatPostContent } from '@/utils/postUtils'
 
 export const postApi = {
   // 發布貼文
-  createPost: async (image, description) => {
+  createPost: async (images, description) => {
     const formData = new FormData()
-    formData.append('files.image', image)
+    images.forEach((image) => {
+      formData.append(`files.image`, image)
+    })
     formData.append('data', JSON.stringify({ description }))
 
     return await postFormData('/api/posts', formData)

@@ -7,7 +7,7 @@
         <div class="post-image-section" @dblclick="handleImageClick">
           <swiper
             :slides-per-view="1"
-            :space-between="0"
+            :space-between="10"
             :pagination="{ clickable: true }"
             :modules="[Pagination]"
             class="post-swiper"
@@ -278,7 +278,7 @@ onMounted(() => {
 
       /* 分頁點點樣式 */
       :deep(.swiper-pagination-bullet) {
-        background: rgba(255, 255, 255, 0.7);
+        background: #ffffffb3;
         opacity: 0.7;
         width: 8px;
         height: 8px;

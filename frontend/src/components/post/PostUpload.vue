@@ -26,31 +26,39 @@
           ></textarea>
         </div>
 
-        <!-- 圖片上傳區域 -->
+        <!-- 多圖片上傳區域 -->
         <div class="image-upload-section">
+          <!-- 上傳按鈕 -->
           <div
             class="upload-area"
-            :class="{ 'has-image': uploadedImage }"
             @click.stop="triggerFileInput"
+            @dragover.prevent="handleDragOver"
+            @dragleave.prevent="handleDragLeave"
+            @drop.prevent="handleDrop"
+            :class="{ dragging: isDragging }"
+            v-if="uploadedImages.length < 10"
           >
-            <!-- 未上傳圖片時顯示上傳提示 -->
-            <template v-if="!uploadedImage">
-              <i class="bx bx-image-add"></i>
-              <span class="upload-text">點擊上傳圖片</span>
-            </template>
-            <!-- 上傳圖片後顯示預覽 -->
-            <template v-else>
-              <img :src="uploadedImage.url" alt="預覽圖片" class="preview-image" />
-              <button class="remove-image-btn" @click.stop="removeImage">
+            <i class="bx bx-image-add"></i>
+            <span class="upload-text">點擊上傳圖片 (最多10張)</span>
+            <span class="upload-count">已上傳 {{ uploadedImages.length }}/10</span>
+          </div>
+
+          <!-- 圖片預覽網格 -->
+          <div class="images-preview-grid" v-if="uploadedImages.length > 0">
+            <div v-for="(image, index) in uploadedImages" :key="index" class="preview-item">
+              <img :src="image.url" alt="預覽圖片" class="preview-image" />
+              <button class="remove-image-btn" @click.stop="removeImage(index)">
                 <i class="bx bx-x"></i>
               </button>
-            </template>
+            </div>
           </div>
+
           <input
             ref="fileInputRef"
             type="file"
             class="file-input"
             accept="image/*"
+            multiple
             @change="handleFileUpload"
           />
         </div>
@@ -114,8 +122,8 @@ const postContent = ref('')
 const newTag = ref('')
 const postTags = ref([])
 
-// 用於儲存上傳的圖片
-const uploadedImage = ref(null)
+// 多圖片儲存
+const uploadedImages = ref([])
 const fileInputRef = ref(null)
 
 // 獲取用戶資料
@@ -125,7 +133,7 @@ const userData = computed(() => {
 
 // 驗證貼文表單是否符合要求
 const isFormValid = computed(() => {
-  return postContent.value.trim() !== '' && uploadedImage.value !== null
+  return postContent.value.trim() !== '' && uploadedImages.value.length > 0
 })
 
 // 格式化 description，將內容和標籤合併
@@ -133,17 +141,14 @@ const formatDescription = () => {
   let description = postContent.value.trim()
 
   if (postTags.value.length > 0) {
-    // 將標籤中的空格替換為 "_"
-    const tagsString = postTags.value
-      .map((tag) => `#${tag.replace(/\s+/g, '_')}`) // 替換空格為 "_"
-      .join(' ')
+    const tagsString = postTags.value.map((tag) => `#${tag.replace(/\s+/g, '_')}`).join(' ')
     description = description ? `${description}\n\n${tagsString}` : tagsString
   }
 
   return description
 }
 
-// 發布貼文
+// 發布貼文 - 支援多圖片
 const originalPublishPost = async () => {
   if (!isFormValid.value) {
     toastStore.showError('請至少輸入內容與上傳圖片')
@@ -152,15 +157,15 @@ const originalPublishPost = async () => {
 
   try {
     const description = formatDescription()
-    const imageFile = uploadedImage.value.file
+    const imageFiles = uploadedImages.value.map((img) => img.file)
 
-    await postStore.createPost(imageFile, description, route.params.userId || '')
+    await postStore.createPost(imageFiles, description, route.params.userId || '')
 
     // 清空表單
     postContent.value = ''
     newTag.value = ''
     postTags.value = []
-    uploadedImage.value = null
+    uploadedImages.value = []
     fileInputRef.value.value = null
 
     handleClose()
@@ -178,40 +183,48 @@ const triggerFileInput = () => {
   fileInputRef.value?.click()
 }
 
-// 處理文件上傳
+// 處理多文件上傳
 const handleFileUpload = (event) => {
-  const file = event.target.files[0]
+  const files = Array.from(event.target.files)
 
-  if (!file) return
+  if (!files.length) return
 
-  // 檢查圖片大小
-  const maxSize = 5 * 1024 * 1024
-  if (file.size > maxSize) {
-    toastStore.showError('圖片大小不能超過 5MB')
+  // 檢查數量限制
+  if (uploadedImages.value.length + files.length > 10) {
+    toastStore.showError('最多只能上傳10張圖片')
     return
   }
 
-  const reader = new FileReader()
-  reader.onload = (e) => {
-    uploadedImage.value = {
-      file: file,
-      url: e.target.result,
-      name: file.name,
-      size: file.size,
+  files.forEach((file) => {
+    // 檢查圖片大小
+    const maxSize = 5 * 1024 * 1024
+    if (file.size > maxSize) {
+      toastStore.showError(`圖片 ${file.name} 大小不能超過 5MB`)
+      return
     }
-  }
-  reader.onerror = () => {
-    toastStore.showError('圖片讀取失敗')
-  }
-  reader.readAsDataURL(file)
+
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      uploadedImages.value.push({
+        file: file,
+        url: e.target.result,
+        name: file.name,
+        size: file.size,
+      })
+    }
+    reader.onerror = () => {
+      toastStore.showError(`圖片 ${file.name} 讀取失敗`)
+    }
+    reader.readAsDataURL(file)
+  })
+
+  // 清空 input 以允許重複選擇相同檔案
+  event.target.value = ''
 }
 
-// 移除圖片
-const removeImage = () => {
-  uploadedImage.value = null
-  if (fileInputRef.value) {
-    fileInputRef.value.value = ''
-  }
+// 移除單張圖片
+const removeImage = (index) => {
+  uploadedImages.value.splice(index, 1)
 }
 
 // 添加標籤
@@ -238,6 +251,56 @@ const removeTag = (index) => {
 // 關閉模態框
 const handleClose = () => {
   modalStore.closeModal('postUpload')
+}
+
+const isDragging = ref(false)
+
+// 處理拖曳進入事件
+const handleDragOver = () => {
+  isDragging.value = true
+}
+
+// 處理拖曳離開事件
+const handleDragLeave = () => {
+  isDragging.value = false
+}
+
+// 處理拖曳放下事件
+const handleDrop = (event) => {
+  isDragging.value = false
+
+  const files = Array.from(event.dataTransfer.files)
+
+  if (!files.length) return
+
+  // 檢查數量限制
+  if (uploadedImages.value.length + files.length > 10) {
+    toastStore.showError('最多只能上傳10張圖片')
+    return
+  }
+
+  files.forEach((file) => {
+    // 檢查圖片大小
+    const maxSize = 5 * 1024 * 1024
+    if (file.size > maxSize) {
+      toastStore.showError(`圖片 ${file.name} 大小不能超過 5MB`)
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      uploadedImages.value.push({
+        file: file,
+        url: e.target.result,
+        name: file.name,
+        size: file.size,
+      })
+    }
+    reader.onerror = () => {
+      toastStore.showError(`圖片 ${file.name} 讀取失敗`)
+    }
+    reader.readAsDataURL(file)
+  })
 }
 </script>
 
@@ -317,91 +380,117 @@ const handleClose = () => {
   .upload-area {
     border: 2px dashed $border-color;
     border-radius: 12px;
+    padding: 30px 20px;
     text-align: center;
     background: $surface-alt;
     cursor: pointer;
     transition: all 0.2s ease;
-    position: relative;
-    overflow: hidden;
+    margin-bottom: 16px;
 
-    // 未上傳狀態
-    &:not(.has-image) {
-      padding: 40px 20px;
-      min-height: 120px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-
-      &:hover {
-        border-color: $primary-color;
-        background: $surface-hover;
-      }
-
-      i {
-        font-size: 36px;
-        color: $text-secondary;
-        margin-bottom: 8px;
-      }
-
-      .upload-text {
-        color: $text-secondary;
-        font-size: 14px;
-      }
+    &.dragging {
+      border-color: $primary-color;
+      background: $surface-hover;
     }
 
-    // 有圖片狀態
-    &.has-image {
-      padding: 0;
-      height: auto;
-      border-style: solid;
+    &:hover {
       border-color: $primary-color;
+      background: $surface-hover;
+    }
+
+    i {
+      font-size: 36px;
+      color: $text-secondary;
+      margin-bottom: 8px;
+    }
+
+    .upload-text {
+      display: block;
+      color: $text-secondary;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .upload-count {
+      display: block;
+      color: $text-secondary;
+      font-size: 12px;
+      opacity: 0.8;
+    }
+  }
+
+  .images-preview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 12px;
+    margin-top: 16px;
+
+    .preview-item {
+      position: relative;
+      aspect-ratio: 1;
+      border-radius: 8px;
+      overflow: hidden;
+      background: $surface-alt;
+      border: 1px solid $border-color;
 
       &:hover {
         .preview-image {
-          transform: scale(1.02);
+          transform: scale(1.05);
+        }
+
+        .remove-image-btn {
+          opacity: 1;
         }
       }
-    }
 
-    .preview-image {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.2s ease;
-    }
+      .preview-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.2s ease;
 
-    .remove-image-btn {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      width: 28px;
-      height: 28px;
-      border: none;
-      background: rgba(0, 0, 0, 0.6);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      z-index: 2;
-
-      &:hover {
-        background: rgba(0, 0, 0, 0.8);
-        transform: scale(1.1);
+        @media (hover: none) {
+          transform: none !important;
+        }
       }
 
-      i {
-        font-size: 14px;
-        color: white;
-        margin: 0;
+      .remove-image-btn {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        width: 24px;
+        height: 24px;
+        border: none;
+        background: rgba(0, 0, 0, 0.7);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all $transition-speed ease;
+        opacity: 0;
+
+        &:hover {
+          background: rgba(0, 0, 0, 0.9);
+          transform: scale(1.1);
+        }
+
+        @media (hover: none) {
+          opacity: 1;
+          transform: none !important;
+          background: rgba(0, 0, 0, 0.7) !important;
+        }
+
+        i {
+          font-size: 12px;
+          color: white;
+          margin: 0;
+        }
       }
     }
   }
 
   .file-input {
-    display: none; // 隱藏實際的文件輸入
+    display: none;
   }
 }
 
@@ -516,72 +605,9 @@ const handleClose = () => {
 }
 
 @media (max-width: $mobile-breakpoint) {
-  .post-upload {
-    max-height: 95vh;
-  }
-
-  .upload-header {
-    padding: 16px;
-
-    .upload-title {
-      font-size: 18px;
-    }
-  }
-
-  .upload-content {
-    padding: 16px;
-    gap: 16px;
-  }
-
-  .post-input-section {
-    .post-textarea {
-      min-height: 100px;
-      font-size: 14px;
-    }
-  }
-
-  .image-upload-section {
-    .upload-area {
-      padding: 30px 16px;
-
-      i {
-        font-size: 36px;
-      }
-
-      .upload-text {
-        font-size: 13px;
-      }
-    }
-  }
-
-  .image-preview-section {
-    .preview-item {
-      width: 100px;
-      height: 100px;
-    }
-  }
-
-  .post-options {
-    gap: 12px;
-
-    .option-item {
-      padding: 6px 12px;
-      font-size: 13px;
-
-      i {
-        font-size: 16px;
-      }
-    }
-  }
-
-  .upload-footer {
-    padding: 16px;
-    gap: 10px;
-
-    button {
-      padding: 8px 16px;
-      font-size: 13px;
-    }
+  .images-preview-grid {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 8px;
   }
 }
 </style>
