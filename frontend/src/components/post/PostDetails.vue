@@ -278,7 +278,7 @@ onMounted(() => {
 
       /* 分頁點點樣式 */
       :deep(.swiper-pagination-bullet) {
-        background: #ffffffb3;
+        background: #c8c8c8b3;
         opacity: 0.7;
         width: 8px;
         height: 8px;
