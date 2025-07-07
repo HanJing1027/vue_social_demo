@@ -80,7 +80,6 @@
                     @input="handleTagInput"
                     class="edit-textarea"
                     placeholder="寫下你的想法..."
-                    ref="editTextarea"
                     rows="4"
                     maxlength="500"
                   ></textarea>
@@ -315,6 +314,11 @@ const cancelEdit = () => {
 
 // 保存編輯
 const saveEdit = async () => {
+  if (editContent.value.length > 500) {
+    toastStore.showError('貼文內容不能超過 500 字')
+    return
+  }
+
   if (!editContent.value.trim()) {
     toastStore.showError('貼文內容不能為空')
     return
