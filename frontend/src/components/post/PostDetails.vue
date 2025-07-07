@@ -51,19 +51,61 @@
           <div class="post-scrollable-content">
             <!-- 貼文文字內容 -->
             <div class="post-content">
-              <p class="post-text">
-                {{ content }}
-              </p>
+              <!-- 非編輯狀態 -->
+              <div v-if="!isEditing" class="post-content-display">
+                <div class="post-content-header">
+                  <p class="post-text">{{ content }}</p>
+                  <button v-if="isCurrentUser" @click="startEdit" class="edit-btn" title="編輯貼文">
+                    <i class="bx bx-edit"></i>
+                  </button>
+                </div>
 
-              <!-- 標籤 -->
-              <div class="post-tags">
-                <span
-                  v-for="(tag, index) in post.tags"
-                  :key="index"
-                  class="tag"
-                  @click="handleTagClick(tag)"
-                  >{{ tag }}</span
-                >
+                <!-- 標籤 -->
+                <div class="post-tags">
+                  <span
+                    v-for="(tag, index) in post.tags"
+                    :key="index"
+                    class="tag"
+                    @click="handleTagClick(tag)"
+                    >{{ tag }}</span
+                  >
+                </div>
+              </div>
+
+              <!-- 編輯狀態 -->
+              <div v-else class="post-edit-mode">
+                <div class="edit-textarea-container">
+                  <textarea
+                    v-model="editContent"
+                    @input="handleTagInput"
+                    class="edit-textarea"
+                    placeholder="寫下你的想法..."
+                    ref="editTextarea"
+                    rows="4"
+                    maxlength="500"
+                  ></textarea>
+                  <div
+                    class="edit-char-count"
+                    :class="{ 'char-limit-warning': editContent.length > 450 }"
+                  >
+                    {{ editContent.length }}/500
+                  </div>
+                </div>
+
+                <!-- 標籤預覽 -->
+                <div v-if="editTags.length > 0" class="edit-tags-preview">
+                  <span class="tags-label">標籤:</span>
+                  <div class="tags-container">
+                    <span v-for="(tag, index) in editTags" :key="index" class="tag-preview">{{
+                      tag
+                    }}</span>
+                  </div>
+                </div>
+
+                <div class="edit-actions">
+                  <TheButton @click="cancelEdit" reverse>取消</TheButton>
+                  <TheButton @click="saveEdit">儲存</TheButton>
+                </div>
               </div>
             </div>
 
@@ -122,13 +164,15 @@
 <script setup>
 import TheModal from '@/components/common/TheModal.vue'
 import TheAvatar from '@/components/common/TheAvatar.vue'
+import TheButton from '@/components/common/TheButton.vue'
 import PostActions from '@/components/post/PostActions.vue'
 
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import { usePostStore } from '@/stores/modules/postStore'
 import { useCommentStore } from '@/stores/modules/commentStore'
 import { useToastStore } from '@/stores/modules/toastStore'
 import { useModalStore } from '@/stores/modules/modalStore'
+import { useUserStore } from '@/stores/modules/userStore'
 import { formatTimeAgo } from '@/utils/postUtils'
 import { useRouter } from 'vue-router'
 import { debounce } from '@/utils/debounce'
@@ -142,17 +186,27 @@ const postStore = usePostStore()
 const commentStore = useCommentStore()
 const toastStore = useToastStore()
 const modalStore = useModalStore()
+const userStore = useUserStore()
 const router = useRouter()
 const commentContent = ref('')
 
 const showHeart = ref(false) // 用於控制愛心圖標顯示
 const heartPosition = ref({ x: 0, y: 0 }) // 用於記錄點擊位置
 
+// 編輯相關狀態
+const isEditing = ref(false)
+const editContent = ref('')
+const editTags = ref([]) // 用於存儲編輯中的標籤
+
 const post = computed(() => postStore.postDetails || {})
 const comments = computed(() => commentStore.list)
+const isCurrentUser = computed(() => {
+  // 假設有用戶store來獲取當前用戶信息
+  return userStore.user?.id === post.value.user?.id
+})
 
 const description = post.value.description || ''
-const content = description.replace(/#[\u4e00-\u9fa5\w]+/g, '').trim()
+const content = ref(description.replace(/#[\u4e00-\u9fa5\w]+/g, '').trim() || '')
 
 const goToUserProfile = (userId) => {
   if (!post.value?.user || !post.value?.user?.id) {
@@ -243,6 +297,58 @@ onMounted(() => {
     }
   })
 })
+
+// 開始編輯
+const startEdit = () => {
+  if (!isCurrentUser.value) return
+  isEditing.value = true
+  editContent.value = post.value.description || ''
+  editTags.value = post.value.tags || []
+}
+
+// 取消編輯
+const cancelEdit = () => {
+  isEditing.value = false
+  editContent.value = ''
+  editTags.value = []
+}
+
+// 保存編輯
+const saveEdit = async () => {
+  if (!editContent.value.trim()) {
+    toastStore.showError('貼文內容不能為空')
+    return
+  }
+
+  try {
+    await postStore.editPost(post.value.id, editContent.value.trim())
+    isEditing.value = false
+
+    toastStore.showSuccess('貼文更新成功')
+  } catch (error) {
+    toastStore.showError('更新失敗，請稍後再試')
+  }
+}
+
+watch(
+  () => post.value.description,
+  (newDescription) => {
+    content.value = newDescription.replace(/#[\u4e00-\u9fa5\w]+/g, '').trim()
+  }
+)
+
+// 處理標籤輸入
+// const handleTagInput = (event) => {
+//   const textarea = event.target
+//   const cursorPosition = textarea.selectionStart
+//   const textBeforeCursor = editContent.value.substring(0, cursorPosition)
+//   const lastHashtagMatch = textBeforeCursor.match(/#[\u4e00-\u9fa5\w]*$/)
+
+//   if (lastHashtagMatch) {
+//     // 可以在這裡實現標籤提示功能
+//     console.log('正在輸入標籤:', lastHashtagMatch[0])
+//   }
+// }
 </script>
 
 <style lang="scss" scoped>
@@ -597,173 +703,278 @@ onMounted(() => {
   }
 }
 
-/* 手機版樣式 */
-@media (max-width: $mobile-breakpoint) {
-  .post-detail {
-    .post-layout {
-      flex-direction: column;
-      height: 100%;
-      min-height: 0;
+/* 編輯功能樣式 */
+.post-content-display {
+  .post-content-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+    position: relative;
+
+    .post-text {
+      flex: 1;
+      margin: 0;
     }
+
+    .edit-btn {
+      padding: 6px 8px;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      cursor: pointer;
+      color: $text-secondary;
+      transition: all $transition-speed ease;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+
+      &:hover {
+        background: rgba(var(--primary-color-rgb), 0.1);
+        color: $primary-color;
+        border-color: rgba(var(--primary-color-rgb), 0.2);
+      }
+
+      i {
+        font-size: 14px;
+      }
+    }
+  }
+}
+
+.post-edit-mode {
+  .edit-textarea-container {
+    position: relative;
+    margin-bottom: 16px;
+  }
+
+  .edit-textarea {
+    width: 100%;
+    min-height: 120px;
+    max-height: 200px;
+    padding: 16px;
+    border: 2px solid $border-light;
+    border-radius: 12px;
+    font-size: 16px;
+    line-height: 1.6;
+    resize: vertical;
+    font-family: inherit;
+    background: $background;
+    color: $text-color;
+    transition: all $transition-speed ease;
+
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+      box-shadow: 0 0 0 3px rgba(var(--primary-color-rgb), 0.1);
+    }
+
+    &::placeholder {
+      color: $text-secondary;
+    }
+
+    /* 滾動條樣式 */
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: $border-light;
+      border-radius: 3px;
+
+      &:hover {
+        background: $text-secondary;
+      }
+    }
+  }
+
+  .edit-char-count {
+    position: absolute;
+    bottom: 8px;
+    right: 12px;
+    font-size: 12px;
+    color: $text-secondary;
+    background: rgba($background, 0.9);
+    padding: 2px 6px;
+    border-radius: 4px;
+    backdrop-filter: blur(4px);
+    transition: color $transition-speed ease;
+
+    &.char-limit-warning {
+      color: $danger-color;
+      font-weight: 500;
+    }
+  }
+
+  .edit-tags-preview {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    padding: 12px;
+    background: rgba(var(--primary-color-rgb), 0.05);
+    border-radius: 8px;
+    border: 1px solid rgba(var(--primary-color-rgb), 0.1);
+
+    .tags-label {
+      font-size: 12px;
+      color: $text-secondary;
+      font-weight: 500;
+      flex-shrink: 0;
+    }
+
+    .tags-container {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .tag-preview {
+      background-color: rgba(var(--primary-color-rgb), 0.1);
+      color: $primary-color;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+  }
+
+  .edit-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+  }
+}
+
+/* 手機版樣式調整 */
+@media (max-width: $mobile-breakpoint) {
+  .post-layout {
+    flex-direction: column;
 
     .post-image-section {
       flex: none;
-      height: 35vh;
-      background: $surface-alt;
+      height: 60vh;
+      min-height: 300px;
+      max-height: 400px;
 
       .post-swiper {
-        :deep(.swiper-pagination) {
-          bottom: 5px;
-        }
-      }
+        height: 100%;
 
-      img {
-        object-fit: contain;
+        :deep(.swiper-slide) {
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            object-position: center;
+          }
+        }
       }
     }
 
     .post-content-section {
       flex: 1;
-      min-height: 0;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .post-scrollable-content {
-      flex: 1;
-      min-height: 0;
-      overflow-y: auto;
-      overflow-x: hidden;
-
-      &::-webkit-scrollbar {
-        width: 6px;
-      }
-
-      &::-webkit-scrollbar-track {
-        background: transparent;
-      }
-
-      &::-webkit-scrollbar-thumb {
-        background: $border-light;
-        border-radius: 3px;
-
-        &:hover {
-          background: $text-secondary;
-        }
-      }
-    }
-
-    .post-header {
-      padding: 12px 16px;
-    }
-
-    .post-content {
-      padding: 12px 16px;
-    }
-
-    .user-info {
-      gap: 8px;
-    }
-
-    .username {
-      font-size: 14px;
-      margin-bottom: 2px;
-    }
-
-    .post-time {
-      font-size: 12px;
-    }
-
-    .post-text {
-      font-size: 14px;
-      line-height: 1.4;
-      margin: 0 0 8px 0;
-    }
-
-    .post-tags {
-      gap: 6px;
-    }
-
-    .tag {
-      padding: 3px 8px;
-      font-size: 12px;
+      min-height: 40vh;
     }
   }
 
-  .comments-section {
-    padding: 12px 16px;
-    flex: 1;
-    min-height: 0;
-
-    .comments-title {
-      font-size: 16px;
-      margin-bottom: 10px;
-    }
-
-    .comment-input {
-      margin-bottom: 12px;
-
-      textarea {
-        font-size: 14px;
-        padding: 8px 16px;
+  /* 調整分頁點點在手機版的位置 */
+  .post-image-section {
+    .post-swiper {
+      :deep(.swiper-pagination) {
+        bottom: 16px;
       }
 
-      .send-btn {
-        width: 24px;
-        height: 24px;
+      :deep(.swiper-pagination-bullet) {
+        width: 10px;
+        height: 10px;
+        margin: 0 4px;
+      }
+    }
+  }
+
+  .post-content-display {
+    .post-content-header {
+      gap: 8px;
+
+      .edit-btn {
+        padding: 4px 6px;
+        opacity: 1;
+        transform: none;
+        font-size: 11px;
 
         i {
-          font-size: 11px;
+          font-size: 18px;
         }
       }
     }
+  }
 
-    .comments-list {
-      gap: 8px;
+  .post-edit-mode {
+    .edit-textarea {
+      min-height: 100px;
+      max-height: 150px;
+      padding: 12px;
+      font-size: 14px;
     }
 
-    .comment-item {
-      margin-bottom: 10px;
+    .edit-char-count {
+      font-size: 11px;
+      bottom: 6px;
+      right: 8px;
     }
 
-    .comment-content {
-      border-radius: 10px 10px 10px 2px;
+    .edit-tags-preview {
+      padding: 8px;
+      gap: 6px;
 
-      &::before {
-        left: -4px;
-        top: 6px;
-        border-width: 4px;
-        border-right-color: #f8f9fa;
+      .tags-label {
+        font-size: 11px;
+      }
+
+      .tag-preview {
+        padding: 3px 6px;
+        font-size: 11px;
       }
     }
 
-    .comment-header {
-      gap: 4px;
-      margin-bottom: 1px;
+    .edit-actions {
+      gap: 8px;
     }
 
-    .comment-username {
+    .cancel-btn,
+    .save-btn {
+      padding: 8px 12px;
       font-size: 12px;
-    }
+      min-width: 60px;
 
-    .comment-time {
-      font-size: 10px;
-    }
-
-    .comment-text {
-      font-size: 12px;
-      line-height: 1.3;
+      i {
+        font-size: 14px;
+      }
     }
   }
 }
 
 @media (hover: none) {
-  .tag:hover {
-    background-color: rgba(var(--primary-color-rgb), 0.1);
+  .post-content-display .post-content-header .edit-btn:hover {
+    background: transparent;
+    color: $text-secondary;
+    border-color: transparent;
   }
 
-  .comment-input .send-btn:hover {
+  .post-edit-mode .cancel-btn:hover:not(:disabled) {
+    background: $surface-alt;
+    border-color: $border-light;
+  }
+
+  .post-edit-mode .save-btn:hover:not(:disabled) {
+    background: $primary-color;
     transform: none;
+    box-shadow: none;
   }
 }
 </style>

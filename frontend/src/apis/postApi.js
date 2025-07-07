@@ -3,7 +3,6 @@ import { formatPostContent } from '@/utils/postUtils'
 
 export const postApi = {
   // 發布貼文
-
   createPost: async (images, description) => {
     const formData = new FormData()
 
@@ -17,6 +16,15 @@ export const postApi = {
     formData.append('data', JSON.stringify({ description }))
 
     return await postFormData('/api/posts', formData)
+  },
+
+  // 編輯貼文
+  updatePost: async (postId, description) => {
+    return await put(`/api/posts/${postId}`, {
+      data: {
+        description,
+      },
+    })
   },
 
   /**
@@ -85,13 +93,11 @@ export const postApi = {
 
   // 按讚貼文
   likePost: async (postId) => {
-    const response = await put(`/api/posts/${postId}/like`)
-    return response.data
+    return await put(`/api/posts/${postId}/like`)
   },
 
   // 收藏貼文
   favorPost: async (postId) => {
-    const response = await put(`/api/posts/${postId}/favor`)
-    return response.data
+    return await put(`/api/posts/${postId}/favor`)
   },
 }

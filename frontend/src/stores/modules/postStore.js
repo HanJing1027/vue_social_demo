@@ -58,6 +58,15 @@ export const usePostStore = defineStore('post', () => {
     return newPost
   }
 
+  // 編輯貼文
+  const editPost = async (postId, description) => {
+    const response = await postApi.updatePost(postId, description)
+    if (response) {
+      // 重新載入所有貼文以確保最新數據
+      await loadAllPosts()
+    }
+  }
+
   // 載入所有貼文
   const loadAllPosts = async () => {
     const data = await postApi.loadPosts()
@@ -187,6 +196,7 @@ export const usePostStore = defineStore('post', () => {
     postDetails,
 
     createPost,
+    editPost,
     loadAllPosts,
     searchPostsResult,
     loadPostsByUser,
