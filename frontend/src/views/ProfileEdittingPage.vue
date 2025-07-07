@@ -86,7 +86,11 @@
               rows="4"
               maxlength="150"
             ></textarea>
-            <span class="char-count">{{ (profileData.intro || '').length }}/150</span>
+            <span
+              class="char-count"
+              :class="{ 'char-limit-warning': profileData.intro.length > 100 }"
+              >{{ (profileData.intro || '').length }}/150</span
+            >
           </div>
         </div>
 
@@ -500,6 +504,10 @@ select.form-input {
   font-size: 12px;
   color: $text-secondary;
   margin-top: 4px;
+
+  &.char-limit-warning {
+    color: $danger-color;
+  }
 }
 
 .checkbox-field {
