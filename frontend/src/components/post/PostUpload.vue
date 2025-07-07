@@ -22,8 +22,12 @@
             v-model="postContent"
             class="post-textarea"
             placeholder="分享你的想法..."
+            maxlength="500"
             rows="4"
           ></textarea>
+          <div class="char-count" :class="{ 'char-limit-warning': postContent.length > 450 }">
+            {{ postContent.length }}/500
+          </div>
         </div>
 
         <!-- 多圖片上傳區域 -->
@@ -175,6 +179,11 @@ onMounted(() => {
 
 // 發布貼文 - 支援多圖片
 const originalPublishPost = async () => {
+  if (postContent.value.length > 500) {
+    toastStore.showError('貼文內容不能超過500字')
+    return
+  }
+
   if (!isFormValid.value) {
     toastStore.showError('請至少輸入內容與上傳圖片')
     return
@@ -395,11 +404,31 @@ const handleDrop = (event) => {
 }
 
 .post-input-section {
+  position: relative;
+
   .post-textarea {
     @include base-input($borderRadius: 12px);
     min-height: 200px;
     font-size: 16px;
     line-height: 1.5;
+  }
+
+  .char-count {
+    position: absolute;
+    bottom: 8px;
+    right: 12px;
+    font-size: 12px;
+    color: $text-secondary;
+    background: rgba($background, 0.9);
+    padding: 2px 6px;
+    border-radius: 4px;
+    backdrop-filter: blur(4px);
+    transition: color $transition-speed ease;
+
+    &.char-limit-warning {
+      color: $danger-color;
+      font-weight: 500;
+    }
   }
 }
 
