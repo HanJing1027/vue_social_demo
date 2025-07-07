@@ -342,17 +342,11 @@ watch(
 )
 
 // 處理標籤輸入
-// const handleTagInput = (event) => {
-//   const textarea = event.target
-//   const cursorPosition = textarea.selectionStart
-//   const textBeforeCursor = editContent.value.substring(0, cursorPosition)
-//   const lastHashtagMatch = textBeforeCursor.match(/#[\u4e00-\u9fa5\w]*$/)
-
-//   if (lastHashtagMatch) {
-//     // 可以在這裡實現標籤提示功能
-//     console.log('正在輸入標籤:', lastHashtagMatch[0])
-//   }
-// }
+const handleTagInput = () => {
+  // 使用正則表達式提取所有以 # 開頭的標籤
+  const tags = editContent.value.match(/#[\u4e00-\u9fa5\w]+/g) || []
+  editTags.value = [...new Set(tags)] // 去重並更新標籤列表
+}
 </script>
 
 <style lang="scss" scoped>
