@@ -10,7 +10,7 @@ export const usePostStore = defineStore('post', () => {
   const likedPostList = ref([]) // 按讚的貼文
   const favoredPostList = ref([]) // 收藏的貼文
 
-  // 計算屬性：獲取當前貼文詳情
+  // 獲取當前貼文詳情
   const postDetails = computed(() => {
     if (!currentPostId.value) return null
 
@@ -65,6 +65,14 @@ export const usePostStore = defineStore('post', () => {
       // 重新載入所有貼文以確保最新數據
       await loadAllPosts()
     }
+  }
+
+  // 刪除貼文
+  const deletePost = async (postId) => {
+    await postApi.deletePost(postId)
+
+    // 刪除成功後，重新載入所有貼文
+    await loadAllPosts()
   }
 
   // 載入所有貼文
@@ -197,6 +205,7 @@ export const usePostStore = defineStore('post', () => {
 
     createPost,
     editPost,
+    deletePost,
     loadAllPosts,
     searchPostsResult,
     loadPostsByUser,

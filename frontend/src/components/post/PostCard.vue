@@ -168,7 +168,7 @@ const startEdit = (closeDropdown) => {
 const deletePost = async (closeDropdown) => {
   closeDropdown()
 
-  //
+  await postStore.deletePost(props.post.id)
 }
 </script>
 

@@ -214,6 +214,8 @@ const handleTagClick = (tag) => {
   if (keyword) {
     router.push({ name: 'search_result', query: { keyword } })
   }
+
+  modalStore.closeAllModals() // 關閉所有彈跳視窗
 }
 
 // 處理點擊圖片按讚事件

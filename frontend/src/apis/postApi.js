@@ -1,4 +1,4 @@
-import { postFormData, get, put } from '@/apis/request'
+import { postFormData, get, put, del } from '@/apis/request'
 import { formatPostContent } from '@/utils/postUtils'
 
 export const postApi = {
@@ -25,6 +25,11 @@ export const postApi = {
         description,
       },
     })
+  },
+
+  // 刪除貼文
+  deletePost: async (postId) => {
+    return await del(`/api/posts/${postId}`)
   },
 
   /**
