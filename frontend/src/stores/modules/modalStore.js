@@ -6,7 +6,7 @@ export const useModalStore = defineStore('modal', () => {
   const modals = ref({
     postUpload: false,
     postDetails: false,
-    editMode: false, // 編輯模式
+    editMode: false,
     // 其他可以在這繼續添加
   })
 

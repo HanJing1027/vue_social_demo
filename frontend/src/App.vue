@@ -22,6 +22,7 @@
   <!-- 貼文上傳彈跳視窗 -->
   <PostUpload v-if="modalStore.modals.postUpload" />
   <PostDetails v-if="modalStore.modals.postDetails" />
+  <TheConfirmDeleteModal />
   <TheToast />
 </template>
 
@@ -32,6 +33,7 @@ import Footer from './components/layout/Footer.vue'
 import PostUpload from '@/components/post/PostUpload.vue'
 import PostDetails from '@/components/post/PostDetails.vue'
 import TheToast from '@/components/common/TheToast.vue'
+import TheConfirmDeleteModal from '@/components/common/TheConfirmDeleteModal.vue'
 
 import { useModalStore } from '@/stores/modules/modalStore'
 

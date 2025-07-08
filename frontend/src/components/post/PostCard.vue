@@ -80,6 +80,7 @@ import PostActions from '@/components/post/PostActions.vue'
 import { ref, computed } from 'vue'
 import { usePostStore } from '@/stores/modules/postStore'
 import { useModalStore } from '@/stores/modules/modalStore'
+import { useConfirmStore } from '@/stores/modules/confirmStore'
 import { useToastStore } from '@/stores/modules/toastStore'
 import { useUserStore } from '@/stores/modules/userStore'
 import { formatTimeAgo } from '@/utils/postUtils'
@@ -92,6 +93,7 @@ import 'swiper/css/pagination'
 
 const postStore = usePostStore()
 const modalStore = useModalStore()
+const confirmStore = useConfirmStore()
 const toastStore = useToastStore()
 const userStore = useUserStore()
 const router = useRouter()
@@ -168,7 +170,18 @@ const startEdit = (closeDropdown) => {
 const deletePost = async (closeDropdown) => {
   closeDropdown()
 
-  await postStore.deletePost(props.post.id)
+  confirmStore.showConfirm({
+    title: '確認刪除貼文',
+    message: '您確定要刪除此貼文嗎？此操作無法恢復。',
+    onConfirm: async () => {
+      try {
+        await postStore.deletePost(props.post.id)
+        toastStore.showSuccess('貼文已成功刪除')
+      } catch (error) {
+        toastStore.showError('刪除貼文失敗，請稍後再試')
+      }
+    },
+  })
 }
 </script>
 
