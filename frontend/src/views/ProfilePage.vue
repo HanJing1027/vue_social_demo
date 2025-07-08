@@ -95,7 +95,9 @@
             ? postStore.userPostList
             : activeIndex === 1
               ? postStore.likedPostList
-              : postStore.favoredPostList"
+              : activeIndex === 2
+                ? postStore.favoredPostList
+                : []"
           :key="post.id"
         >
           <!-- 貼文圖片區域 -->
@@ -106,27 +108,10 @@
               :key="postImg.id"
               alt="貼文圖片"
             />
-            <div class="overlay">
-              <div class="overlay-stats">
-                <span class="stat">
-                  <i class="bx bx-heart"></i>
-                  {{ post.liked_bies }}
-                </span>
-                <span class="stat">
-                  <i class="bx bx-comment"></i>
-                  {{ post.comments }}
-                </span>
-              </div>
-            </div>
           </div>
 
           <!-- 三點式選單 -->
-          <TheDropdown
-            v-if="isPostOwner(post) && isSelf"
-            class="grid-item-dropdown"
-            menuClass="grid-post-menu"
-            @click.stop
-          >
+          <TheDropdown v-if="isPostOwner(post) && isSelf" class="grid-item-dropdown" @click.stop>
             <template #menu="{ close }">
               <TheDropdownItem icon="bx bx-edit" @click="startEditPost(post.id, close)">
                 編輯貼文
@@ -140,6 +125,18 @@
               </TheDropdownItem>
             </template>
           </TheDropdown>
+
+          <!-- 貼文統計區域 -->
+          <div class="grid-item-stats">
+            <span class="stat">
+              <i class="bx bx-heart"></i>
+              {{ post.liked_bies }}
+            </span>
+            <span class="stat">
+              <i class="bx bx-comment"></i>
+              {{ post.comments }}
+            </span>
+          </div>
         </div>
       </div>
     </div>
@@ -496,14 +493,6 @@ onMounted(() => {
   &:hover {
     transform: scale(1.02);
     box-shadow: $shadow-light;
-
-    .overlay {
-      opacity: 1;
-    }
-
-    .grid-item-dropdown {
-      opacity: 1;
-    }
   }
 
   .grid-item-content {
@@ -519,43 +508,10 @@ onMounted(() => {
     object-fit: cover;
   }
 
-  .overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity $transition-speed ease;
-  }
-
-  .overlay-stats {
-    display: flex;
-    gap: 24px;
-    color: white;
-
-    .stat {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-weight: 600;
-      font-size: 16px;
-
-      i {
-        font-size: 20px;
-      }
-    }
-  }
-
   .grid-item-dropdown {
     position: absolute;
     top: 8px;
     right: 8px;
-    opacity: 0;
     transition: opacity $transition-speed ease;
     z-index: 10;
 
@@ -572,12 +528,27 @@ onMounted(() => {
         color: white;
       }
     }
+  }
 
-    :deep(.dropdown-menu) {
-      &.grid-post-menu {
-        min-width: 140px;
-        right: 0;
-        left: auto;
+  .grid-item-stats {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    display: flex;
+    gap: 12px;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 4px 8px;
+    border-radius: 8px;
+    color: white;
+    font-size: 14px;
+
+    .stat {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+
+      i {
+        font-size: 16px;
       }
     }
   }
