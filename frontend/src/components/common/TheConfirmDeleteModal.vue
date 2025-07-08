@@ -96,7 +96,7 @@ const handleConfirm = () => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: #00000099;
+  background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(2px);
   display: flex;
   align-items: flex-start;

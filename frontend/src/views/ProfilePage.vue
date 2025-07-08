@@ -49,7 +49,7 @@
         <div
           class="active-indicator"
           :style="{
-            width: `calc(100% / ${isSelf ? 3 : 2})`, // 根據按鈕數量動態計算寬度
+            width: `calc(100% / ${isSelf ? 3 : 2})`,
             transform: `translateX(${activeIndex * 100}%)`,
           }"
         ></div>
@@ -97,23 +97,49 @@
               ? postStore.likedPostList
               : postStore.favoredPostList"
           :key="post.id"
-          @click="handlePostClick(post.id)"
         >
-          <img
-            v-for="postImg in post.image"
-            :src="postImg.attributes.url"
-            :key="postImg.id"
-            alt="貼文圖片"
-          />
-          <div class="overlay">
-            <div class="overlay-stats">
-              <span class="stat">
-                <i class="bx bx-heart"></i>
-                {{ post.liked_bies }}
-              </span>
-              <span class="stat"> <i class="bx bx-comment"></i> {{ post.comments }} </span>
+          <!-- 貼文圖片區域 -->
+          <div class="grid-item-content" @click="handlePostClick(post.id)">
+            <img
+              v-for="postImg in post.image"
+              :src="postImg.attributes.url"
+              :key="postImg.id"
+              alt="貼文圖片"
+            />
+            <div class="overlay">
+              <div class="overlay-stats">
+                <span class="stat">
+                  <i class="bx bx-heart"></i>
+                  {{ post.liked_bies }}
+                </span>
+                <span class="stat">
+                  <i class="bx bx-comment"></i>
+                  {{ post.comments }}
+                </span>
+              </div>
             </div>
           </div>
+
+          <!-- 三點式選單 -->
+          <TheDropdown
+            v-if="isPostOwner(post) && isSelf"
+            class="grid-item-dropdown"
+            menuClass="grid-post-menu"
+            @click.stop
+          >
+            <template #menu="{ close }">
+              <TheDropdownItem icon="bx bx-edit" @click="startEditPost(post.id, close)">
+                編輯貼文
+              </TheDropdownItem>
+              <TheDropdownItem
+                icon="bx bx-trash"
+                variant="danger"
+                @click="deletePost(post.id, close)"
+              >
+                刪除貼文
+              </TheDropdownItem>
+            </template>
+          </TheDropdown>
         </div>
       </div>
     </div>
@@ -122,17 +148,23 @@
 
 <script setup>
 import TheAvatar from '@/components/common/TheAvatar.vue'
+import TheDropdown from '@/components/common/TheDropdown.vue'
+import TheDropdownItem from '@/components/common/TheDropdownItem.vue'
 
 import { ref, computed, watch, onMounted } from 'vue'
 import { useUserStore } from '@/stores/modules/userStore'
 import { usePostStore } from '@/stores/modules/postStore'
 import { useModalStore } from '@/stores/modules/modalStore'
+import { useToastStore } from '@/stores/modules/toastStore'
+import { useConfirmStore } from '@/stores/modules/confirmStore'
 import { useRoute } from 'vue-router'
 import { getUserApi } from '@/apis/getUserApi'
 
 const userStore = useUserStore()
 const postStore = usePostStore()
 const modalStore = useModalStore()
+const toastStore = useToastStore()
+const confirmStore = useConfirmStore()
 const route = useRoute()
 
 const userData = ref({})
@@ -143,22 +175,27 @@ const isSelf = computed(() => {
   return String(userStore?.user?.id) === String(route?.params?.userId)
 })
 
+// 判斷是否為貼文擁有者
+const isPostOwner = (post) => {
+  return userStore.user?.id === post.user?.id
+}
+
 // 根據 activeIndex 動態選擇對應的貼文列表
 const currentPostList = computed(() => {
   if (activeIndex.value === 0) {
-    return postStore.userPostList || [] // 我的貼文
+    return postStore.userPostList || []
   } else if (activeIndex.value === 1) {
-    return postStore.likedPostList || [] // 讚過的貼文
+    return postStore.likedPostList || []
   } else if (activeIndex.value === 2) {
-    return postStore.favoredPostList || [] // 收藏的貼文
+    return postStore.favoredPostList || []
   }
-  return [] // 預設為空陣列
+  return []
 })
 
 // 加載用戶資料
 const loadUserData = async () => {
-  const respone = await getUserApi.getUserById(route.params.userId)
-  userData.value = respone
+  const response = await getUserApi.getUserById(route.params.userId)
+  userData.value = response
 }
 
 // 標籤切換
@@ -176,6 +213,34 @@ const setActiveTab = (index) => {
 const handlePostClick = (id) => {
   postStore.setCurrentPostId(id)
   modalStore.openModal('postDetails')
+}
+
+// 開始編輯貼文
+const startEditPost = (postId, closeDropdown) => {
+  closeDropdown()
+  postStore.setCurrentPostId(postId)
+  modalStore.openModal('postDetails')
+  modalStore.setEditMode(true)
+}
+
+// 刪除貼文
+const deletePost = async (postId, closeDropdown) => {
+  closeDropdown()
+
+  confirmStore.showConfirm({
+    title: '確認刪除貼文',
+    message: '您確定要刪除此貼文嗎？此操作無法恢復。',
+    onConfirm: async () => {
+      try {
+        await postStore.deletePost(postId)
+        toastStore.showSuccess('貼文已成功刪除')
+        // 重新加載當前標籤的貼文列表
+        setActiveTab(activeIndex.value)
+      } catch (error) {
+        toastStore.showError('刪除貼文失敗，請稍後再試')
+      }
+    },
+  })
 }
 
 watch(
@@ -375,7 +440,6 @@ onMounted(() => {
     position: absolute;
     top: 0;
     left: 0;
-    // width: calc(100% / 3); // 根據按鈕數量計算寬度
     height: 100%;
     background: $surface-hover;
     border-radius: 8px;
@@ -399,7 +463,7 @@ onMounted(() => {
     cursor: pointer;
     transition: color 0.3s ease;
     position: relative;
-    z-index: 1; // 確保按鈕在指示器上方
+    z-index: 1;
 
     &:hover {
       color: $text-color;
@@ -426,9 +490,8 @@ onMounted(() => {
   aspect-ratio: 1;
   border-radius: 12px;
   overflow: hidden;
-  cursor: pointer;
-  transition: transform $transition-speed ease;
   border: 1px solid $border-light;
+  transition: transform $transition-speed ease;
 
   &:hover {
     transform: scale(1.02);
@@ -437,6 +500,17 @@ onMounted(() => {
     .overlay {
       opacity: 1;
     }
+
+    .grid-item-dropdown {
+      opacity: 1;
+    }
+  }
+
+  .grid-item-content {
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    position: relative;
   }
 
   img {
@@ -476,6 +550,50 @@ onMounted(() => {
       }
     }
   }
+
+  .grid-item-dropdown {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    opacity: 0;
+    transition: opacity $transition-speed ease;
+    z-index: 10;
+
+    :deep(.dropdown-trigger) {
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+
+      &:hover {
+        background: rgba(0, 0, 0, 0.7);
+      }
+
+      i {
+        color: white;
+      }
+    }
+
+    :deep(.dropdown-menu) {
+      &.grid-post-menu {
+        min-width: 140px;
+        right: 0;
+        left: auto;
+      }
+    }
+  }
+}
+
+.no-posts-message {
+  text-align: center;
+  color: $text-secondary;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+@media (hover: none) {
+  .grid-item:hover {
+    transform: none;
+  }
 }
 
 // 響應式設計
@@ -490,7 +608,7 @@ onMounted(() => {
   }
 
   .profile-main {
-    gap: 16px; // 保持水平布局，只調整間距
+    gap: 16px;
   }
 
   .username {
@@ -528,6 +646,12 @@ onMounted(() => {
       font-size: 14px;
     }
   }
+
+  .grid-item {
+    .grid-item-dropdown {
+      opacity: 1; // 手機版本始終顯示
+    }
+  }
 }
 
 @media (max-width: $small-phone-breakpoint) {
@@ -536,7 +660,7 @@ onMounted(() => {
   }
 
   .profile-main {
-    gap: 12px; // 保持水平布局，進一步縮小間距
+    gap: 12px;
   }
 
   .username {
@@ -578,12 +702,5 @@ onMounted(() => {
       font-size: 16px;
     }
   }
-}
-
-.no-posts-message {
-  text-align: center;
-  color: $text-secondary;
-  font-size: 16px;
-  font-weight: 600;
 }
 </style>
