@@ -53,12 +53,7 @@
             <div class="post-content">
               <!-- 非編輯狀態 -->
               <div v-if="!isEditing" class="post-content-display">
-                <div class="post-content-header">
-                  <p class="post-text">{{ content }}</p>
-                  <button v-if="isCurrentUser" @click="startEdit" class="edit-btn" title="編輯貼文">
-                    <i class="bx bx-edit"></i>
-                  </button>
-                </div>
+                <p class="post-text">{{ content }}</p>
 
                 <!-- 標籤 -->
                 <div class="post-tags">
@@ -171,7 +166,6 @@ import { usePostStore } from '@/stores/modules/postStore'
 import { useCommentStore } from '@/stores/modules/commentStore'
 import { useToastStore } from '@/stores/modules/toastStore'
 import { useModalStore } from '@/stores/modules/modalStore'
-import { useUserStore } from '@/stores/modules/userStore'
 import { formatTimeAgo } from '@/utils/postUtils'
 import { useRouter } from 'vue-router'
 import { debounce } from '@/utils/debounce'
@@ -185,7 +179,6 @@ const postStore = usePostStore()
 const commentStore = useCommentStore()
 const toastStore = useToastStore()
 const modalStore = useModalStore()
-const userStore = useUserStore()
 const router = useRouter()
 const commentContent = ref('')
 
@@ -199,10 +192,6 @@ const editTags = ref([]) // 用於存儲編輯中的標籤
 
 const post = computed(() => postStore.postDetails || {})
 const comments = computed(() => commentStore.list)
-const isCurrentUser = computed(() => {
-  // 假設有用戶store來獲取當前用戶信息
-  return userStore.user?.id === post.value.user?.id
-})
 
 const description = post.value.description || ''
 const content = ref(description.replace(/#[\u4e00-\u9fa5\w]+/g, '').trim() || '')
@@ -225,8 +214,6 @@ const handleTagClick = (tag) => {
   if (keyword) {
     router.push({ name: 'search_result', query: { keyword } })
   }
-
-  modalStore.closeAllModals() // 關閉所有彈跳視窗
 }
 
 // 處理點擊圖片按讚事件
@@ -289,6 +276,14 @@ const onSwiper = (swiper) => {
 onMounted(() => {
   commentStore.loadComments(postStore.currentPostId)
 
+  // 檢查是否需要進入編輯模式
+  if (modalStore.getEditMode()) {
+    isEditing.value = true
+    editContent.value = post.value.description || ''
+    editTags.value = post.value.tags || []
+    modalStore.setEditMode(false) // 重置編輯模式狀態
+  }
+
   // 確保 Swiper 在組件掛載後正確更新
   nextTick(() => {
     if (swiperInstance.value) {
@@ -297,19 +292,12 @@ onMounted(() => {
   })
 })
 
-// 開始編輯
-const startEdit = () => {
-  if (!isCurrentUser.value) return
-  isEditing.value = true
-  editContent.value = post.value.description || ''
-  editTags.value = post.value.tags || []
-}
-
 // 取消編輯
 const cancelEdit = () => {
   isEditing.value = false
   editContent.value = ''
   editTags.value = []
+  modalStore.closeAllModals() // 關閉模態框
 }
 
 // 保存編輯
@@ -329,6 +317,7 @@ const saveEdit = async () => {
     isEditing.value = false
 
     toastStore.showSuccess('貼文更新成功')
+    modalStore.closeAllModals() // 關閉模態框
   } catch (error) {
     toastStore.showError('更新失敗，請稍後再試')
   }
@@ -698,46 +687,6 @@ const handleTagInput = () => {
   p {
     margin: 0;
     font-size: 14px;
-  }
-}
-
-/* 編輯功能樣式 */
-.post-content-display {
-  .post-content-header {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    margin-bottom: 16px;
-    position: relative;
-
-    .post-text {
-      flex: 1;
-      margin: 0;
-    }
-
-    .edit-btn {
-      padding: 6px 8px;
-      background: transparent;
-      border: 1px solid transparent;
-      border-radius: 8px;
-      cursor: pointer;
-      color: $text-secondary;
-      transition: all $transition-speed ease;
-      font-size: 12px;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-
-      &:hover {
-        background: rgba(var(--primary-color-rgb), 0.1);
-        color: $primary-color;
-        border-color: rgba(var(--primary-color-rgb), 0.2);
-      }
-
-      i {
-        font-size: 14px;
-      }
-    }
   }
 }
 

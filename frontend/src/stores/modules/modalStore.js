@@ -6,6 +6,7 @@ export const useModalStore = defineStore('modal', () => {
   const modals = ref({
     postUpload: false,
     postDetails: false,
+    editMode: false, // 編輯模式
     // 其他可以在這繼續添加
   })
 
@@ -42,6 +43,16 @@ export const useModalStore = defineStore('modal', () => {
     }
   }
 
+  // 編輯模式狀態
+  const setEditMode = (state) => {
+    modals.value.editMode = state
+  }
+
+  // 獲取編輯模式狀態
+  const getEditMode = () => {
+    return modals.value.editMode
+  }
+
   // 監聽彈跳窗開啟時禁止滾動與 Esc 鍵關閉
   watch(isAnyModalOpen, (isOpen) => {
     if (isOpen) {
@@ -61,5 +72,7 @@ export const useModalStore = defineStore('modal', () => {
     openModal,
     closeModal,
     closeAllModals,
+    setEditMode,
+    getEditMode,
   }
 })

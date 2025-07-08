@@ -4,9 +4,21 @@
     <div class="post-header">
       <div class="user-info" @click="goToUserProfile">
         <TheAvatar :src="post.user?.avatar" :width="40" :height="40" :fontSize="20" />
-        <span class="username">{{ post.user?.name || post.user?.username }}</span>
+        <div class="user-details">
+          <span class="username">{{ post.user?.name || post.user?.username }}</span>
+          <span class="post-time">{{ formatTimeAgo(post.createdAt) }}</span>
+        </div>
       </div>
-      <span class="post-time">{{ formatTimeAgo(post.createdAt) }}</span>
+
+      <!-- 三點式選單 -->
+      <TheDropdown v-if="isCurrentUser">
+        <template #menu="{ close }">
+          <TheDropdownItem icon="bx bx-edit" @click="startEdit(close)"> 編輯貼文 </TheDropdownItem>
+          <TheDropdownItem icon="bx bx-trash" variant="danger" @click="deletePost(close)">
+            刪除貼文
+          </TheDropdownItem>
+        </template>
+      </TheDropdown>
     </div>
 
     <!-- 貼文圖片 -->
@@ -61,12 +73,15 @@
 
 <script setup>
 import TheAvatar from '@/components/common/TheAvatar.vue'
+import TheDropdown from '@/components/common/TheDropdown.vue'
+import TheDropdownItem from '@/components/common/TheDropdownItem.vue'
 import PostActions from '@/components/post/PostActions.vue'
 
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { usePostStore } from '@/stores/modules/postStore'
 import { useModalStore } from '@/stores/modules/modalStore'
 import { useToastStore } from '@/stores/modules/toastStore'
+import { useUserStore } from '@/stores/modules/userStore'
 import { formatTimeAgo } from '@/utils/postUtils'
 import { useRouter } from 'vue-router'
 
@@ -78,16 +93,22 @@ import 'swiper/css/pagination'
 const postStore = usePostStore()
 const modalStore = useModalStore()
 const toastStore = useToastStore()
+const userStore = useUserStore()
 const router = useRouter()
 
-const showHeart = ref(false) // 用於控制愛心圖標顯示
-const heartPosition = ref({ x: 0, y: 0 }) // 用於記錄點擊位置
+const showHeart = ref(false)
+const heartPosition = ref({ x: 0, y: 0 })
 
 const props = defineProps({
   post: {
     type: Object,
     default: {},
   },
+})
+
+// 檢查是否為當前用戶的貼文
+const isCurrentUser = computed(() => {
+  return userStore.user?.id === props.post.user?.id
 })
 
 const goToUserProfile = () => {
@@ -101,7 +122,6 @@ const goToUserProfile = () => {
 
 // 處理點擊標籤事件
 const handleTagClick = (tag) => {
-  // 消除 # 前綴
   const keyword = tag.startsWith('#') ? tag.slice(1) : tag
   if (keyword) {
     router.push({ name: 'search_result', query: { keyword } })
@@ -113,7 +133,6 @@ const handleImageClick = async (event) => {
   if (props.post.likedByMe) return
 
   try {
-    // 記錄滑鼠點擊的位置
     const rect = event.currentTarget.getBoundingClientRect()
     heartPosition.value = {
       x: event.clientX - rect.left,
@@ -123,7 +142,6 @@ const handleImageClick = async (event) => {
     await postStore.toggleLikePost(props.post.id)
     showHeart.value = true
 
-    // 1秒後隱藏愛心圖標
     setTimeout(() => {
       showHeart.value = false
     }, 1000)
@@ -132,9 +150,25 @@ const handleImageClick = async (event) => {
   }
 }
 
+// 打開貼文詳情
 const handlePostClick = () => {
   postStore.setCurrentPostId(props.post.id)
   modalStore.openModal('postDetails')
+}
+
+// 開始編輯貼文
+const startEdit = (closeDropdown) => {
+  closeDropdown()
+  postStore.setCurrentPostId(props.post.id)
+  modalStore.openModal('postDetails')
+  modalStore.setEditMode(true)
+}
+
+// 刪除貼文
+const deletePost = async (closeDropdown) => {
+  closeDropdown()
+
+  //
 }
 </script>
 
@@ -169,6 +203,12 @@ const handlePostClick = () => {
   gap: 12px;
 }
 
+.user-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
 .username {
   font-weight: 600;
   color: $text-color;
@@ -177,7 +217,7 @@ const handlePostClick = () => {
 
 .post-time {
   color: $text-secondary;
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .post-image {
@@ -345,18 +385,6 @@ const handlePostClick = () => {
 
   .post-tags {
     padding: 0 12px 12px;
-  }
-
-  .action-icons {
-    gap: 16px;
-  }
-
-  .icon-item {
-    padding: 6px 8px;
-
-    i {
-      font-size: 18px;
-    }
   }
 }
 </style>
