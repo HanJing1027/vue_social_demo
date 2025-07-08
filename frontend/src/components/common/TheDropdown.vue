@@ -115,7 +115,7 @@ defineExpose({
     border: 1px solid $border-light;
     border-radius: 8px;
     box-shadow: 0 4px 12px $shadow-light;
-    z-index: 1000;
+    z-index: 500;
     min-width: 140px;
     overflow: hidden;
     animation: dropdownFadeIn 0.2s ease;

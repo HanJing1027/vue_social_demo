@@ -158,7 +158,7 @@ onUnmounted(() => {
   position: fixed;
   width: 100%;
   top: 0;
-  z-index: 9999;
+  z-index: 999;
 
   .navbar-container {
     max-width: 1200px;
