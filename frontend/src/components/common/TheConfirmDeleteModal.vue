@@ -1,7 +1,7 @@
 <template>
   <Teleport to="body">
     <Transition name="modal-fade">
-      <div class="modal-overlay" v-if="isVisible" @click="handleOverlayClick">
+      <div class="modal-overlay" v-if="isVisible">
         <Transition name="modal-slide">
           <div class="modal-container" v-if="isVisible" @click.stop>
             <div class="modal-header">
@@ -54,10 +54,6 @@ const handleCancel = () => {
 
 const handleConfirm = () => {
   confirmStore.confirm()
-}
-
-const handleOverlayClick = () => {
-  confirmStore.cancel()
 }
 </script>
 

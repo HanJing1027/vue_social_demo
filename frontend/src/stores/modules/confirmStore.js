@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
 export const useConfirmStore = defineStore('confirm', () => {
   const isVisible = ref(false)
@@ -45,6 +45,24 @@ export const useConfirmStore = defineStore('confirm', () => {
     confirmCallback.value = null
     cancelCallback.value = null
   }
+
+  // Esc 鍵關閉彈跳視窗
+  const handleEscKey = (event) => {
+    if (event.key === 'Escape') {
+      cancel()
+    }
+  }
+
+  // 監聽彈跳窗開啟時禁止滾動與 Esc 鍵關閉
+  watch(isVisible, (isOpen) => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden' // 禁止滾動
+      document.addEventListener('keydown', handleEscKey) // 監聽 Esc 鍵
+    } else {
+      document.body.style.overflow = '' // 恢復滾動
+      document.removeEventListener('keydown', handleEscKey) // 移除 Esc 鍵監聽
+    }
+  })
 
   return {
     isVisible,
