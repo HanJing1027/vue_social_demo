@@ -1,9 +1,18 @@
-import { get, post } from '@/apis/request'
+import { get, post, put } from '@/apis/request'
 
 export const commentApi = {
   // 新增評論
   createComment: async (requestData) => {
     return await post('/api/comments', requestData)
+  },
+
+  // 更新評論
+  updateComment: async (commentId, commentContent) => {
+    return await put(`/api/comments/${commentId}`, {
+      data: {
+        commentContent,
+      },
+    })
   },
 
   // 加載評論

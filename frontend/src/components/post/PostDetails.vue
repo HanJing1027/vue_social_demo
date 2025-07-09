@@ -104,10 +104,10 @@
             </div>
 
             <!-- 互動按鈕 -->
-            <PostActions :post="post" />
+            <PostActions v-if="!isEditing" :post="post" />
 
             <!-- 留言區域 -->
-            <div class="comments-section">
+            <div v-if="!isEditing" class="comments-section">
               <h3 class="comments-title">留言</h3>
 
               <!-- 新增留言 -->

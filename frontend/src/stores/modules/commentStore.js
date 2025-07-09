@@ -20,6 +20,15 @@ export const useCommentStore = defineStore('comment', () => {
     loadComments(postId) // 重新載入評論列表以確保最新數據
   }
 
+  // 編輯評論
+  const editComment = async (postId, commentId, commentContent) => {
+    const response = await commentApi.updateComment(commentId, commentContent)
+    if (response) {
+      // 更新本地評論列表
+      loadComments(postId)
+    }
+  }
+
   // 加載指定貼文的評論
   const loadComments = async (postId) => {
     const comments = await commentApi.loadComments(postId)
@@ -31,5 +40,6 @@ export const useCommentStore = defineStore('comment', () => {
 
     addComment,
     loadComments,
+    editComment,
   }
 })
