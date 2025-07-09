@@ -135,7 +135,11 @@
                     />
                   </div>
                   <div class="comment-main">
-                    <div class="comment-bubble">
+                    <!-- 非編輯模式 -->
+                    <div
+                      v-if="!isCommentEditing || editingCommentId !== comment.id"
+                      class="comment-bubble"
+                    >
                       <div class="comment-header">
                         <span class="comment-username" @click="goToUserProfile(comment.user?.id)">{{
                           comment.user?.name || comment.user?.username
@@ -148,8 +152,24 @@
                       <p class="comment-text">{{ comment.content }}</p>
                     </div>
 
+                    <!-- 編輯模式 -->
+                    <div v-else class="comment-edit-mode">
+                      <div class="edit-comment-container">
+                        <textarea
+                          v-model="editCommentContent"
+                          class="edit-comment-textarea"
+                          placeholder="編輯你的留言..."
+                          rows="3"
+                        ></textarea>
+                      </div>
+                      <div class="edit-comment-actions">
+                        <TheButton @click="cancelEditComment" reverse size="small">取消</TheButton>
+                        <TheButton @click="saveEditComment" size="small">儲存</TheButton>
+                      </div>
+                    </div>
+
                     <!-- 3點式選單 -->
-                    <div v-if="isMyComment(comment)" class="comment-actions">
+                    <div v-if="isMyComment(comment) && !isCommentEditing" class="comment-actions">
                       <TheDropdown
                         :closeOnClickOutside="true"
                         :menuClass="`comment-menu ${index === comments.length - 1 ? 'last-comment-menu' : ''}`"
@@ -228,6 +248,11 @@ const heartPosition = ref({ x: 0, y: 0 }) // 用於記錄點擊位置
 const isEditing = ref(false)
 const editContent = ref('')
 const editTags = ref([]) // 用於存儲編輯中的標籤
+
+// 評論編輯相關狀態
+const isCommentEditing = ref(false)
+const editingCommentId = ref(null)
+const editCommentContent = ref('')
 
 const post = computed(() => postStore.postDetails || {}) // 獲取當前貼文的詳細資訊
 const comments = computed(() => commentStore.list) // 獲取當前貼文的留言列表
@@ -385,10 +410,31 @@ const handleTagInput = () => {
 // 編輯評論
 const editComment = (comment, closeDropdown) => {
   closeDropdown()
+  isCommentEditing.value = true
+  editingCommentId.value = comment.id
+  editCommentContent.value = comment.content
+}
+
+// 取消編輯評論
+const cancelEditComment = () => {
+  isCommentEditing.value = false
+  editingCommentId.value = null
+  editCommentContent.value = ''
+}
+
+// 保存編輯評論
+const saveEditComment = async () => {
+  if (!editCommentContent.value.trim()) {
+    toastStore.showError('評論內容不能為空')
+    return
+  }
+
   try {
+    // await commentStore.updateComment(editingCommentId.value, editCommentContent.value.trim())
     toastStore.showSuccess('評論更新成功')
+    cancelEditComment()
   } catch (error) {
-    //
+    toastStore.showError('評論更新失敗，請稍後再試')
   }
 }
 </script>
@@ -684,6 +730,92 @@ const editComment = (comment, closeDropdown) => {
       position: relative;
       max-width: calc(100% - 52px); // 為頭像留出空間
 
+      .comment-edit-mode {
+        background: #f8f9fa;
+        padding: 12px 16px;
+        border-radius: 18px 18px 18px 4px;
+        position: relative;
+        max-width: 100%;
+
+        &::before {
+          content: '';
+          position: absolute;
+          left: -6px;
+          top: 12px;
+          width: 0;
+          height: 0;
+          border: 6px solid transparent;
+          border-right-color: #f8f9fa;
+        }
+
+        .edit-comment-container {
+          position: relative;
+          margin-bottom: 12px;
+
+          .edit-comment-textarea {
+            width: 100%;
+            min-height: 60px;
+            max-height: 120px;
+            padding: 12px;
+            border: 2px solid $border-light;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.4;
+            resize: vertical;
+            font-family: inherit;
+            background: $background;
+            color: $text-color;
+            transition: all $transition-speed ease;
+
+            &:focus {
+              outline: none;
+              border-color: $primary-color;
+              box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.1);
+            }
+
+            &::placeholder {
+              color: $text-secondary;
+            }
+
+            /* 滾動條樣式 */
+            &::-webkit-scrollbar {
+              width: 4px;
+            }
+
+            &::-webkit-scrollbar-track {
+              background: transparent;
+            }
+
+            &::-webkit-scrollbar-thumb {
+              background: $border-light;
+              border-radius: 2px;
+
+              &:hover {
+                background: $text-secondary;
+              }
+            }
+          }
+
+          .edit-comment-char-count {
+            position: absolute;
+            bottom: 6px;
+            right: 8px;
+            font-size: 11px;
+            color: $text-secondary;
+            background: rgba($background, 0.9);
+            padding: 2px 4px;
+            border-radius: 3px;
+            backdrop-filter: blur(4px);
+          }
+        }
+
+        .edit-comment-actions {
+          display: flex;
+          gap: 8px;
+          justify-content: flex-end;
+        }
+      }
+
       .comment-bubble {
         background: #f8f9fa;
         padding: 12px 16px;
@@ -968,6 +1100,30 @@ const editComment = (comment, closeDropdown) => {
 
       .comment-main {
         max-width: calc(100% - 48px); // 手機版調整
+
+        .comment-edit-mode {
+          padding: 10px 12px;
+
+          .edit-comment-container {
+            margin-bottom: 8px;
+
+            .edit-comment-textarea {
+              min-height: 50px;
+              padding: 8px;
+              font-size: 13px;
+            }
+
+            .edit-comment-char-count {
+              font-size: 10px;
+              bottom: 4px;
+              right: 6px;
+            }
+          }
+
+          .edit-comment-actions {
+            gap: 6px;
+          }
+        }
 
         .comment-bubble {
           padding: 10px 12px;
