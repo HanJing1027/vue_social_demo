@@ -162,6 +162,7 @@ import TheButton from '@/components/common/TheButton.vue'
 import PostActions from '@/components/post/PostActions.vue'
 
 import { ref, computed, watch, onMounted, nextTick } from 'vue'
+import { useUserStore } from '@/stores/modules/userStore'
 import { usePostStore } from '@/stores/modules/postStore'
 import { useCommentStore } from '@/stores/modules/commentStore'
 import { useToastStore } from '@/stores/modules/toastStore'
@@ -175,6 +176,7 @@ import { Pagination } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/pagination'
 
+const userStore = useUserStore()
 const postStore = usePostStore()
 const commentStore = useCommentStore()
 const toastStore = useToastStore()
@@ -190,11 +192,15 @@ const isEditing = ref(false)
 const editContent = ref('')
 const editTags = ref([]) // 用於存儲編輯中的標籤
 
-const post = computed(() => postStore.postDetails || {})
-const comments = computed(() => commentStore.list)
+const post = computed(() => postStore.postDetails || {}) // 獲取當前貼文的詳細資訊
+const comments = computed(() => commentStore.list) // 獲取當前貼文的留言列表
 
 const description = post.value.description || ''
 const content = ref(description.replace(/#[\u4e00-\u9fa5\w]+/g, '').trim() || '')
+
+const isMyComment = (comment) => {
+  return comment.user?.id === userStore.user?.id
+} // 檢查單條評論是否是自己的
 
 const goToUserProfile = (userId) => {
   if (!post.value?.user || !post.value?.user?.id) {
