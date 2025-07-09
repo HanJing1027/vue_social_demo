@@ -120,7 +120,12 @@
 
               <!-- 留言列表 -->
               <div v-if="comments.length > 0" class="comments-list">
-                <div class="comment-item" v-for="comment in comments" :key="comment.id">
+                <div
+                  class="comment-item"
+                  v-for="(comment, index) in comments"
+                  :key="comment.id"
+                  :class="{ 'last-comment': index === comments.length - 1 }"
+                >
                   <div class="avatar" @click="goToUserProfile(comment.user?.id)">
                     <TheAvatar
                       :src="comment.user?.avatar"
@@ -129,17 +134,47 @@
                       :fontSize="20"
                     />
                   </div>
-                  <div class="comment-content">
-                    <div class="comment-header">
-                      <span class="comment-username" @click="goToUserProfile(comment.user?.id)">{{
-                        comment.user?.name || comment.user?.username
-                      }}</span>
-                      <span v-if="comment.user?.id === post.user?.id" class="original-poster-tag"
-                        >原po</span
-                      >
-                      <span class="comment-time">{{ formatTimeAgo(comment.pubDate) }}</span>
+                  <div class="comment-main">
+                    <div class="comment-bubble">
+                      <div class="comment-header">
+                        <span class="comment-username" @click="goToUserProfile(comment.user?.id)">{{
+                          comment.user?.name || comment.user?.username
+                        }}</span>
+                        <span v-if="comment.user?.id === post.user?.id" class="original-poster-tag">
+                          原po
+                        </span>
+                        <span class="comment-time">{{ formatTimeAgo(comment.pubDate) }}</span>
+                      </div>
+                      <p class="comment-text">{{ comment.content }}</p>
                     </div>
-                    <p class="comment-text">{{ comment.content }}</p>
+
+                    <!-- 3點式選單 -->
+                    <div v-if="isMyComment(comment)" class="comment-actions">
+                      <TheDropdown
+                        :closeOnClickOutside="true"
+                        :menuClass="`comment-menu ${index === comments.length - 1 ? 'last-comment-menu' : ''}`"
+                        triggerClass="comment-dropdown-trigger"
+                      >
+                        <template #trigger>
+                          <i class="bx bx-dots-horizontal-rounded"></i>
+                        </template>
+                        <template #menu="{ close }">
+                          <TheDropdownItem
+                            icon="bx bx-edit-alt"
+                            @click="editComment(comment, close)"
+                          >
+                            編輯
+                          </TheDropdownItem>
+                          <TheDropdownItem
+                            icon="bx bx-trash"
+                            variant="danger"
+                            @click="deleteComment(comment.id, close)"
+                          >
+                            刪除
+                          </TheDropdownItem>
+                        </template>
+                      </TheDropdown>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -159,6 +194,8 @@
 import TheModal from '@/components/common/TheModal.vue'
 import TheAvatar from '@/components/common/TheAvatar.vue'
 import TheButton from '@/components/common/TheButton.vue'
+import TheDropdown from '@/components/common/TheDropdown.vue'
+import TheDropdownItem from '@/components/common/TheDropdownItem.vue'
 import PostActions from '@/components/post/PostActions.vue'
 
 import { ref, computed, watch, onMounted, nextTick } from 'vue'
@@ -343,6 +380,16 @@ const handleTagInput = () => {
   // 使用正則表達式提取所有以 # 開頭的標籤
   const tags = editContent.value.match(/#[\u4e00-\u9fa5\w]+/g) || []
   editTags.value = [...new Set(tags)] // 去重並更新標籤列表
+}
+
+// 編輯評論
+const editComment = (comment, closeDropdown) => {
+  closeDropdown()
+  try {
+    toastStore.showSuccess('評論更新成功')
+  } catch (error) {
+    //
+  }
 }
 </script>
 
@@ -547,7 +594,6 @@ const handleTagInput = () => {
 .comments-section {
   padding: 20px;
   flex: 1;
-  // display: flex;
   flex-direction: column;
   min-height: 0;
 
@@ -623,67 +669,144 @@ const handleTagInput = () => {
     display: flex;
     align-items: flex-start;
     gap: 12px;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
+    position: relative;
 
     .avatar {
       cursor: pointer;
+      flex-shrink: 0;
     }
-  }
 
-  .comment-content {
-    flex: 1;
-    background: #f8f9fa;
-    padding: 8px 12px;
-    border-radius: 12px 12px 12px 3px;
-    position: relative;
-    max-width: 85%;
+    .comment-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      max-width: calc(100% - 52px); // 為頭像留出空間
 
-    &::before {
-      content: '';
-      position: absolute;
-      left: -5px;
-      top: 8px;
-      width: 0;
-      height: 0;
-      border: 5px solid transparent;
-      border-right-color: #f8f9fa;
+      .comment-bubble {
+        background: #f8f9fa;
+        padding: 12px 16px;
+        border-radius: 18px 18px 18px 4px;
+        position: relative;
+        max-width: 100%;
+        word-wrap: break-word;
+
+        &::before {
+          content: '';
+          position: absolute;
+          left: -6px;
+          top: 12px;
+          width: 0;
+          height: 0;
+          border: 6px solid transparent;
+          border-right-color: #f8f9fa;
+        }
+
+        .comment-header {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 4px;
+          flex-wrap: wrap;
+
+          .comment-username {
+            cursor: pointer;
+            font-weight: 600;
+            color: $primary-color;
+            font-size: 14px;
+            flex-shrink: 0;
+          }
+
+          .original-poster-tag {
+            background-color: $primary-color;
+            color: $background;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 8px;
+            flex-shrink: 0;
+          }
+
+          .comment-time {
+            color: $text-secondary;
+            font-size: 12px;
+            flex-shrink: 0;
+          }
+        }
+
+        .comment-text {
+          color: $text-color;
+          font-size: 14px;
+          line-height: 1.4;
+          margin: 0;
+          padding-right: 25px;
+          white-space: pre-line;
+          word-break: break-word;
+          text-align: justify;
+        }
+      }
+
+      .comment-actions {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        z-index: 10;
+
+        :deep(.dropdown) {
+          .comment-dropdown-trigger {
+            width: 24px;
+            height: 24px;
+            padding: 4px;
+            background: rgba($surface, 0.9);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all $transition-speed ease;
+            backdrop-filter: blur(4px);
+            box-shadow:
+              inset 0 1px 1px rgba(255, 255, 255, 0.4),
+              // 上內亮（浮起）
+              inset 0 -1px 1px rgba(0, 0, 0, 0.15),
+              // 下內暗
+              0 2px 4px rgba(0, 0, 0, 0.1); // 外陰影（漂浮）
+
+            @media (hover: hover) {
+              &:hover {
+                transform: scale(1.1);
+                box-shadow:
+                  inset 0 1px 1px rgba(255, 255, 255, 0.35),
+                  inset 0 -1px 1px rgba(0, 0, 0, 0.2),
+                  0 4px 8px rgba(0, 0, 0, 0.15); // hover 時更深的漂浮感
+              }
+            }
+
+            i {
+              font-size: 14px;
+              color: $text-secondary;
+            }
+          }
+
+          .dropdown-menu {
+            &.comment-menu {
+              min-width: 120px;
+              right: 100%; // 改為顯示在左邊
+              left: auto;
+              top: 0; // 與按鈕對齊
+              margin-right: 5px; // 給按鈕留點間距
+
+              // 最後一個評論的選單向上顯示
+              &.last-comment-menu {
+                top: auto;
+                bottom: 0;
+              }
+            }
+          }
+        }
+      }
     }
-  }
-
-  .comment-header {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-bottom: 2px;
-  }
-
-  .comment-username {
-    cursor: pointer;
-    font-weight: 600;
-    color: $primary-color;
-    font-size: 13px;
-  }
-
-  .original-poster-tag {
-    cursor: default;
-    background-color: $primary-color;
-    color: $background;
-    font-size: 10px;
-    padding: 2px 6px;
-    border-radius: 8px;
-  }
-
-  .comment-time {
-    color: $text-secondary;
-    font-size: 11px;
-  }
-
-  .comment-text {
-    color: $text-color;
-    font-size: 13px;
-    line-height: 1.4;
-    margin: 0;
-    white-space: pre-line;
   }
 }
 
@@ -806,8 +929,7 @@ const handleTagInput = () => {
   }
 }
 
-/* 手機版樣式調整 */
-@media (max-width: $mobile-breakpoint) {
+@media (max-width: $tablet-breakpoint) {
   .post-layout {
     flex-direction: column;
 
@@ -837,7 +959,86 @@ const handleTagInput = () => {
     }
   }
 
-  /* 調整分頁點點在手機版的位置 */
+  .comments-section {
+    padding: 16px;
+
+    .comment-item {
+      gap: 8px;
+      margin-bottom: 12px;
+
+      .comment-main {
+        max-width: calc(100% - 48px); // 手機版調整
+
+        .comment-bubble {
+          padding: 10px 12px;
+          border-radius: 16px 16px 16px 4px;
+
+          &::before {
+            left: -5px;
+            top: 10px;
+            border-width: 5px;
+          }
+
+          .comment-header {
+            gap: 6px;
+            margin-bottom: 2px;
+
+            .comment-username {
+              font-size: 13px;
+            }
+
+            .original-poster-tag {
+              font-size: 9px;
+              padding: 1px 4px;
+            }
+
+            .comment-time {
+              font-size: 11px;
+            }
+          }
+
+          .comment-text {
+            font-size: 13px;
+          }
+        }
+
+        .comment-actions {
+          top: 4px;
+          right: 4px;
+          opacity: 1; // 手機版始終顯示
+
+          :deep(.dropdown) {
+            .comment-dropdown-trigger {
+              width: 20px;
+              height: 20px;
+              padding: 2px;
+              background: rgba($surface, 0.95);
+
+              i {
+                font-size: 12px;
+              }
+            }
+
+            .dropdown-menu.comment-menu {
+              min-width: 100px;
+              right: 100%;
+              left: auto;
+              top: 0;
+              margin-right: 4px;
+
+              &.last-comment-menu {
+                top: auto;
+                bottom: 0;
+                margin-right: 4px;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // 調整分頁點點在手機版的位置
   .post-image-section {
     .post-swiper {
       :deep(.swiper-pagination) {
@@ -851,85 +1052,12 @@ const handleTagInput = () => {
       }
     }
   }
-
-  .post-content-display {
-    .post-content-header {
-      gap: 8px;
-
-      .edit-btn {
-        padding: 4px 6px;
-        opacity: 1;
-        transform: none;
-        font-size: 11px;
-
-        i {
-          font-size: 18px;
-        }
-      }
-    }
-  }
-
-  .post-edit-mode {
-    .edit-textarea {
-      min-height: 100px;
-      max-height: 150px;
-      padding: 12px;
-      font-size: 14px;
-    }
-
-    .edit-char-count {
-      font-size: 11px;
-      bottom: 6px;
-      right: 8px;
-    }
-
-    .edit-tags-preview {
-      padding: 8px;
-      gap: 6px;
-
-      .tags-label {
-        font-size: 11px;
-      }
-
-      .tag-preview {
-        padding: 3px 6px;
-        font-size: 11px;
-      }
-    }
-
-    .edit-actions {
-      gap: 8px;
-    }
-
-    .cancel-btn,
-    .save-btn {
-      padding: 8px 12px;
-      font-size: 12px;
-      min-width: 60px;
-
-      i {
-        font-size: 14px;
-      }
-    }
-  }
 }
 
+// 觸控設備上始終顯示操作按鈕
 @media (hover: none) {
-  .post-content-display .post-content-header .edit-btn:hover {
-    background: transparent;
-    color: $text-secondary;
-    border-color: transparent;
-  }
-
-  .post-edit-mode .cancel-btn:hover:not(:disabled) {
-    background: $surface-alt;
-    border-color: $border-light;
-  }
-
-  .post-edit-mode .save-btn:hover:not(:disabled) {
-    background: $primary-color;
-    transform: none;
-    box-shadow: none;
+  .comment-item .comment-actions {
+    opacity: 1 !important;
   }
 }
 </style>
