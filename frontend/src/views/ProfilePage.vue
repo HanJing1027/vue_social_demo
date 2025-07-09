@@ -490,9 +490,11 @@ onMounted(() => {
   border: 1px solid $border-light;
   transition: transform $transition-speed ease;
 
-  &:hover {
-    transform: scale(1.02);
-    box-shadow: $shadow-light;
+  @media (hover: hover) {
+    &:hover {
+      transform: scale(1.01);
+      box-shadow: $shadow-light;
+    }
   }
 
   .grid-item-content {
@@ -516,12 +518,26 @@ onMounted(() => {
     z-index: 10;
 
     :deep(.dropdown-trigger) {
-      background: rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(4px);
+      background: rgba(30, 30, 30, 0.6); // 避免太死黑
+      backdrop-filter: blur(8px) saturate(160%);
+      -webkit-backdrop-filter: blur(8px) saturate(160%); // Safari 支援
       border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow:
+        inset 0 1px 2px rgba(255, 255, 255, 0.1),
+        // 上內亮（浮雕感）
+        inset 0 -1px 2px rgba(0, 0, 0, 0.2),
+        // 下內暗
+        0 4px 10px rgba(0, 0, 0, 0.3); // 外陰影（漂浮感）
 
-      &:hover {
-        background: rgba(0, 0, 0, 0.7);
+      @media (hover: hover) {
+        &:hover {
+          background: rgba(30, 30, 30, 0.8);
+          box-shadow:
+            inset 0 2px 3px rgba(255, 255, 255, 0.1),
+            inset 0 -2px 3px rgba(0, 0, 0, 0.25),
+            0 6px 14px rgba(0, 0, 0, 0.4);
+          transition: all $transition-speed ease;
+        }
       }
 
       i {
@@ -531,16 +547,29 @@ onMounted(() => {
   }
 
   .grid-item-stats {
+    cursor: default;
     position: absolute;
     bottom: 8px;
     left: 8px;
     display: flex;
     gap: 12px;
-    background: rgba(0, 0, 0, 0.6);
-    padding: 4px 8px;
-    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px); // Safari 支援
+    padding: 6px 12px;
+    border-radius: 10px;
     color: white;
     font-size: 14px;
+    font-weight: 500;
+    box-shadow:
+      inset 0 1px 2px rgba(255, 255, 255, 0.1),
+      // 上內亮
+      inset 0 -1px 2px rgba(0, 0, 0, 0.2),
+      // 下內暗
+      0 4px 10px rgba(0, 0, 0, 0.3); // 外陰影（浮層感）
+
+    backdrop-filter: blur(8px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 
     .stat {
       display: flex;
@@ -549,6 +578,7 @@ onMounted(() => {
 
       i {
         font-size: 16px;
+        font-weight: 500;
       }
     }
   }
@@ -559,12 +589,6 @@ onMounted(() => {
   color: $text-secondary;
   font-size: 16px;
   font-weight: 600;
-}
-
-@media (hover: none) {
-  .grid-item:hover {
-    transform: none;
-  }
 }
 
 // 響應式設計

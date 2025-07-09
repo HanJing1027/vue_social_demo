@@ -44,8 +44,10 @@ const props = defineProps({
     font-size: 15px;
   }
 
-  &:hover {
-    transform: translateY(-1px);
+  @media (hover: hover) {
+    &:hover {
+      transform: translateY(-1px);
+    }
   }
 
   &:active {
@@ -56,8 +58,10 @@ const props = defineProps({
     background: $primary-color;
     color: $surface;
 
-    &:hover {
-      box-shadow: 0 4px 12px rgba(var(--primary-color-rgb), 0.3);
+    @media (hover: hover) {
+      &:hover {
+        box-shadow: 0 4px 12px rgba(var(--primary-color-rgb), 0.3);
+      }
     }
   }
 
@@ -66,17 +70,12 @@ const props = defineProps({
     border: 1px solid $border-color;
     color: $text-secondary;
 
-    &:hover {
-      box-shadow: none;
-      background: $surface-hover;
+    @media (hover: hover) {
+      &:hover {
+        box-shadow: none;
+        background: $surface-hover;
+      }
     }
-  }
-}
-@media (hover: none) {
-  .base-button:hover {
-    transform: none;
-    box-shadow: none !important;
-    background: $primary-color;
   }
 }
 </style>
