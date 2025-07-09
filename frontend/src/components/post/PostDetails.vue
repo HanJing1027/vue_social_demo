@@ -154,21 +154,28 @@
 
                     <!-- 編輯模式 -->
                     <div v-else class="comment-edit-mode">
-                      <div class="edit-comment-container">
+                      <div class="edit-container">
                         <textarea
                           v-model="editCommentContent"
-                          class="edit-comment-textarea"
+                          class="edit-textarea"
                           placeholder="編輯你的留言..."
                           rows="3"
                         ></textarea>
+                        <div
+                          v-if="commentTimeLeft.has(comment.id)"
+                          class="timer-display"
+                          :class="{ warning: commentTimeLeft.get(comment.id) <= 300 }"
+                        >
+                          {{ formatTime(commentTimeLeft.get(comment.id)) }}
+                        </div>
                       </div>
-                      <div class="edit-comment-actions">
+                      <div class="edit-actions">
                         <TheButton @click="cancelEditComment" reverse size="small">取消</TheButton>
                         <TheButton @click="saveEditComment" size="small">儲存</TheButton>
                       </div>
                     </div>
 
-                    <!-- 3點式選單 -->
+                    <!-- 操作選單 -->
                     <div v-if="isMyComment(comment) && !isCommentEditing" class="comment-actions">
                       <TheDropdown
                         :closeOnClickOutside="true"
@@ -182,8 +189,22 @@
                           <TheDropdownItem
                             icon="bx bx-edit-alt"
                             @click="editComment(comment, close)"
+                            :disabled="!canEdit(comment)"
                           >
-                            編輯
+                            <div class="edit-item-content">
+                              <span>編輯</span>
+                              <!-- 倒數計時顯示 -->
+                              <span
+                                v-if="commentTimeLeft.has(comment.id)"
+                                class="edit-timer-dropdown"
+                                :class="{ warning: commentTimeLeft.get(comment.id) <= 300 }"
+                              >
+                                {{ formatTime(commentTimeLeft.get(comment.id)) }}
+                              </span>
+                              <span v-else-if="!canEdit(comment)" class="disabled-text"
+                                >(已超時)</span
+                              >
+                            </div>
                           </TheDropdownItem>
                           <TheDropdownItem
                             icon="bx bx-trash"
@@ -198,6 +219,7 @@
                   </div>
                 </div>
               </div>
+
               <!-- 如果沒有留言，顯示提示 -->
               <div v-else class="no-comments">
                 <p>還沒有留言，快來搶沙發！</p>
@@ -218,7 +240,7 @@ import TheDropdown from '@/components/common/TheDropdown.vue'
 import TheDropdownItem from '@/components/common/TheDropdownItem.vue'
 import PostActions from '@/components/post/PostActions.vue'
 
-import { ref, computed, watch, onMounted, nextTick } from 'vue'
+import { ref, computed, watch, onMounted, nextTick, onUnmounted } from 'vue'
 import { useUserStore } from '@/stores/modules/userStore'
 import { usePostStore } from '@/stores/modules/postStore'
 import { useCommentStore } from '@/stores/modules/commentStore'
@@ -255,6 +277,48 @@ const editTags = ref([]) // 用於存儲編輯中的標籤
 const isCommentEditing = ref(false)
 const editingCommentId = ref(null)
 const editCommentContent = ref('')
+
+// 評論倒數計時
+const commentTimeLeft = ref(new Map())
+
+// 計算評論剩餘時間（秒）
+const getTimeLeft = (pubDate) => {
+  const elapsed = (Date.now() - new Date(pubDate).getTime()) / 1000
+  return Math.max(0, 900 - elapsed) // 15分鐘 = 900秒
+}
+
+// 格式化時間顯示
+const formatTime = (seconds) => {
+  const m = Math.floor(seconds / 60)
+  const s = seconds % 60
+  return `${m}:${s.toString().padStart(2, '0')}`
+}
+
+// 檢查是否可編輯
+const canEdit = (comment) => {
+  return isMyComment(comment) && getTimeLeft(comment.pubDate) > 0
+}
+
+// 更新倒數時間
+const updateTimers = () => {
+  comments.value.forEach((comment) => {
+    if (isMyComment(comment)) {
+      const timeLeft = Math.floor(getTimeLeft(comment.pubDate))
+      if (timeLeft > 0) {
+        commentTimeLeft.value.set(comment.id, timeLeft)
+      } else {
+        commentTimeLeft.value.delete(comment.id)
+        // 如果正在編輯且時間到了，取消編輯
+        if (editingCommentId.value === comment.id) {
+          cancelEditComment()
+          toastStore.showWarning('編輯時間已過期')
+        }
+      }
+    }
+  })
+}
+
+let timerInterval = null
 
 const post = computed(() => postStore.postDetails || {}) // 獲取當前貼文的詳細資訊
 const comments = computed(() => commentStore.list) // 獲取當前貼文的留言列表
@@ -361,7 +425,16 @@ onMounted(() => {
     if (swiperInstance.value) {
       swiperInstance.value.update()
     }
+    // 開始倒數計時
+    updateTimers()
+    timerInterval = setInterval(updateTimers, 1000)
   })
+})
+
+onUnmounted(() => {
+  if (timerInterval) {
+    clearInterval(timerInterval)
+  }
 })
 
 // 取消編輯
@@ -409,9 +482,13 @@ const handleTagInput = () => {
   editTags.value = [...new Set(tags)] // 去重並更新標籤列表
 }
 
-// 編輯評論
+// 開始編輯評論
 const editComment = (comment, closeDropdown) => {
   closeDropdown()
+  if (!canEdit(comment)) {
+    toastStore.showError('超過編輯時間限制（15分鐘）')
+    return
+  }
   isCommentEditing.value = true
   editingCommentId.value = comment.id
   editCommentContent.value = comment.content
@@ -581,7 +658,7 @@ const deleteComment = async (commentId, closeDropdown) => {
     overflow-y: auto;
     overflow-x: hidden;
 
-    /* 添加滾動條樣式 */
+    /* 添加滾动条样式 */
     &::-webkit-scrollbar {
       width: 8px;
     }
@@ -948,11 +1025,10 @@ const deleteComment = async (commentId, closeDropdown) => {
 
           .dropdown-menu {
             &.comment-menu {
-              min-width: 120px;
+              min-width: 140px;
               right: 100%; // 改為顯示在左邊
               left: auto;
               top: 0; // 與按鈕對齊
-              margin-right: 5px; // 給按鈕留點間距
 
               // 最後一個評論的選單向上顯示
               &.last-comment-menu {
@@ -1086,6 +1162,103 @@ const deleteComment = async (commentId, closeDropdown) => {
   }
 }
 
+.edit-item-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 8px;
+
+  .edit-timer-dropdown {
+    background: rgba($primary-color, 0.1);
+    color: $primary-color;
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 500;
+    white-space: nowrap;
+
+    &.warning {
+      background: rgba($danger-color, 0.1);
+      color: $danger-color;
+      animation: blink 1s infinite;
+    }
+  }
+
+  .disabled-text {
+    font-size: 10px;
+    color: $text-secondary;
+    white-space: nowrap;
+  }
+}
+
+.edit-container {
+  position: relative;
+  margin-bottom: 12px;
+
+  .edit-textarea {
+    width: 100%;
+    min-height: 60px;
+    padding: 12px;
+    border: 2px solid $border-light;
+    border-radius: 8px;
+    font-size: 14px;
+    resize: vertical;
+    font-family: inherit;
+
+    &:focus {
+      outline: none;
+      border-color: $primary-color;
+    }
+  }
+
+  .timer-display {
+    position: absolute;
+    bottom: 6px;
+    right: 8px;
+    background: rgba($background, 0.9);
+    color: $primary-color;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 500;
+
+    &.warning {
+      color: $danger-color;
+      animation: blink 1s infinite;
+    }
+  }
+}
+
+.edit-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+// 下拉選單項目樣式調整
+:deep(.dropdown-menu) {
+  .dropdown-item {
+    &[disabled] {
+      opacity: 0.6;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+  }
+}
+
+@keyframes blink {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  51%,
+  100% {
+    opacity: 0.5;
+  }
+}
+
+// RWD 樣式
 @media (max-width: $tablet-breakpoint) {
   .post-layout {
     flex-direction: column;
@@ -1106,6 +1279,17 @@ const deleteComment = async (commentId, closeDropdown) => {
             object-fit: contain;
             object-position: center;
           }
+        }
+
+        // 調整分頁點點在手機版的位置
+        :deep(.swiper-pagination) {
+          bottom: 16px;
+        }
+
+        :deep(.swiper-pagination-bullet) {
+          width: 10px;
+          height: 10px;
+          margin: 0 4px;
         }
       }
     }
@@ -1129,23 +1313,24 @@ const deleteComment = async (commentId, closeDropdown) => {
         .comment-edit-mode {
           padding: 10px 12px;
 
-          .edit-comment-container {
+          .edit-container {
             margin-bottom: 8px;
 
-            .edit-comment-textarea {
+            .edit-textarea {
               min-height: 50px;
               padding: 8px;
               font-size: 13px;
             }
 
-            .edit-comment-char-count {
-              font-size: 10px;
+            .timer-display {
+              font-size: 9px;
               bottom: 4px;
               right: 6px;
+              padding: 1px 4px;
             }
           }
 
-          .edit-comment-actions {
+          .edit-actions {
             gap: 6px;
           }
         }
@@ -1201,7 +1386,7 @@ const deleteComment = async (commentId, closeDropdown) => {
             }
 
             .dropdown-menu.comment-menu {
-              min-width: 100px;
+              min-width: 130px;
               right: 100%;
               left: auto;
               top: 0;
@@ -1219,18 +1404,15 @@ const deleteComment = async (commentId, closeDropdown) => {
     }
   }
 
-  // 調整分頁點點在手機版的位置
-  .post-image-section {
-    .post-swiper {
-      :deep(.swiper-pagination) {
-        bottom: 16px;
-      }
+  // 手機版編輯項目樣式調整
+  .edit-item-content {
+    .edit-timer-dropdown {
+      font-size: 9px;
+      padding: 1px 3px;
+    }
 
-      :deep(.swiper-pagination-bullet) {
-        width: 10px;
-        height: 10px;
-        margin: 0 4px;
-      }
+    .disabled-text {
+      font-size: 9px;
     }
   }
 }
