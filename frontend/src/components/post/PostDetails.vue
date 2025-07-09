@@ -1371,7 +1371,6 @@ const deleteComment = async (commentId, closeDropdown) => {
         .comment-actions {
           top: 4px;
           right: 4px;
-          opacity: 1; // 手機版始終顯示
 
           :deep(.dropdown) {
             .comment-dropdown-trigger {

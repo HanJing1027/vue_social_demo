@@ -544,6 +544,53 @@ onMounted(() => {
         color: white;
       }
     }
+
+    :deep(.dropdown-menu) {
+      top: 40px;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(8px);
+      box-shadow:
+        inset 0 1px 2px rgba(255, 255, 255, 0.1),
+        // 上內亮
+        inset 0 -1px 2px rgba(0, 0, 0, 0.2),
+        // 下內暗
+        0 4px 10px rgba(0, 0, 0, 0.3); // 外陰影（浮層感）
+
+      backdrop-filter: blur(8px) saturate(160%);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+
+      .dropdown-item:first-child {
+        color: white;
+
+        @media (hover: hover) {
+          &:hover {
+            background: rgba(185, 185, 185, 0.727); // 灰色背景
+            box-shadow:
+              inset 0 1px 2px rgba(255, 255, 255, 0.2),
+              // 內部亮邊
+              0 4px 8px rgba(0, 0, 0, 0.2); // 外部陰影
+            transition: all $transition-speed ease; // 平滑過渡效果
+          }
+        }
+      }
+
+      .dropdown-item:last-child {
+        color: rgb(255, 62, 62);
+
+        @media (hover: hover) {
+          &:hover {
+            background: rgba(165, 165, 165, 0.8); // 深灰色背景
+            box-shadow:
+              inset 0 2px 3px rgba(116, 116, 116, 0.2),
+              // 內部亮邊
+              inset 0 -2px 3px rgba(74, 74, 74, 0.3),
+              // 內部暗邊
+              0 6px 14px rgba(41, 41, 41, 0.4); // 外部陰影
+            transition: all $transition-speed ease; // 平滑過渡效果
+          }
+        }
+      }
+    }
   }
 
   .grid-item-stats {
