@@ -1,4 +1,4 @@
-import { get, post, put } from '@/apis/request'
+import { get, post, put, del } from '@/apis/request'
 
 export const commentApi = {
   // 新增評論
@@ -10,16 +10,23 @@ export const commentApi = {
   updateComment: async (commentId, commentContent) => {
     return await put(`/api/comments/${commentId}`, {
       data: {
-        commentContent,
+        content: commentContent,
       },
     })
+  },
+
+  // 刪除評論
+  deleteComment: async (commentId) => {
+    return await del(`/api/comments/${commentId}`)
   },
 
   // 加載評論
   loadComments: async (postId) => {
     if (!postId) return []
 
-    const response = await get(`/api/comments?populate=*&filters[post][id][$eq]=${postId}`)
+    const response = await get(`/api/comments?populate=*&filters[post][id][$eq]=${postId}`, {
+      sort: 'createdAt:desc',
+    })
 
     return response.data.map((comment) => {
       return {

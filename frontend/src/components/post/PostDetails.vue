@@ -224,6 +224,7 @@ import { usePostStore } from '@/stores/modules/postStore'
 import { useCommentStore } from '@/stores/modules/commentStore'
 import { useToastStore } from '@/stores/modules/toastStore'
 import { useModalStore } from '@/stores/modules/modalStore'
+import { useConfirmStore } from '@/stores/modules/confirmStore'
 import { formatTimeAgo } from '@/utils/postUtils'
 import { useRouter } from 'vue-router'
 import { debounce } from '@/utils/debounce'
@@ -238,6 +239,7 @@ const postStore = usePostStore()
 const commentStore = useCommentStore()
 const toastStore = useToastStore()
 const modalStore = useModalStore()
+const confirmStore = useConfirmStore()
 const router = useRouter()
 const commentContent = ref('')
 
@@ -430,12 +432,35 @@ const saveEditComment = async () => {
   }
 
   try {
-    // await commentStore.updateComment(editingCommentId.value, editCommentContent.value.trim())
+    await commentStore.editComment(
+      post.value?.id,
+      editingCommentId.value,
+      editCommentContent.value.trim()
+    )
     toastStore.showSuccess('評論更新成功')
     cancelEditComment()
   } catch (error) {
+    console.error('更新評論錯誤:', error)
     toastStore.showError('評論更新失敗，請稍後再試')
   }
+}
+
+// 刪除評論
+const deleteComment = async (commentId, closeDropdown) => {
+  closeDropdown()
+
+  confirmStore.showConfirm({
+    title: '確認刪除',
+    message: '確定要刪除這條評論嗎？',
+    onConfirm: async () => {
+      try {
+        await commentStore.deleteComment(post.value?.id, commentId)
+        toastStore.showSuccess('評論刪除成功')
+      } catch (error) {
+        toastStore.showError('刪除評論失敗，請稍後再試')
+      }
+    },
+  })
 }
 </script>
 

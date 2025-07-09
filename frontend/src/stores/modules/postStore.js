@@ -69,10 +69,12 @@ export const usePostStore = defineStore('post', () => {
 
   // 刪除貼文
   const deletePost = async (postId) => {
-    await postApi.deletePost(postId)
+    const response = await postApi.deletePost(postId)
 
     // 刪除成功後，重新載入所有貼文
-    await loadAllPosts()
+    if (response) {
+      await loadAllPosts()
+    }
   }
 
   // 載入所有貼文

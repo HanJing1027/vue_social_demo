@@ -24,8 +24,15 @@ export const useCommentStore = defineStore('comment', () => {
   const editComment = async (postId, commentId, commentContent) => {
     const response = await commentApi.updateComment(commentId, commentContent)
     if (response) {
-      // 更新本地評論列表
-      loadComments(postId)
+      await loadComments(postId)
+    }
+  }
+
+  // 刪除評論
+  const deleteComment = async (postId, commentId) => {
+    const response = await commentApi.deleteComment(commentId)
+    if (response) {
+      loadComments(postId) // 重新載入評論列表以確保最新數據
     }
   }
 
@@ -41,5 +48,6 @@ export const useCommentStore = defineStore('comment', () => {
     addComment,
     loadComments,
     editComment,
+    deleteComment,
   }
 })

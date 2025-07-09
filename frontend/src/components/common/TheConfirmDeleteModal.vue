@@ -101,7 +101,7 @@ const handleConfirm = () => {
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  z-index: 1000;
+  z-index: 1100;
   padding: 80px 20px 20px;
 }
 
