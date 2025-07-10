@@ -1,6 +1,6 @@
 <template>
   <div class="dropdown" ref="dropdownRef">
-    <button @click="toggleDropdown" class="dropdown-trigger" :class="triggerClass">
+    <button @click="handleToggle" class="dropdown-trigger" :class="triggerClass">
       <slot name="trigger">
         <i class="bx bx-dots-horizontal-rounded"></i>
       </slot>
@@ -15,7 +15,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useDropdownStore } from '@/stores/modules/dropdownStore'
 
 const props = defineProps({
   triggerClass: {
@@ -34,12 +35,16 @@ const props = defineProps({
 
 const emit = defineEmits(['open', 'close'])
 
-const isOpen = ref(false)
+const dropdownStore = useDropdownStore()
 const dropdownRef = ref(null)
 
-const toggleDropdown = () => {
-  isOpen.value = !isOpen.value
+const dropdownId = `dropdown-${Math.random().toString(36).substring(2, 9)}`
 
+const isOpen = computed(() => dropdownStore.isDropdownOpen(dropdownId))
+
+// 切換選單
+const handleToggle = () => {
+  dropdownStore.toggleDropdown(dropdownId)
   if (isOpen.value) {
     emit('open')
   } else {
@@ -47,23 +52,29 @@ const toggleDropdown = () => {
   }
 }
 
+// 關閉選單
 const closeDropdown = () => {
-  isOpen.value = false
+  dropdownStore.closeDropdown()
   emit('close')
 }
 
+// 點擊外部關閉選單
 const handleClickOutside = (event) => {
   if (props.closeOnClickOutside && dropdownRef.value && !dropdownRef.value.contains(event.target)) {
-    closeDropdown()
+    if (isOpen.value) {
+      closeDropdown()
+    }
   }
 }
 
+// 在組件掛載時添加事件監聽器
 onMounted(() => {
   if (props.closeOnClickOutside) {
     document.addEventListener('click', handleClickOutside)
   }
 })
 
+// 在組件卸載時移除事件監聽器
 onUnmounted(() => {
   if (props.closeOnClickOutside) {
     document.removeEventListener('click', handleClickOutside)
@@ -73,7 +84,7 @@ onUnmounted(() => {
 // 暴露組件內部的方法和數據給父組件
 defineExpose({
   close: closeDropdown,
-  toggle: toggleDropdown,
+  toggle: handleToggle,
   isOpen: () => isOpen.value,
 })
 </script>

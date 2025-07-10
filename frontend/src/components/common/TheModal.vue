@@ -1,7 +1,7 @@
 <template>
   <Teleport to="body">
     <div class="modal-overlay">
-      <div class="modal-content" @click.stop>
+      <div class="modal-content">
         <!-- 關閉按鈕 -->
         <button class="close-btn" @click="handleClose">
           <i class="bx bx-x"></i>

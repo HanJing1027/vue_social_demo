@@ -111,7 +111,7 @@
           </div>
 
           <!-- 三點式選單 -->
-          <TheDropdown v-if="isPostOwner(post) && isSelf" class="grid-item-dropdown" @click.stop>
+          <TheDropdown v-if="isPostOwner(post) && isSelf" class="grid-item-dropdown">
             <template #menu="{ close }">
               <TheDropdownItem icon="bx bx-edit" @click="startEditPost(post.id, close)">
                 編輯貼文
@@ -561,7 +561,9 @@ onMounted(() => {
 
       .dropdown-item:first-child {
         color: white;
+      }
 
+      .dropdown-item {
         @media (hover: hover) {
           &:hover {
             background: rgba(185, 185, 185, 0.727); // 灰色背景
@@ -569,23 +571,6 @@ onMounted(() => {
               inset 0 1px 2px rgba(255, 255, 255, 0.2),
               // 內部亮邊
               0 4px 8px rgba(0, 0, 0, 0.2); // 外部陰影
-            transition: all $transition-speed ease; // 平滑過渡效果
-          }
-        }
-      }
-
-      .dropdown-item:last-child {
-        color: rgb(255, 62, 62);
-
-        @media (hover: hover) {
-          &:hover {
-            background: rgba(165, 165, 165, 0.8); // 深灰色背景
-            box-shadow:
-              inset 0 2px 3px rgba(116, 116, 116, 0.2),
-              // 內部亮邊
-              inset 0 -2px 3px rgba(74, 74, 74, 0.3),
-              // 內部暗邊
-              0 6px 14px rgba(41, 41, 41, 0.4); // 外部陰影
             transition: all $transition-speed ease; // 平滑過渡效果
           }
         }

@@ -11,7 +11,7 @@
       </div>
 
       <!-- 三點式選單 -->
-      <TheDropdown v-if="isCurrentUser">
+      <TheDropdown v-if="isCurrentUser" @click.stop>
         <template #menu="{ close }">
           <TheDropdownItem icon="bx bx-edit" @click="startEdit(close)"> 編輯貼文 </TheDropdownItem>
           <TheDropdownItem icon="bx bx-trash" variant="danger" @click="deletePost(close)">

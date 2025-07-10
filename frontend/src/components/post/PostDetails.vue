@@ -178,13 +178,9 @@
                     <!-- 操作選單 -->
                     <div v-if="isMyComment(comment) && !isCommentEditing" class="comment-actions">
                       <TheDropdown
-                        :closeOnClickOutside="true"
                         :menuClass="`comment-menu ${index === comments.length - 1 ? 'last-comment-menu' : ''}`"
                         triggerClass="comment-dropdown-trigger"
                       >
-                        <template #trigger>
-                          <i class="bx bx-dots-horizontal-rounded"></i>
-                        </template>
                         <template #menu="{ close }">
                           <TheDropdownItem
                             icon="bx bx-edit-alt"
@@ -1026,7 +1022,7 @@ const deleteComment = async (commentId, closeDropdown) => {
           .dropdown-menu {
             &.comment-menu {
               min-width: 140px;
-              right: 100%; // 改為顯示在左邊
+              right: 28px; // 改為顯示在左邊
               left: auto;
               top: 0; // 與按鈕對齊
 
