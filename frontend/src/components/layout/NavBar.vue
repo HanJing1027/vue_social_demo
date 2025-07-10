@@ -7,7 +7,7 @@
 
       <!-- 桌面版搜尋框 -->
       <div class="search-input desktop-search">
-        <input type="text" placeholder="搜尋內容..." @change="searchPosts" />
+        <input v-model="keyword" type="text" placeholder="搜尋內容..." @keyup.enter="searchPosts" />
         <i class="bx bx-search-alt"></i>
       </div>
 
@@ -39,10 +39,11 @@
     <div class="mobile-search-container" :class="{ show: showMobileSearch }">
       <div class="mobile-search-input">
         <input
+          v-model="keyword"
           type="text"
           placeholder="搜尋內容..."
           ref="mobileSearchInput"
-          @change="searchPosts"
+          @keyup.enter="searchPosts"
         />
         <button class="close-search-btn" @click="toggleMobileSearch">
           <i class="bx bx-x"></i>
@@ -65,11 +66,13 @@ const router = useRouter()
 const userStore = useUserStore()
 const modalStore = useModalStore()
 const postStore = usePostStore()
+
 const showMobileSearch = ref(false)
 const mobileSearchInput = ref(null)
 const isMobileSearch = ref(false)
 const isProfileMenuOpen = ref(false)
-const profileDropdownRef = ref(null) // 新增
+const profileDropdownRef = ref(null)
+const keyword = ref('')
 
 const toggleProfileMenu = (event) => {
   event.stopPropagation()
@@ -108,7 +111,10 @@ const handleCreatePost = () => {
   modalStore.openModal('postUpload')
 }
 
+// 切換手機版搜尋框顯示狀態
 const toggleMobileSearch = async () => {
+  keyword.value = ''
+
   showMobileSearch.value = !showMobileSearch.value
   isMobileSearch.value = true
 
@@ -121,22 +127,18 @@ const toggleMobileSearch = async () => {
 }
 
 // 搜尋貼文
-const searchPosts = async (event) => {
-  const keyword = event.target.value.trim()
-  const isMobile = window.innerWidth <= 768
-
-  if (isMobile) return
-
+const searchPosts = async () => {
+  console.log(keyword.value)
   if (isMobileSearch.value) {
     showMobileSearch.value = !showMobileSearch.value
   }
 
-  if (keyword) {
-    await postStore.searchPostsResult(keyword)
-    router.push({ name: 'search_result', query: { keyword } })
+  if (keyword.value) {
+    await postStore.searchPostsResult(keyword.value)
+    router.push({ name: 'search_result', query: { keyword: keyword.value } })
   }
 
-  event.target.value = ''
+  keyword.value = ''
 }
 
 onMounted(() => {
@@ -192,7 +194,6 @@ onUnmounted(() => {
     }
 
     i {
-      cursor: pointer;
       position: absolute;
       right: 12px;
       top: 50%;
@@ -206,12 +207,6 @@ onUnmounted(() => {
       align-items: center;
       justify-content: center;
       border-radius: 50%;
-
-      &:hover {
-        color: $primary-color;
-        background: rgba(var(--primary-color-rgb), 0.08);
-        transform: translateY(-50%) scale(1.05);
-      }
     }
   }
 
