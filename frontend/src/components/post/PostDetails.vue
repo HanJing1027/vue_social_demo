@@ -1254,14 +1254,13 @@ const deleteComment = async (commentId, closeDropdown) => {
   }
 }
 
-// RWD 樣式
 @media (max-width: $tablet-breakpoint) {
   .post-layout {
     flex-direction: column;
 
     .post-image-section {
       flex: none;
-      height: 60vh;
+      height: 25vh;
       min-height: 300px;
       max-height: 400px;
 
@@ -1293,6 +1292,10 @@ const deleteComment = async (commentId, closeDropdown) => {
     .post-content-section {
       flex: 1;
       min-height: 40vh;
+    }
+
+    .post-header {
+      padding: 10px;
     }
   }
 
