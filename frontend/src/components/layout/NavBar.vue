@@ -128,7 +128,6 @@ const toggleMobileSearch = async () => {
 
 // 搜尋貼文
 const searchPosts = async () => {
-  console.log(keyword.value)
   if (isMobileSearch.value) {
     showMobileSearch.value = !showMobileSearch.value
   }
