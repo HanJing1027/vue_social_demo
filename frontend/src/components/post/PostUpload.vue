@@ -80,7 +80,7 @@
               type="text"
               class="tag-input"
               placeholder="新增標籤 (按 Enter 確認)"
-              @keydown="inputHandler.handleKeyDown"
+              @keydown.enter="inputHandler.handleKeyDown"
               @compositionstart="inputHandler.handleCompositionStart"
               @compositionend="inputHandler.handleCompositionEnd"
             />
@@ -264,7 +264,9 @@ const removeImage = (index) => {
 
 // 添加標籤
 const addTag = () => {
-  const tag = newTag.value.trim()
+  // 格式化標籤，移除多餘的 #，只保留一個 #
+  let tag = newTag.value.trim().replace(/#/g, '')
+
   if (tag && !postTags.value.includes(tag)) {
     postTags.value.push(tag)
     newTag.value = ''
