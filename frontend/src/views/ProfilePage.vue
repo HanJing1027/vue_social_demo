@@ -569,60 +569,171 @@ onMounted(async () => {
     z-index: 10;
 
     :deep(.dropdown-trigger) {
-      background: rgba(30, 30, 30, 0.6); // 避免太死黑
-      backdrop-filter: blur(8px) saturate(160%);
-      -webkit-backdrop-filter: blur(8px) saturate(160%); // Safari 支援
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(30, 30, 30, 0.25);
+      backdrop-filter: blur(20px) saturate(200%) brightness(120%) contrast(105%);
+      -webkit-backdrop-filter: blur(20px) saturate(200%) brightness(120%) contrast(105%);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      position: relative;
+      overflow: hidden;
+
+      // 多層陰影
       box-shadow:
-        inset 0 1px 2px rgba(255, 255, 255, 0.1),
-        // 上內亮（浮雕感）
-        inset 0 -1px 2px rgba(0, 0, 0, 0.2),
-        // 下內暗
-        0 4px 10px rgba(0, 0, 0, 0.3); // 外陰影（漂浮感）
+        inset 0 1px 2px rgba(255, 255, 255, 0.2),
+        inset 0 -1px 2px rgba(0, 0, 0, 0.3),
+        0 4px 12px rgba(0, 0, 0, 0.4),
+        0 1px 0 rgba(255, 255, 255, 0.15);
+
+      // 液體玻璃反光效果
+      &::before {
+        content: '';
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        height: 50%;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.15) 0%,
+          rgba(255, 255, 255, 0.08) 30%,
+          rgba(255, 255, 255, 0.02) 70%,
+          transparent 100%
+        );
+        border-radius: inherit;
+        pointer-events: none;
+        z-index: 1;
+      }
+
+      // 動態液體效果
+      &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(
+          circle at 30% 20%,
+          rgba(255, 255, 255, 0.1) 0%,
+          rgba(255, 255, 255, 0.05) 40%,
+          transparent 70%
+        );
+        pointer-events: none;
+        z-index: 2;
+      }
 
       @media (hover: hover) {
         &:hover {
-          background: rgba(30, 30, 30, 0.8);
+          background: rgba(30, 30, 30, 0.35);
+          backdrop-filter: blur(22px) saturate(220%) brightness(125%) contrast(110%);
+          -webkit-backdrop-filter: blur(22px) saturate(220%) brightness(125%) contrast(110%);
+          border-color: rgba(255, 255, 255, 0.25);
           box-shadow:
-            inset 0 2px 3px rgba(255, 255, 255, 0.1),
-            inset 0 -2px 3px rgba(0, 0, 0, 0.25),
-            0 6px 14px rgba(0, 0, 0, 0.4);
-          transition: all $transition-speed ease;
+            inset 0 2px 3px rgba(255, 255, 255, 0.25),
+            inset 0 -2px 3px rgba(0, 0, 0, 0.35),
+            0 6px 16px rgba(0, 0, 0, 0.5),
+            0 2px 0 rgba(255, 255, 255, 0.18);
+          transition: all 0.3s ease;
+
+          &::before {
+            background: linear-gradient(
+              180deg,
+              rgba(255, 255, 255, 0.18) 0%,
+              rgba(255, 255, 255, 0.1) 30%,
+              rgba(255, 255, 255, 0.03) 70%,
+              transparent 100%
+            );
+          }
+
+          &::after {
+            background: radial-gradient(
+              circle at 30% 20%,
+              rgba(255, 255, 255, 0.12) 0%,
+              rgba(255, 255, 255, 0.06) 40%,
+              transparent 70%
+            );
+          }
         }
       }
 
       i {
         color: white;
+        position: relative;
+        z-index: 3;
+        filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
       }
     }
 
     :deep(.dropdown-menu) {
-      top: 40px;
-      background: rgba(0, 0, 0, 0.4);
-      backdrop-filter: blur(8px);
+      top: 45px;
+      right: 0;
+      position: absolute;
+      background: rgba(0, 0, 0, 0.25);
+      backdrop-filter: blur(20px) saturate(200%) brightness(120%) contrast(105%);
+      -webkit-backdrop-filter: blur(20px) saturate(200%) brightness(120%) contrast(105%);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      overflow: hidden;
+
+      // 多層陰影
       box-shadow:
-        inset 0 1px 2px rgba(255, 255, 255, 0.1),
-        // 上內亮
-        inset 0 -1px 2px rgba(0, 0, 0, 0.2),
-        // 下內暗
-        0 4px 10px rgba(0, 0, 0, 0.3); // 外陰影（浮層感）
+        inset 0 1px 2px rgba(255, 255, 255, 0.2),
+        inset 0 -1px 2px rgba(0, 0, 0, 0.3),
+        0 4px 12px rgba(0, 0, 0, 0.4),
+        0 1px 0 rgba(255, 255, 255, 0.15);
 
-      backdrop-filter: blur(8px) saturate(160%);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      // 液體玻璃反光效果
+      &::before {
+        content: '';
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        height: 50%;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.15) 0%,
+          rgba(255, 255, 255, 0.08) 30%,
+          rgba(255, 255, 255, 0.02) 70%,
+          transparent 100%
+        );
+        border-radius: inherit;
+        pointer-events: none;
+        z-index: 1;
+      }
 
-      .dropdown-item:first-child {
-        color: white;
+      // 動態液體效果
+      &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(
+          circle at 30% 20%,
+          rgba(255, 255, 255, 0.1) 0%,
+          rgba(255, 255, 255, 0.05) 40%,
+          transparent 70%
+        );
+        pointer-events: none;
+        z-index: 2;
       }
 
       .dropdown-item {
+        position: relative;
+        z-index: 3;
+        color: white;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+
         @media (hover: hover) {
           &:hover {
-            background: rgba(185, 185, 185, 0.727); // 灰色背景
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(8px) saturate(150%);
+            -webkit-backdrop-filter: blur(8px) saturate(150%);
             box-shadow:
               inset 0 1px 2px rgba(255, 255, 255, 0.2),
-              // 內部亮邊
-              0 4px 8px rgba(0, 0, 0, 0.2); // 外部陰影
-            transition: all $transition-speed ease; // 平滑過渡效果
+              inset 0 -1px 2px rgba(0, 0, 0, 0.1),
+              0 2px 6px rgba(0, 0, 0, 0.2);
+            transition: all $transition-speed ease;
           }
         }
       }
@@ -636,23 +747,61 @@ onMounted(async () => {
     left: 8px;
     display: flex;
     gap: 12px;
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px); // Safari 支援
-    padding: 6px 12px;
+    background: rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(20px) saturate(200%) brightness(120%) contrast(105%);
+    -webkit-backdrop-filter: blur(20px) saturate(200%) brightness(120%) contrast(105%);
+    padding: 7px 13px;
     border-radius: 10px;
     color: white;
     font-size: 14px;
     font-weight: 500;
-    box-shadow:
-      inset 0 1px 2px rgba(255, 255, 255, 0.1),
-      // 上內亮
-      inset 0 -1px 2px rgba(0, 0, 0, 0.2),
-      // 下內暗
-      0 4px 10px rgba(0, 0, 0, 0.3); // 外陰影（浮層感）
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
 
-    backdrop-filter: blur(8px) saturate(160%);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    // 多層陰影
+    box-shadow:
+      inset 0 1px 2px rgba(255, 255, 255, 0.2),
+      inset 0 -1px 2px rgba(0, 0, 0, 0.3),
+      0 4px 12px rgba(0, 0, 0, 0.4),
+      0 1px 0 rgba(255, 255, 255, 0.15);
+
+    // 液體玻璃反光效果
+    &::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      height: 50%;
+      background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.15) 0%,
+        rgba(255, 255, 255, 0.08) 30%,
+        rgba(255, 255, 255, 0.02) 70%,
+        transparent 100%
+      );
+      border-radius: 10px 10px 0 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    // 動態液體效果
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(
+        circle at 30% 20%,
+        rgba(255, 255, 255, 0.1) 0%,
+        rgba(255, 255, 255, 0.05) 40%,
+        transparent 70%
+      );
+      pointer-events: none;
+      z-index: 2;
+    }
 
     .stat {
       display: flex;
