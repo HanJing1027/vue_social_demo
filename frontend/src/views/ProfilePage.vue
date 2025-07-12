@@ -86,59 +86,80 @@
       </div>
 
       <!-- 網格視圖 -->
-      <p v-if="currentPostList.length === 0" class="no-posts-message">尚未有貼文</p>
-
-      <div v-else class="posts-grid">
-        <div
-          class="grid-item"
-          v-for="post in activeIndex === 0
-            ? postStore.userPostList
-            : activeIndex === 1
-              ? postStore.likedPostList
-              : activeIndex === 2
-                ? postStore.favoredPostList
-                : []"
-          :key="post.id"
-        >
-          <!-- 貼文圖片區域 -->
-          <div class="grid-item-content" @click="handlePostClick(post.id)">
-            <img
-              v-for="postImg in post.image"
-              :src="postImg.attributes.url"
-              :key="postImg.id"
-              alt="貼文圖片"
-            />
-          </div>
-
-          <!-- 三點式選單 -->
-          <TheDropdown v-if="isPostOwner(post) && isSelf" class="grid-item-dropdown">
-            <template #menu="{ close }">
-              <TheDropdownItem icon="bx bx-edit" @click="startEditPost(post.id, close)">
-                編輯貼文
-              </TheDropdownItem>
-              <TheDropdownItem
-                icon="bx bx-trash"
-                variant="danger"
-                @click="deletePost(post.id, close)"
-              >
-                刪除貼文
-              </TheDropdownItem>
-            </template>
-          </TheDropdown>
-
-          <!-- 貼文統計區域 -->
-          <div class="grid-item-stats">
-            <span class="stat">
-              <i class="bx bx-heart"></i>
-              {{ post.liked_bies }}
-            </span>
-            <span class="stat">
-              <i class="bx bx-comment"></i>
-              {{ post.comments }}
-            </span>
+      <template v-if="isLoading">
+        <!-- 魚骨狀加載骨架 -->
+        <div class="posts-grid">
+          <div v-for="(n, index) in 8" :key="index" class="grid-item skeleton">
+            <div class="grid-item-content">
+              <div class="skeleton-image"></div>
+            </div>
+            <div class="grid-item-stats">
+              <span class="stat skeleton"></span>
+              <span class="stat skeleton"></span>
+            </div>
           </div>
         </div>
-      </div>
+      </template>
+
+      <template v-else-if="currentPostList.length === 0">
+        <!-- 空狀態訊息 -->
+        <p class="no-posts-message">尚未有貼文</p>
+      </template>
+
+      <template v-else>
+        <!-- 貼文列表 -->
+        <div class="posts-grid">
+          <div
+            class="grid-item"
+            v-for="post in activeIndex === 0
+              ? postStore.userPostList
+              : activeIndex === 1
+                ? postStore.likedPostList
+                : activeIndex === 2
+                  ? postStore.favoredPostList
+                  : []"
+            :key="post.id"
+          >
+            <!-- 貼文內容 -->
+            <div class="grid-item-content" @click="handlePostClick(post.id)">
+              <img
+                v-for="postImg in post.image"
+                :src="postImg.attributes.url"
+                :key="postImg.id"
+                alt="貼文圖片"
+              />
+            </div>
+
+            <!-- 三點式選單 -->
+            <TheDropdown v-if="isPostOwner(post) && isSelf" class="grid-item-dropdown">
+              <template #menu="{ close }">
+                <TheDropdownItem icon="bx bx-edit" @click="startEditPost(post.id, close)">
+                  編輯貼文
+                </TheDropdownItem>
+                <TheDropdownItem
+                  icon="bx bx-trash"
+                  variant="danger"
+                  @click="deletePost(post.id, close)"
+                >
+                  刪除貼文
+                </TheDropdownItem>
+              </template>
+            </TheDropdown>
+
+            <!-- 貼文統計區域 -->
+            <div class="grid-item-stats">
+              <span class="stat">
+                <i class="bx bx-heart"></i>
+                {{ post.liked_bies }}
+              </span>
+              <span class="stat">
+                <i class="bx bx-comment"></i>
+                {{ post.comments }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </template>
     </div>
   </div>
 </template>
@@ -166,6 +187,7 @@ const route = useRoute()
 
 const userData = ref({})
 const activeIndex = ref(0)
+const isLoading = ref(true)
 
 // 判斷是否為自己的頁面
 const isSelf = computed(() => {
@@ -196,14 +218,20 @@ const loadUserData = async () => {
 }
 
 // 標籤切換
-const setActiveTab = (index) => {
-  activeIndex.value = index
-  if (index === 0) {
-    postStore.loadPostsByUser(route.params.userId)
-  } else if (index === 1) {
-    postStore.loadPostsLikedOrFavoredByUser(route.params.userId, 'likes')
-  } else if (index === 2) {
-    postStore.loadPostsLikedOrFavoredByUser(route.params.userId, 'favors')
+const setActiveTab = async (index) => {
+  isLoading.value = true
+
+  try {
+    activeIndex.value = index
+    if (index === 0) {
+      await postStore.loadPostsByUser(route.params.userId)
+    } else if (index === 1) {
+      await postStore.loadPostsLikedOrFavoredByUser(route.params.userId, 'likes')
+    } else if (index === 2) {
+      await postStore.loadPostsLikedOrFavoredByUser(route.params.userId, 'favors')
+    }
+  } finally {
+    isLoading.value = false
   }
 }
 
@@ -248,10 +276,14 @@ watch(
   }
 )
 
-onMounted(() => {
-  loadUserData()
-  postStore.loadAllPosts()
-  postStore.loadPostsByUser(route.params.userId)
+onMounted(async () => {
+  try {
+    await loadUserData()
+    await postStore.loadAllPosts()
+    await postStore.loadPostsByUser(route.params.userId)
+  } finally {
+    isLoading.value = false
+  }
 })
 </script>
 
@@ -502,12 +534,31 @@ onMounted(() => {
     height: 100%;
     cursor: pointer;
     position: relative;
+
+    .skeleton-image {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, $surface-alt 25%, $background 50%, $surface-alt 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite ease-in-out;
+      border-radius: 8px;
+    }
   }
 
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+  }
+
+  &.skeleton {
+    display: flex;
+    flex-direction: column;
+    background: $surface-alt;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid $border-light;
+    animation: skeleton-fade 1.5s infinite ease-in-out;
   }
 
   .grid-item-dropdown {
@@ -608,11 +659,37 @@ onMounted(() => {
       align-items: center;
       gap: 4px;
 
+      &.skeleton {
+        height: 16px;
+        width: 27px;
+        animation: skeleton-loading 1.5s infinite ease-in-out;
+      }
+
       i {
         font-size: 16px;
         font-weight: 500;
       }
     }
+  }
+}
+
+// 骨架加載動畫
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes skeleton-fade {
+  0%,
+  100% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
   }
 }
 
