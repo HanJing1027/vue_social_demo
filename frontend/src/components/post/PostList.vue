@@ -5,8 +5,6 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-
 const props = defineProps({
   isEmpty: {
     type: Boolean,
@@ -27,7 +25,7 @@ const props = defineProps({
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 200px; // 根據需求調整高度
+    height: 200px;
   }
 }
 
